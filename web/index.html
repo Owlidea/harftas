@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Harf Kombo — Türkçe harfli blok bulmaca. Harf bloklarını yerleştir, kelimeleri patlat.">
+  <!-- Phone game: cover the notch area (SafeArea handles insets), no pinch / double-tap zoom. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0F1729" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="Harf Kombo">
+  <meta property="og:description" content="Türkçe harfli blok bulmaca. Harf bloklarını yerleştir, kelimeleri patlat.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="icons/Icon-512.png">
+  <meta name="twitter:card" content="summary">
+
+  <!--
+    Uncomment the tag below to lay the app out underneath the parts of the
+    screen that the device obstructs, such as a display cutout, the rounded
+    corners of the screen, or a home indicator.
+
+    Without it, the browser keeps the app clear of them, and `SafeArea` and
+    `MediaQuery.paddingOf` report no padding. With it, the app covers the whole
+    screen, and it is up to the app to keep its own content out of the way,
+    which is what `SafeArea` is for.
+  -->
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> -->
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Harf Kombo">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Harf Kombo</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; height: 100%; background: #F6F3EC; }
+    /* No pull-to-refresh, rubber-band page scroll, text selection or tap flash. */
+    html, body { overscroll-behavior: none; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    @media (prefers-color-scheme: dark) { html, body { background: #0F1729; } }
+    /* Shown until Flutter draws its first frame. */
+    #boot { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; transition: opacity .3s; }
+    #boot img { width: 96px; height: 96px; border-radius: 22px; animation: boot 1.2s ease-in-out infinite alternate; }
+    @keyframes boot { from { transform: scale(.94); opacity: .75; } to { transform: scale(1); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { #boot img { animation: none; } }
+  </style>
+</head>
+<body>
+  <div id="boot" aria-label="Harf Kombo yükleniyor"><img src="icons/Icon-192.png" alt=""></div>
+  <noscript>Harf Kombo'yu oynamak için JavaScript'i açın.</noscript>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var b = document.getElementById('boot');
+      if (b) { b.style.opacity = '0'; setTimeout(function () { b.remove(); }, 350); }
+    });
+  </script>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script>
+    // Some hosts (embedded previews, device-emulation toggles, in-app browsers)
+    // change the page size without a resize event, leaving Flutter drawing at
+    // the old height with an empty band below. Re-announce every real size change.
+    (function () {
+      var last = '';
+      new ResizeObserver(function () {
+        var now = innerWidth + 'x' + innerHeight;
+        if (now === last) return;
+        last = now;
+        window.dispatchEvent(new Event('resize'));
+        if (window.visualViewport) window.visualViewport.dispatchEvent(new Event('resize'));
+      }).observe(document.documentElement);
+    })();
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

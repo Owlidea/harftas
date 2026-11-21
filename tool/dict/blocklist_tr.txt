@@ -1,0 +1,63 @@
+# Küfür / hakaret engel listesi. Her satır bir kelime (büyük/küçük fark etmez).
+# '#' ile başlayan satırlar yorumdur. Bu kelimeler sözlükten çıkarılır:
+# oyunda patlamaz, Kelime Defteri'ne ve paylaşım kartına hiç girmez.
+# VARSAYIM: Hafif hakaretler (aptal, salak, ahmak...) de engellendi; çıkarmak
+# isterseniz satırı silip `dart run tool/build_dictionary.dart` çalıştırın.
+# Gündelik anlamı ağır basan kelimeler (ayı, eşek, öküz, mal, it, hıyar, alçak)
+# bilinçli olarak engellenmedi.
+
+# Ağır küfür
+sik
+sikmek
+sikik
+sikişmek
+göt
+götlek
+götveren
+yarak
+yarrak
+taşak
+amcık
+orospu
+kahpe
+kaltak
+pezevenk
+puşt
+piç
+ibne
+gavat
+yavşak
+dürzü
+godoş
+kevaşe
+pust
+sürtük
+fahişe
+ipne
+oç
+
+# Hakaret
+dangalak
+gerizekalı
+geri zekâlı
+aptal
+salak
+ahmak
+budala
+şerefsiz
+haysiyetsiz
+köpoğlu
+dallama
+hödük
+kıro
+yobaz
+denyo
+zibidi
+avanak
+enayi
+
+# Aşağılayıcı grup ifadeleri
+zenci
+çingene
+gâvur
+kezban

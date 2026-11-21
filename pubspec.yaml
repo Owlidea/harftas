@@ -1,0 +1,79 @@
+name: harfblok
+description: "Türkçe harfli blok bulmaca."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  app_tracking_transparency: ^2.0.7
+  cupertino_ui: ^1.1.6
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^23.0.2
+  flutter_localizations:
+    sdk: flutter
+  flutter_soloud: ^5.2.3
+  flutter_svg: ^2.4.0
+  google_mobile_ads: ^9.2.0
+  intl: ^0.20.3
+  lottie: ^3.8.2
+  material_ui: ^1.1.0
+  path_provider: ^2.1.6
+  purchases_flutter: ^11.0.2
+  share_plus: ^13.3.1
+  timezone: ^0.11.2
+  url_launcher: ^6.3.3
+  web: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
+
+flutter:
+  uses-material-design: true
+  generate: true
+  # Directories: dropping a delivered file into place needs no code change.
+  assets:
+    - assets/config/
+    - assets/dict/
+    - assets/fonts/
+    - assets/images/brand/
+    - assets/images/icons/
+    - assets/images/badges/
+    - assets/images/themes/
+    - assets/images/empty/
+    - assets/images/tutorial/
+    - assets/anim/
+    - assets/audio/
+
+# App icon: `dart run flutter_launcher_icons` (sources: assets/branding, ASSETS.md #4-5).
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/branding/app_icon_ios_1024.png"
+  adaptive_icon_background: "assets/branding/android_bg.png"
+  adaptive_icon_foreground: "assets/branding/android_fg.png"
+  adaptive_icon_monochrome: "assets/branding/android_mono.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/branding/app_icon_ios_1024.png"
+    background_color: "#0E6F6B"
+    theme_color: "#0E6F6B"
+
+# Splash: `dart run flutter_native_splash:create` (ASSETS.md #6).
+flutter_native_splash:
+  color: "#F6F3EC"
+  color_dark: "#0F1729"
+  image: "assets/branding/splash_mark.png"
+  android_12:
+    color: "#F6F3EC"
+    color_dark: "#0F1729"
+    image: "assets/branding/splash_mark.png"
+  web: false

@@ -1,0 +1,61 @@
+# Aşama 2 — Denge Raporu (2026-11-13)
+
+Simülatör: `dart run tool/simulate.dart --games 1000 --min 3 --bot common [--mode daily]`
+Sözlük: 19.535 kelime (yaygın: 2.222). Güçlendirici ve "devam" kullanılmadı.
+VARSAYIM: insan hamle başına ortalama 4 sn harcar.
+
+İki bot:
+- **full** — 19.535 kelimenin hepsini bilen açgözlü bot (usta oyuncunun üst sınırı).
+- **common** — yalnızca 2.222 yaygın kelimeyi "bilir"; motor yine tüm kelimeleri patlatır
+  (rastlantısal kelimeler dahil). **Ortalama insan için en iyi yaklaşık.**
+
+## MIN_WORD_LEN 3 ve 4 karşılaştırması (Klasik, son ayarlarla)
+
+| Ölçüt | MIN 3 · common | MIN 3 · full | MIN 4 · common |
+|---|---|---|---|
+| Ortalama hamle | 61.6 | 122.5 | 35.7 |
+| Tahmini süre | **4.1 dk** | 8.2 dk | 2.4 dk |
+| Ortalama skor | 404 | 1015 | 169 |
+| Kelimesiz hamle | %48.8 | %32.6 | **%76.7** |
+| Kelime uzunluğu (3/4/5/6+) | 29352 / 4331 / 261 / 4 | 76347 / 12384 / 529 / 11 | – / 7833 / 555 / 18 |
+
+**Karar: MIN_WORD_LEN = 3 kalsın.** MIN 4'te dört hamlenin üçü kelimesiz geçiyor; oyun
+"harf bulmacası" yerine "blok dizme" hissi veriyor ve 2,4 dk ile hedefin altında.
+MIN 3 ortalama oyuncu için 3–6 dk hedefinin ortasında; her iki hamleden biri kelimeli
+(karar gerilimi sütunu karşılanıyor).
+
+## Zorluk eğrisi (uygulandı)
+
+| Skor ≥ | 1 / 2 / 3 / 4 hücre |
+|---|---|
+| 0 | 15 / 35 / 35 / 15 (spesifikasyon) |
+| 300 | 12 / 33 / 37 / 18 |
+| 700 | 9 / 29 / 39 / 23 |
+| 1200 | 6 / 25 / 41 / 28 |
+
+Eski eşikler (1500/4000/8000) neredeyse hiç devreye girmiyordu. Yeni eğri usta oyununu
+10,7 → 8,2 dk kısalttı, ortalama oyuncuyu etkilemedi (4,3 → 4,1 dk).
+
+## Günlük bulmaca
+
+| Ölçüt | Değer |
+|---|---|
+| Ortalama hamle | 41.1 (%10: 31, %90: 53) |
+| Tahmini süre | 2.7 dk |
+| Ortalama skor | 219 |
+| Kelimesiz hamle | %62.0 |
+| Bitiş nedeni | yer kalmadı %96 · 20 el sınırı %4 |
+
+Günlükte ızgaraya bakan kolaylaştırıcı kapalı (karar 5, herkes aynı eli görsün). Yerine
+ızgaradan bağımsız "harf kolaylaştırıcısı" eklendi: el, harfleriyle en az bir yaygın 3–4 harfli
+kelime yazılabilecek biçimde seçilir. Etkisi küçük (eller zaten çoğunlukla bu şartı sağlıyor).
+Sonuç: günlük bulmaca kısa (≈3 dk) ve klasikten zor. 20 el sınırı pratikte nadiren devreye giriyor.
+
+## Öneriler (onayınıza bağlı, uygulanmadı)
+
+1. **Günlük için ayrı sesli oranı:** günlükte %45–65 sesli denenebilir; kelimesiz hamle oranını
+   düşürür, adaleti bozmaz. Simülatörde 5 dakikalık iş.
+2. **Gerçek oyuncu verisi:** Bot 4 sn/hamle varsayıyor. Aşama 5'te `game_over(duration, moves)`
+   analitiğiyle gerçek süre ölçülüp eşikler yeniden ayarlanmalı.
+3. **3 harfli kelime baskınlığı:** Kelimelerin ~%85'i 3 harfli. Uzun kelime kovalamayı teşvik
+   için 4 harf çarpanı 1.5 → 2 denenebilir (puan gerilimi artar, süre değişmez).

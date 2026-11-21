@@ -1,0 +1,16 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - lib/l10n/app_localizations*.dart
+    - web/**
+
+linter:
+  rules:
+    prefer_single_quotes: true
+
+formatter:
+  page_width: 120
