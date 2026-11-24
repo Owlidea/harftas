@@ -6,17 +6,27 @@ import '../../core/core.dart';
 import '../../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
-import 'game_controller.dart';
+import 'board_art.dart';
 import 'fx_art.dart';
+import 'game_controller.dart';
 import 'tile_renderer.dart';
 
 /// The 8x8 board: tiles, previews, explosions, popups and particles.
 class BoardView extends StatelessWidget {
-  const BoardView({super.key, required this.controller, required this.renderer, required this.boardKey});
+  const BoardView({
+    super.key,
+    required this.controller,
+    required this.renderer,
+    required this.boardKey,
+    this.boardStyle = 'plain',
+  });
 
   final GameController controller;
   final TileRenderer renderer;
   final GlobalKey boardKey;
+
+  /// Surface look (see [BoardArt]).
+  final String boardStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +47,9 @@ class BoardView extends StatelessWidget {
           children: [
             Positioned.fill(
               child: RepaintBoundary(
-                child: CustomPaint(painter: _BoardPainter(controller, renderer, context.palette, picking)),
+                child: CustomPaint(
+                  painter: _BoardPainter(controller, renderer, context.palette, picking, boardStyle),
+                ),
               ),
             ),
             // Invisible semantic cells for screen readers.
@@ -78,12 +90,13 @@ class _SemanticCells extends StatelessWidget {
 }
 
 class _BoardPainter extends CustomPainter {
-  _BoardPainter(this.c, this.r, this.p, this.picking) : super(repaint: c.frame);
+  _BoardPainter(this.c, this.r, this.p, this.picking, this.boardStyle) : super(repaint: c.frame);
 
   final GameController c;
   final TileRenderer r;
   final Palette p;
   final bool picking;
+  final String boardStyle;
   final Paint _paint = Paint();
   final Paint _ring = Paint()..style = PaintingStyle.stroke;
   final Paint _layer = Paint();
@@ -102,8 +115,12 @@ class _BoardPainter extends CustomPainter {
       canvas.translate(math.sin(st * 40) * a, math.cos(st * 33) * a * 0.6);
     }
 
-    _paint.color = p.board;
-    canvas.drawRRect(RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(size.width * 0.04)), _paint);
+    final surface = RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(size.width * 0.04));
+    final textured = BoardArt.paint(canvas, surface, boardStyle, p.board);
+    if (!textured) {
+      _paint.color = p.board;
+      canvas.drawRRect(surface, _paint);
+    }
 
     final preview = c.dragPreview;
     final target = c.dragTarget;
@@ -118,10 +135,26 @@ class _BoardPainter extends CustomPainter {
     final cellRadius = Radius.circular(g.cell * 0.16);
     for (var i = 0; i < 64; i++) {
       final rect = g.cellRectIndex(i);
-      _paint.color = p.cellEmpty;
+      // On a textured surface the wells let the grain show through.
+      _paint.color = textured ? p.cellEmpty.withValues(alpha: 0.7) : p.cellEmpty;
       canvas.drawRRect(RRect.fromRectAndRadius(rect, cellRadius), _paint);
     }
     final grid = c.displayGrid;
+    // Landing ring: a soft outline squeezed out from under a freshly placed tile.
+    if (!c.reduceMotion) {
+      for (var i = 0; i < 64; i++) {
+        final t = (now - c.placedAt[i]) / Motion.landRing.inMilliseconds;
+        if (t < 0 || t >= 1 || grid[i] == null) continue;
+        final e = Curves.easeOutCubic.transform(t);
+        _ring
+          ..color = p.tileEdge.withValues(alpha: 0.55 * (1 - t))
+          ..strokeWidth = g.cell * 0.07 * (1 - t) + 0.5;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(g.cellRectIndex(i).inflate(g.cell * 0.20 * e), Radius.circular(g.cell * (0.2 + 0.1 * e))),
+          _ring,
+        );
+      }
+    }
     for (var i = 0; i < 64; i++) {
       final cell = grid[i];
       if (cell == null) continue;
@@ -255,7 +288,8 @@ class _BoardPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BoardPainter old) => old.p != p || old.r != r || old.picking != picking;
+  bool shouldRepaint(_BoardPainter old) =>
+      old.p != p || old.r != r || old.picking != picking || old.boardStyle != boardStyle;
 }
 
 /// One hand slot: the piece at reduced scale; hidden while dragged.

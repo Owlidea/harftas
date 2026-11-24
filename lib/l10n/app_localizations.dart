@@ -1830,6 +1830,228 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'Saf beceri'**
   String get ruleSkillTitle;
+
+  /// No description provided for @missionScoreTotal.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam {target} puan topla'**
+  String missionScoreTotal(int target);
+
+  /// No description provided for @missionDailyPuzzles.
+  ///
+  /// In tr, this message translates to:
+  /// **'{target} günlük bulmaca tamamla'**
+  String missionDailyPuzzles(int target);
+
+  /// No description provided for @weeklyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık hedef'**
+  String get weeklyTitle;
+
+  /// No description provided for @weeklyDaysLeft.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} gün kaldı'**
+  String weeklyDaysLeft(int n);
+
+  /// No description provided for @weeklyLastDay.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son gün'**
+  String get weeklyLastDay;
+
+  /// No description provided for @weeklyReward.
+  ///
+  /// In tr, this message translates to:
+  /// **'+{xp} XP · her güçlendiriciden {n}'**
+  String weeklyReward(int xp, int n);
+
+  /// No description provided for @weeklyDone.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık hedef tamam'**
+  String get weeklyDone;
+
+  /// No description provided for @rewardBoardShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} zemin'**
+  String rewardBoardShort(String name);
+
+  /// No description provided for @boardStyle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tahta zemini'**
+  String get boardStyle;
+
+  /// No description provided for @boardPlain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düz'**
+  String get boardPlain;
+
+  /// No description provided for @boardFelt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Keçe'**
+  String get boardFelt;
+
+  /// No description provided for @boardGrain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ahşap'**
+  String get boardGrain;
+
+  /// No description provided for @boardMarble.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mermer'**
+  String get boardMarble;
+
+  /// No description provided for @levelUpUnlock.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviye {level} · {reward} açıldı'**
+  String levelUpUnlock(int level, String reward);
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarımlar'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{a}/{b}'**
+  String achievementsCount(int a, int b);
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarım: {name}'**
+  String achievementUnlocked(String name);
+
+  /// No description provided for @achWords.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelime Ustası'**
+  String get achWords;
+
+  /// No description provided for @achUnique.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koleksiyoncu'**
+  String get achUnique;
+
+  /// No description provided for @achLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uzun Soluk'**
+  String get achLength;
+
+  /// No description provided for @achCombo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kombocu'**
+  String get achCombo;
+
+  /// No description provided for @achScore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Skor Avcısı'**
+  String get achScore;
+
+  /// No description provided for @achMoveStreak.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Ustası'**
+  String get achMoveStreak;
+
+  /// No description provided for @achClears.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tertemiz'**
+  String get achClears;
+
+  /// No description provided for @achGames.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müdavim'**
+  String get achGames;
+
+  /// No description provided for @achRare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nadir Harf'**
+  String get achRare;
+
+  /// No description provided for @achDaily.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük Sadık'**
+  String get achDaily;
+
+  /// No description provided for @achWordsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} kelime kur'**
+  String achWordsDesc(int n);
+
+  /// No description provided for @achUniqueDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} farklı kelime bul'**
+  String achUniqueDesc(int n);
+
+  /// No description provided for @achLengthDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} harfli bir kelime kur'**
+  String achLengthDesc(int n);
+
+  /// No description provided for @achComboDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tek hamlede {n} kelime patlat'**
+  String achComboDesc(int n);
+
+  /// No description provided for @achScoreDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir oyunda {n} puan yap'**
+  String achScoreDesc(int n);
+
+  /// No description provided for @achMoveStreakDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} hamlelik seri yap'**
+  String achMoveStreakDesc(int n);
+
+  /// No description provided for @achClearsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Izgarayı {n} kez tamamen boşalt'**
+  String achClearsDesc(int n);
+
+  /// No description provided for @achGamesDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} oyun bitir'**
+  String achGamesDesc(int n);
+
+  /// No description provided for @achRareDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'J veya Ğ içeren bir kelime kur'**
+  String get achRareDesc;
+
+  /// No description provided for @achDailyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} günlük bulmaca tamamla'**
+  String achDailyDesc(int n);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -14,11 +14,17 @@ import 'app_icon.dart';
 ///
 /// Shows nothing when the file is missing or "reduce motion" is on.
 class SpriteAnim extends StatefulWidget {
-  const SpriteAnim(this.asset, {super.key, this.size = 300, this.onDone});
+  const SpriteAnim(this.asset, {super.key, this.size = 300, this.onDone, this.loop = false, this.placeholder});
 
   final String asset;
   final double size;
   final VoidCallback? onDone;
+
+  /// Repeats forever (sheets rendered as seamless loops, e.g. the flame).
+  final bool loop;
+
+  /// Shown until the sheet is decoded, and instead of it with reduced motion.
+  final Widget? placeholder;
 
   static bool available(String asset) => AssetIndex.has(asset);
 
@@ -53,7 +59,11 @@ class _SpriteAnimState extends State<SpriteAnim> with SingleTickerProviderStateM
         return;
       }
       setState(() => _sheet = frame.image);
-      _c.forward();
+      if (widget.loop) {
+        _c.repeat();
+      } else {
+        _c.forward();
+      }
     } catch (_) {
       // Optional art: stay invisible, but still report completion.
       if (mounted) widget.onDone?.call();
@@ -70,25 +80,37 @@ class _SpriteAnimState extends State<SpriteAnim> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final sheet = _sheet;
-    if (sheet == null || context.reduceMotion) return SizedBox.square(dimension: widget.size);
+    if (sheet == null || context.reduceMotion) {
+      final placeholder = widget.placeholder;
+      return SizedBox.square(
+        dimension: widget.size,
+        child: placeholder == null ? null : Center(child: placeholder),
+      );
+    }
     return IgnorePointer(
       child: RepaintBoundary(
-        child: CustomPaint(size: Size.square(widget.size), painter: _SheetPainter(sheet, _grid, _c)),
+        child: CustomPaint(
+          size: Size.square(widget.size),
+          painter: _SheetPainter(sheet, _grid, _c, loop: widget.loop),
+        ),
       ),
     );
   }
 }
 
 class _SheetPainter extends CustomPainter {
-  _SheetPainter(this.sheet, this.grid, this.anim) : super(repaint: anim);
+  _SheetPainter(this.sheet, this.grid, this.anim, {this.loop = false}) : super(repaint: anim);
   final ui.Image sheet;
   final FxGrid grid;
+  final bool loop;
   final Animation<double> anim;
   final Paint _paint = Paint()..filterQuality = FilterQuality.medium;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final f = (anim.value * (grid.frames - 1)).round().clamp(0, grid.frames - 1);
+    final f = loop
+        ? (anim.value * grid.frames).floor() % grid.frames
+        : (anim.value * (grid.frames - 1)).round().clamp(0, grid.frames - 1);
     final cw = sheet.width / grid.cols;
     final ch = sheet.height / grid.rows;
     canvas.drawImageRect(

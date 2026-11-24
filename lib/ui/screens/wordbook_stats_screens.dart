@@ -8,6 +8,7 @@ import '../../progress/levels.dart';
 import '../components/widgets.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
+import 'achievements_section.dart';
 import 'game_screen.dart';
 import 'share_card.dart';
 import 'tutorial_screen.dart';
@@ -204,7 +205,7 @@ class StatsScreen extends StatelessWidget {
           builder: (context, box) {
             final cols = box.maxWidth > 420 ? 3 : 2;
             final w = (box.maxWidth - (cols - 1) * Space.s3) / cols;
-            return Wrap(
+            final tiles = Wrap(
               spacing: Space.s3,
               runSpacing: Space.s3,
               children: [
@@ -223,6 +224,10 @@ class StatsScreen extends StatelessWidget {
                     ),
                   ),
               ],
+            );
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [tiles, const SizedBox(height: Space.s8), const AchievementsSection()],
             );
           },
         ),

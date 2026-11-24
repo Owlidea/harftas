@@ -35,12 +35,15 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 | 11 | `assets/images/tutorial/hand.svg` | ⏳ | Olursa iyi | 3 |
 | 12 | `assets/anim/new_record.webp` (Blender kare dizisi, 6×6 kare, 30 fps; Lottie `.json` de hâlâ desteklenir) | ✅ | Olursa iyi | 3 |
 | 13 | `assets/anim/board_clear.webp`, `assets/anim/level_up.webp` (Blender kare dizisi) | ✅ | Olursa iyi | 3–4 |
+| 13b | Tahta efektleri: `assets/anim/{tile_pop,hammer,joker,combo_burst,combo_nums}.webp` (tahta ressamı çizer), `refresh.webp`, `gift_open.webp`, `sparkle_burst.webp`, `flame_loop.webp`; ızgara bilgisi `anims.json` | ✅ | Olursa iyi | 4 |
+| 13c | Tahta zeminleri: `assets/images/boards/board_{felt,grain,marble}.webp` (gri tonlu, tema rengiyle çarpılır) | ✅ | Olursa iyi | 4 |
 
 Not: Uygulama simgesi ve açılış ekranı yerel proje dosyalarına girer (Flutter varlığı değildir).
 Teslim ettiğinizde `docs/yayin_kontrol_listesi.md` §3'teki adımı uygulayacağım.
 
 Blender varlıkları `tool/blender/build.sh` ile yeniden üretilir (Blender 5.x; betikler: `render_tiles.py`,
-`render_icons.py`, `render_anims.py`; animasyonlar için `brew install webp`). Önizleme için `preview_tiles.py` ve `contact_sheet.py`.
+`render_icons.py`, `render_anims.py`, `render_boards.py`, `render_brand.py`, `render_video.py`; animasyonlar ve
+zeminler için `brew install webp`). Aynı anda tek Blender işi çalıştırın (iki GPU render'ı belleği taşırır). Önizleme için `preview_tiles.py` ve `contact_sheet.py`.
 
 Sizden beklenen görsel ve sesler için hazır üretim promptları: `docs/GORSEL_PROMPTLARI.md`.
 

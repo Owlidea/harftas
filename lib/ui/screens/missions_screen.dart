@@ -12,7 +12,7 @@ import '../components/app_icon.dart';
 import '../components/widgets.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
-import 'settings_screen.dart' show themeName, tileStyleName;
+import 'settings_screen.dart' show boardStyleName, themeName, tileStyleName;
 
 String missionText(L10n l, Mission m) => switch (m.type) {
   MissionType.wordsOfLength => l.missionWordsOfLength(m.length!, m.target),
@@ -23,6 +23,8 @@ String missionText(L10n l, Mission m) => switch (m.type) {
   MissionType.clearBoard => l.missionClear,
   MissionType.scoreNoPowerups => l.missionNoPowerups(m.target),
   MissionType.distinctWordsInGame => l.missionDistinct(m.target),
+  MissionType.scoreTotal => l.missionScoreTotal(m.target),
+  MissionType.dailyPuzzles => l.missionDailyPuzzles(m.target),
 };
 
 class MissionsScreen extends StatelessWidget {
@@ -34,6 +36,9 @@ class MissionsScreen extends StatelessWidget {
     final app = AppScope.of(context);
     final p = context.palette;
     Progression.ensureMissions(app.profile, app.today);
+    Progression.ensureWeekly(app.profile, app.today);
+    final weekly = app.profile.weekly!;
+    final daysLeft = WeeklyGoal.daysLeft(app.today);
     final lv = Levels.fromTotalXp(app.profile.totalXp);
     final missions = app.profile.missions;
     final doneCount = missions.where((m) => m.done).length;
@@ -47,6 +52,27 @@ class MissionsScreen extends StatelessWidget {
         children: [
           const SizedBox(height: Space.s4),
           _LevelCard(level: lv.level, into: lv.intoLevel, needed: lv.needed),
+          const SizedBox(height: Space.s8),
+
+          // ------------------------------------------------ this week's goal
+          _SectionTitle(
+            title: l.weeklyTitle,
+            trailing: _Pill(
+              text: weekly.mission.done
+                  ? l.missionCompleted
+                  : (daysLeft == 1 ? l.weeklyLastDay : l.weeklyDaysLeft(daysLeft)),
+              strong: weekly.mission.done,
+            ),
+          ),
+          const SizedBox(height: Space.s3),
+          _Group(
+            children: [
+              _MissionRow(
+                mission: weekly.mission,
+                reward: l.weeklyReward(WeeklyGoal.rewardXp, WeeklyGoal.rewardPowerups),
+              ),
+            ],
+          ),
           const SizedBox(height: Space.s8),
 
           // ------------------------------------------------ today's missions
@@ -80,15 +106,22 @@ class MissionsScreen extends StatelessWidget {
   }
 }
 
-String _rewardText(L10n l, LevelReward r) => r.themeId != null
+/// "Zeytin teması", "Yumuşak karolar", "Ahşap zemin" or the powerup line.
+String levelRewardText(L10n l, LevelReward r) => r.themeId != null
     ? l.rewardThemeShort(themeName(l, r.themeId!))
     : r.tileStyleId != null
     ? l.rewardTileShort(tileStyleName(l, r.tileStyleId!))
+    : r.boardStyleId != null
+    ? l.rewardBoardShort(boardStyleName(l, r.boardStyleId!))
     : l.earnedPowerup(powerupName(l, r.powerup!));
+
+/// Level-up line: names the look when the level unlocked one.
+String levelUpText(L10n l, int level, LevelReward r) =>
+    r.powerup != null ? l.levelUp(level) : l.levelUpUnlock(level, levelRewardText(l, r));
 
 AppIconName _rewardIcon(LevelReward r) => r.themeId != null
     ? AppIconName.palette
-    : r.tileStyleId != null
+    : r.tileStyleId != null || r.boardStyleId != null
     ? AppIconName.tiles
     : powerupIcon(r.powerup!);
 
@@ -261,8 +294,11 @@ class _Group extends StatelessWidget {
 }
 
 class _MissionRow extends StatelessWidget {
-  const _MissionRow({required this.mission});
+  const _MissionRow({required this.mission, this.reward});
   final Mission mission;
+
+  /// Reward line; defaults to the daily mission's XP + powerup.
+  final String? reward;
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +338,7 @@ class _MissionRow extends StatelessWidget {
                     ],
                     Flexible(
                       child: Text(
-                        '${l.xpGained(m.rewardXp)}  ·  +1 ${powerupName(l, m.rewardPowerup)}',
+                        reward ?? '${l.xpGained(m.rewardXp)}  ·  +1 ${powerupName(l, m.rewardPowerup)}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: muted,
@@ -359,7 +395,7 @@ class _RewardRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_rewardText(l, reward), style: context.text.bodyMedium!.copyWith(fontWeight: FontWeight.w600)),
+                Text(levelRewardText(l, reward), style: context.text.bodyMedium!.copyWith(fontWeight: FontWeight.w600)),
                 Text(l.levelN(level), style: context.text.labelSmall!.copyWith(color: p.inkMuted)),
               ],
             ),

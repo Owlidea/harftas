@@ -23,7 +23,8 @@ import '../game/pause_sheet.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
-import 'missions_screen.dart' show missionText;
+import 'achievements_section.dart' show achievementName;
+import 'missions_screen.dart' show levelUpText, missionText;
 import 'share_card.dart';
 
 class GameScreen extends StatefulWidget {
@@ -95,6 +96,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (c.phase == UiPhase.over && c.endResult?.dailyResult != null) _maybeAskNotifications();
   }
 
+  /// The chosen board surface, if the player has unlocked it.
+  String _boardStyle(BuildContext context) {
+    final app = AppScope.of(context);
+    final id = app.settings.boardStyleId;
+    return app.profile.unlockedBoardStyles.contains(id) ? id : 'plain';
+  }
+
   /// Celebration sprite sheets currently playing over the board.
   final List<({int id, OverlayFx fx})> _fx = [];
   int _fxSeq = 0;
@@ -107,7 +115,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     for (final t in items) {
       final text = switch (t) {
         MissionToast(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
-        LevelToast(:final reward) => l.levelUp(reward.level),
+        LevelToast(:final reward) => levelUpText(l, reward.level, reward.reward),
+        WeeklyToast() => l.weeklyDone,
         TextToast(kind: TextToastKind.dailyNoPowerups) => l.dailyNoPowerups,
         TextToast(kind: TextToastKind.noPowerupLeft) => l.noPowerupLeft,
       };
@@ -117,6 +126,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         icon: switch (t) {
           MissionToast() => AppIconName.missions,
           LevelToast() => AppIconName.star,
+          WeeklyToast() => AppIconName.gift,
           TextToast() => AppIconName.info,
         },
       );
@@ -296,7 +306,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                           const Spacer(flex: 2),
                           SizedBox.square(
                             dimension: boardSize,
-                            child: BoardView(controller: c, renderer: _renderer!, boardKey: _boardKey),
+                            child: BoardView(
+                              controller: c,
+                              renderer: _renderer!,
+                              boardKey: _boardKey,
+                              boardStyle: _boardStyle(context),
+                            ),
                           ),
                           const SizedBox(height: Space.s4),
                           _PowerupBar(controller: c, leftHanded: left),
@@ -678,7 +693,9 @@ class _GameOverPanel extends StatelessWidget {
     final earned = <String>[
       for (final rw in r?.rewards ?? const <Reward>[])
         switch (rw) {
-          LevelUpReward(:final level) => l.levelUp(level),
+          LevelUpReward(:final level, :final reward) => levelUpText(l, level, reward),
+          AchievementReward(:final achievement) => l.achievementUnlocked(achievementName(l, achievement)),
+          WeeklyReward() => l.weeklyDone,
           MissionReward(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
           StreakBadgeReward(:final days) => l.streakBadge(days),
         },
@@ -686,11 +703,16 @@ class _GameOverPanel extends StatelessWidget {
     ];
 
     final title = daily ? l.dailyComplete : (record ? l.newRecord : l.gameOver);
+    final badge = (r?.rewards ?? const <Reward>[]).whereType<StreakBadgeReward>().lastOrNull;
     return _Sheet(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (badge != null) ...[
+            Center(child: _BadgeReveal(days: badge.days)),
+            const SizedBox(height: Space.s2),
+          ],
           Text(
             TurkishText.toUpper(title),
             textAlign: TextAlign.center,
@@ -749,7 +771,7 @@ class _GameOverPanel extends StatelessWidget {
           ),
           if (earned.isNotEmpty) ...[
             const SizedBox(height: Space.s3),
-            for (final line in earned.take(2))
+            for (final line in earned.take(3))
               Padding(
                 padding: const EdgeInsets.only(top: Space.s1),
                 child: Row(
@@ -776,7 +798,7 @@ class _GameOverPanel extends StatelessWidget {
                 score: s.score,
                 best: app.profile.bestScore,
                 missions: r.missionsAfter,
-                totalXp: app.profile.totalXp,
+                totalXp: r.totalXpAfter,
               ),
             ),
           ],
@@ -817,6 +839,45 @@ class _GameOverPanel extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// A freshly earned streak medal: pops in over a rendered sparkle burst.
+class _BadgeReveal extends StatelessWidget {
+  const _BadgeReveal({required this.days});
+  final int days;
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = AssetPaths.streakBadge(days);
+    if (!AssetIndex.has(asset)) return const SizedBox.shrink();
+    return Semantics(
+      label: L10n.of(context).streakBadge(days),
+      child: SizedBox(
+        width: 104,
+        height: 104,
+        child: OverflowBox(
+          maxWidth: 220,
+          maxHeight: 220,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (SpriteAnim.available(AssetPaths.fxSparkle)) const SpriteAnim(AssetPaths.fxSparkle, size: 220),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: context.reduceMotion ? Duration.zero : const Duration(milliseconds: 650),
+                curve: Curves.easeOutBack,
+                builder: (_, t, child) => Transform.rotate(
+                  angle: (1 - t) * -0.5,
+                  child: Transform.scale(scale: t, child: child),
+                ),
+                child: Image.asset(asset, width: 96, height: 96, filterQuality: FilterQuality.medium),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

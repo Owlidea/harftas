@@ -29,6 +29,7 @@ import 'package:harfblok/services/purchase_service.dart';
 import 'package:harfblok/config/asset_paths.dart';
 import 'package:harfblok/ui/components/app_icon.dart';
 import 'package:harfblok/ui/components/sprite_anim.dart';
+import 'package:harfblok/ui/game/board_art.dart';
 import 'package:harfblok/ui/game/fx_art.dart';
 import 'package:harfblok/ui/game/game_controller.dart';
 import 'package:harfblok/ui/game/tile_art.dart';
@@ -148,6 +149,7 @@ void main() {
     await AssetIndex.load();
     await TileArt.load();
     await FxArt.load();
+    await BoardArt.load();
     Directory(_outDir).createSync(recursive: true);
   });
 
@@ -214,7 +216,6 @@ void main() {
       GameController.debugNow = () => t;
       c.boardFx
         ..add(BoardFx(FxArt.sheet(FxArt.tilePop)!, geo.cellRect(1, 5).center, geo.cell * 2.6, t - 200))
-        ..add(BoardFx(FxArt.sheet(FxArt.dropPuff)!, geo.cellRect(4, 5).center, geo.cell * 2.6, t - 130))
         ..add(BoardFx(FxArt.sheet(FxArt.hammer)!, geo.cellRect(6, 1).center, geo.cell * 3.2, t - 300))
         ..add(BoardFx(FxArt.sheet(FxArt.joker)!, geo.cellRect(3, 3).center, geo.cell * 3.0, t - 230));
       c.comboFx = ComboFx(3, Offset(geo.rect.width * 0.66, geo.rect.height * 0.80), t - 330);
@@ -223,6 +224,16 @@ void main() {
       c.boardFx.clear();
       c.comboFx = null;
       GameController.debugNow = clock;
+
+      // Board surface styles (level rewards).
+      m.profile.unlockedBoardStyles.addAll(BoardArt.styles);
+      for (final id in BoardArt.styles.skip(1)) {
+        await tester.runAsync(() => m.updateSettings(m.settings.copyWith(boardStyleId: id)));
+        await tester.pump();
+        await shot(tester, key, '12_board_${id}_$mode');
+      }
+      await tester.runAsync(() => m.updateSettings(m.settings.copyWith(boardStyleId: 'plain')));
+      await tester.pump();
       nav.pop();
       await tester.pump(const Duration(milliseconds: 600));
 

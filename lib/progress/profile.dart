@@ -42,13 +42,20 @@ class PlayerProfile {
     Set<String>? badges,
     Set<String>? unlockedThemes,
     Set<String>? unlockedTileStyles,
+    Set<String>? unlockedBoardStyles,
     this.missionsDay,
     List<Mission>? missions,
+    this.weekly,
+    this.bestCombo = 0,
+    this.boardClears = 0,
+    Set<String>? achievements,
   }) : powerups = powerups ?? {for (final t in PowerupType.values) t: 1},
        daily = daily ?? {},
        badges = badges ?? {},
        unlockedThemes = unlockedThemes ?? {'classic'},
        unlockedTileStyles = unlockedTileStyles ?? {'classic'},
+       unlockedBoardStyles = unlockedBoardStyles ?? {'plain'},
+       achievements = achievements ?? {},
        missions = missions ?? [];
 
   factory PlayerProfile.fromJson(Map<String, dynamic> j) {
@@ -78,8 +85,13 @@ class PlayerProfile {
       badges: strings(j['badges']),
       unlockedThemes: {'classic', ...strings(j['themes'])},
       unlockedTileStyles: {'classic', ...strings(j['tileStyles'])},
+      unlockedBoardStyles: {'plain', ...strings(j['boardStyles'])},
       missionsDay: j['missionsDay'] as String?,
       missions: [for (final m in (j['missions'] as List? ?? const [])) Mission.fromJson(m as Map<String, dynamic>)],
+      weekly: j['weekly'] == null ? null : WeeklyGoal.fromJson(j['weekly'] as Map<String, dynamic>),
+      bestCombo: j['bestCombo'] as int? ?? 0,
+      boardClears: j['boardClears'] as int? ?? 0,
+      achievements: strings(j['achievements']),
     );
   }
 
@@ -106,8 +118,21 @@ class PlayerProfile {
   final Set<String> badges;
   final Set<String> unlockedThemes;
   final Set<String> unlockedTileStyles;
+  final Set<String> unlockedBoardStyles;
   String? missionsDay;
   List<Mission> missions;
+
+  /// This week's goal (null until the first move after an update).
+  WeeklyGoal? weekly;
+
+  /// Most words exploded by a single move, ever.
+  int bestCombo;
+
+  /// Times the board was emptied, in total.
+  int boardClears;
+
+  /// Ids of achievements already earned and rewarded.
+  final Set<String> achievements;
 
   double get averageWordLength => totalWords == 0 ? 0 : totalLetters / totalWords;
 
@@ -133,8 +158,13 @@ class PlayerProfile {
     'badges': badges.toList()..sort(),
     'themes': unlockedThemes.toList()..sort(),
     'tileStyles': unlockedTileStyles.toList()..sort(),
+    'boardStyles': unlockedBoardStyles.toList()..sort(),
     'missionsDay': missionsDay,
     'missions': [for (final m in missions) m.toJson()],
+    'weekly': weekly?.toJson(),
+    'bestCombo': bestCombo,
+    'boardClears': boardClears,
+    'achievements': achievements.toList()..sort(),
   };
 }
 
@@ -148,6 +178,7 @@ class AppSettings {
     this.themeMode = AppThemeMode.system,
     this.themeId = 'classic',
     this.tileStyleId = 'classic',
+    this.boardStyleId = 'plain',
     this.colorBlind = false,
     this.leftHanded = false,
     this.notifications = false,
@@ -160,6 +191,7 @@ class AppSettings {
     themeMode: AppThemeMode.values.asNameMap()[j['themeMode']] ?? AppThemeMode.system,
     themeId: j['themeId'] as String? ?? 'classic',
     tileStyleId: j['tileStyleId'] as String? ?? 'classic',
+    boardStyleId: j['boardStyleId'] as String? ?? 'plain',
     colorBlind: j['colorBlind'] as bool? ?? false,
     leftHanded: j['leftHanded'] as bool? ?? false,
     notifications: j['notifications'] as bool? ?? false,
@@ -171,6 +203,7 @@ class AppSettings {
   final AppThemeMode themeMode;
   final String themeId;
   final String tileStyleId;
+  final String boardStyleId;
   final bool colorBlind;
   final bool leftHanded;
   final bool notifications;
@@ -182,6 +215,7 @@ class AppSettings {
     AppThemeMode? themeMode,
     String? themeId,
     String? tileStyleId,
+    String? boardStyleId,
     bool? colorBlind,
     bool? leftHanded,
     bool? notifications,
@@ -192,6 +226,7 @@ class AppSettings {
     themeMode: themeMode ?? this.themeMode,
     themeId: themeId ?? this.themeId,
     tileStyleId: tileStyleId ?? this.tileStyleId,
+    boardStyleId: boardStyleId ?? this.boardStyleId,
     colorBlind: colorBlind ?? this.colorBlind,
     leftHanded: leftHanded ?? this.leftHanded,
     notifications: notifications ?? this.notifications,
@@ -205,6 +240,7 @@ class AppSettings {
     'themeMode': themeMode.name,
     'themeId': themeId,
     'tileStyleId': tileStyleId,
+    'boardStyleId': boardStyleId,
     'colorBlind': colorBlind,
     'leftHanded': leftHanded,
     'notifications': notifications,

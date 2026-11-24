@@ -16,6 +16,7 @@ import '../../core/config/balance_config.dart';
 import '../../core/text/turkish_text.dart';
 import '../components/overlays.dart';
 import '../components/widgets.dart';
+import '../game/board_art.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
@@ -41,11 +42,20 @@ String tileStyleName(L10n l, String id) => switch (id) {
   _ => l.tileClassic,
 };
 
-/// Where a theme / tile style unlocks (for the locked label).
-String? unlockHint(L10n l, {String? themeId, String? tileStyleId}) {
+String boardStyleName(L10n l, String id) => switch (id) {
+  'felt' => l.boardFelt,
+  'grain' => l.boardGrain,
+  'marble' => l.boardMarble,
+  _ => l.boardPlain,
+};
+
+/// Where a theme / tile style / board style unlocks (for the locked label).
+String? unlockHint(L10n l, {String? themeId, String? tileStyleId, String? boardStyleId}) {
   for (var n = 2; n <= 30; n++) {
     final r = Levels.rewardFor(n);
-    if ((themeId != null && r.themeId == themeId) || (tileStyleId != null && r.tileStyleId == tileStyleId)) {
+    if ((themeId != null && r.themeId == themeId) ||
+        (tileStyleId != null && r.tileStyleId == tileStyleId) ||
+        (boardStyleId != null && r.boardStyleId == boardStyleId)) {
       return l.levelN(n);
     }
   }
@@ -156,6 +166,26 @@ class SettingsScreen extends StatelessWidget {
                       ),
                   ],
                 ),
+                const SizedBox(height: Space.s5),
+                Text(l.boardStyle, style: context.text.labelLarge),
+                const SizedBox(height: Space.s3),
+                _OptionGrid(
+                  children: [
+                    for (final id in BoardArt.styles)
+                      Builder(
+                        builder: (context) {
+                          final unlocked = app.profile.unlockedBoardStyles.contains(id);
+                          return _OptionCard(
+                            name: boardStyleName(l, id),
+                            selected: s.boardStyleId == id,
+                            lockedHint: unlocked ? null : unlockHint(l, boardStyleId: id),
+                            onTap: unlocked ? () => set(s.copyWith(boardStyleId: id), 'boardStyleId') : null,
+                            child: _BoardSwatch(style: id),
+                          );
+                        },
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -236,6 +266,15 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {
                       app.profile.unlockedThemes.addAll(ThemeDef.all.map((t) => t.id));
                       app.profile.unlockedTileStyles.addAll(TileStyle.all.map((t) => t.id));
+                      app.profile.unlockedBoardStyles.addAll(BoardArt.styles);
+                      unawaited(app.saveProfile());
+                    },
+                  ),
+                  ListRow(
+                    icon: AppIconName.missions,
+                    title: '+500 XP ekle (seviye ödüllerini dene)',
+                    onTap: () {
+                      Progression.addXp(app.profile, 500);
                       unawaited(app.saveProfile());
                     },
                   ),
@@ -243,6 +282,9 @@ class SettingsScreen extends StatelessWidget {
                     ('Yeni rekor animasyonu', AssetPaths.fxNewRecord),
                     ('Izgara boşaldı animasyonu', AssetPaths.fxBoardClear),
                     ('Seviye atlama animasyonu', AssetPaths.fxLevelUp),
+                    ('Ödül kutusu animasyonu', AssetPaths.fxGiftOpen),
+                    ('Parıltı patlaması', AssetPaths.fxSparkle),
+                    ('Yenile animasyonu', AssetPaths.fxRefresh),
                   ])
                     ListRow(
                       icon: AppIconName.star,
@@ -603,6 +645,50 @@ class _ThemeSwatchPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ThemeSwatchPainter old) => old.p != p || old.tiles != tiles;
+}
+
+/// Mini board in the given surface style.
+class _BoardSwatch extends StatelessWidget {
+  const _BoardSwatch({required this.style});
+  final String style;
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(painter: _BoardSwatchPainter(style, context.palette), child: const SizedBox.expand());
+}
+
+class _BoardSwatchPainter extends CustomPainter {
+  _BoardSwatchPainter(this.style, this.p);
+  final String style;
+  final Palette p;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = p.background);
+    final side = math.min(size.width, size.height) * 0.82;
+    final rect = Rect.fromCenter(center: size.center(Offset.zero), width: side, height: side);
+    final board = RRect.fromRectAndRadius(rect, Radius.circular(side * 0.08));
+    final textured = BoardArt.paint(canvas, board, style, p.board);
+    if (!textured) canvas.drawRRect(board, Paint()..color = p.board);
+    const n = 3;
+    final pad = side * 0.07;
+    final gap = side * 0.045;
+    final cell = (side - 2 * pad - (n - 1) * gap) / n;
+    final paint = Paint()..color = textured ? p.cellEmpty.withValues(alpha: 0.7) : p.cellEmpty;
+    for (var y = 0; y < n; y++) {
+      for (var x = 0; x < n; x++) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(rect.left + pad + x * (cell + gap), rect.top + pad + y * (cell + gap), cell, cell),
+            Radius.circular(cell * 0.16),
+          ),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BoardSwatchPainter old) => old.style != style || old.p != p;
 }
 
 class _TileSwatch extends StatelessWidget {

@@ -253,7 +253,7 @@ class AppModel extends ChangeNotifier {
   }
 
   /// Missions progress after each action.
-  ({List<Mission> missions, List<LevelUpReward> levelUps}) recordMove(MoveSummary m) {
+  ({List<Mission> missions, WeeklyGoal? weekly, List<LevelUpReward> levelUps}) recordMove(MoveSummary m) {
     final r = Progression.applyMove(profile, m, today);
     for (final mission in r.missions) {
       services.analytics.log(AnalyticsEvent.missionCompleted, {'id': mission.type.name, 'tier': mission.tier.name});
@@ -261,7 +261,10 @@ class AppModel extends ChangeNotifier {
     for (final l in r.levelUps) {
       services.analytics.log(AnalyticsEvent.levelUp, {'level': l.level});
     }
-    if (r.missions.isNotEmpty || r.levelUps.isNotEmpty) unawaited(saveProfile());
+    if (r.weekly != null) {
+      services.analytics.log(AnalyticsEvent.missionCompleted, {'id': r.weekly!.mission.type.name, 'tier': 'weekly'});
+    }
+    if (r.missions.isNotEmpty || r.weekly != null || r.levelUps.isNotEmpty) unawaited(saveProfile());
     return r;
   }
 

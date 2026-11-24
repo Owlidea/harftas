@@ -27,6 +27,12 @@ enum MissionType {
 
   /// Build [target] distinct words in one game.
   distinctWordsInGame,
+
+  /// Score [target] points in total across games (weekly goals).
+  scoreTotal,
+
+  /// Finish [target] daily puzzles (weekly goals).
+  dailyPuzzles,
 }
 
 enum MissionTier { easy, medium, hard }
@@ -145,6 +151,8 @@ abstract final class MissionPool {
       case MissionType.scoreInGame:
       case MissionType.scoreNoPowerups:
       case MissionType.distinctWordsInGame:
+      case MissionType.scoreTotal:
+      case MissionType.dailyPuzzles:
         return m;
     }
   }
@@ -156,7 +164,59 @@ abstract final class MissionPool {
       MissionType.scoreInGame => m.withProgress(best(g.score)),
       MissionType.scoreNoPowerups => g.usedPowerups ? m : m.withProgress(best(g.score)),
       MissionType.distinctWordsInGame => m.withProgress(best(g.distinctWords)),
+      MissionType.scoreTotal => m.withProgress(m.progress + g.score),
+      MissionType.dailyPuzzles => g.mode == GameMode.daily ? m.withProgress(m.progress + 1) : m,
       _ => m,
     };
   }
+}
+
+/// One bigger goal per Istanbul week (Monday to Sunday), the same for
+/// everyone, with its own reward. Gives a reason to come back that outlasts
+/// the three daily missions.
+class WeeklyGoal {
+  const WeeklyGoal({required this.week, required this.mission});
+
+  factory WeeklyGoal.fromJson(Map<String, dynamic> j) =>
+      WeeklyGoal(week: j['week'] as int, mission: Mission.fromJson(j['mission'] as Map<String, dynamic>));
+
+  /// The goal for the week [day] falls in.
+  factory WeeklyGoal.forDay(DayKey day) {
+    final w = weekOf(day);
+    return WeeklyGoal(week: w, mission: _pool[w % _pool.length](w));
+  }
+
+  /// Weeks since Monday 2024-01-01.
+  final int week;
+  final Mission mission;
+
+  static const int rewardXp = 300;
+
+  /// Granted of every powerup type on completion.
+  static const int rewardPowerups = 1;
+
+  static const DayKey _epoch = DayKey(2024, 1, 1);
+  static const _letters = ['Ş', 'Ç', 'Ö', 'Ü', 'Y', 'Z'];
+
+  static int weekOf(DayKey day) => _epoch.daysUntil(day) ~/ 7;
+
+  /// Days left including [day]: 7 on Monday, 1 on Sunday.
+  static int daysLeft(DayKey day) => 7 - _epoch.daysUntil(day) % 7;
+
+  static final List<Mission Function(int week)> _pool = [
+    (_) => const Mission(type: MissionType.scoreTotal, tier: MissionTier.hard, target: 4000),
+    (_) => const Mission(type: MissionType.wordsOfLength, tier: MissionTier.hard, target: 40, length: 4),
+    (_) => const Mission(type: MissionType.comboTwo, tier: MissionTier.hard, target: 15),
+    (_) => const Mission(type: MissionType.dailyPuzzles, tier: MissionTier.hard, target: 5),
+    (w) => Mission(
+      type: MissionType.wordWithLetter,
+      tier: MissionTier.hard,
+      target: 15,
+      letter: _letters[(w ~/ 7) % _letters.length],
+    ),
+    (_) => const Mission(type: MissionType.wordsOfLength, tier: MissionTier.hard, target: 8, length: 5),
+    (_) => const Mission(type: MissionType.clearBoard, tier: MissionTier.hard, target: 2),
+  ];
+
+  Map<String, dynamic> toJson() => {'week': week, 'mission': mission.toJson()};
 }

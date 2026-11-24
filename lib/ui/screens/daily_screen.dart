@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../progress/calendar.dart';
 import '../../progress/progression.dart';
 import '../components/app_icon.dart';
+import '../components/sprite_anim.dart';
 import '../components/hero.dart';
 import '../components/widgets.dart';
 import '../theme/app_theme.dart';
@@ -286,8 +287,20 @@ class _StreakPanel extends StatelessWidget {
               width: 48,
               height: 64,
               child: Center(
+                // A live streak burns: the flame is a looping render.
                 child: current > 0
-                    ? const ArtIcon(AppIconName.streak, size: 40, artScale: 1.25)
+                    ? (SpriteAnim.available(AssetPaths.fxFlame)
+                          ? const OverflowBox(
+                              maxWidth: 56,
+                              maxHeight: 56,
+                              child: SpriteAnim(
+                                AssetPaths.fxFlame,
+                                size: 56,
+                                loop: true,
+                                placeholder: ArtIcon(AppIconName.streak, size: 40, artScale: 1.25),
+                              ),
+                            )
+                          : const ArtIcon(AppIconName.streak, size: 40, artScale: 1.25))
                     : AppIcon(AppIconName.streak, size: 40, color: p.inkMuted),
               ),
             ),

@@ -252,27 +252,6 @@ def scene_tile_pop(sc):
     return actors
 
 
-def scene_drop_puff(sc):
-    """Dust puffs squeezed out from under a tile as it lands."""
-    R.studio(sc, 4.6, tilt=0)
-    rnd = random.Random(2)
-    actors = []
-    m = R.mat("puff", (0.82, 0.78, 0.70), 0.95, coat=0.0)
-    n = 10
-    for i in range(n):
-        a = math.radians(i * 360 / n + rnd.uniform(-10, 10))
-        r0 = 0.80 / max(abs(math.cos(a)), abs(math.sin(a)))      # on the tile's square outline
-        size = rnd.uniform(0.7, 1.15)
-        ob = R.prim("uv_sphere", m, radius=0.17, location=(0, 0, 0), segments=20, ring_count=12)
-
-        def fn(t, a=a, r0=r0, size=size):
-            d = r0 + 0.50 * (1 - (1 - t) ** 2.4)
-            s = math.sin(math.pi * min(1.0, t * 1.08)) ** 0.7 * size
-            return (math.cos(a) * d, 0.3, math.sin(a) * d), (0, 0, 0), s
-        actors.append(Actor(ob, fn))
-    return actors
-
-
 def scene_hammer(sc):
     """Mallet swings in from the upper right and strikes the centre. Frame = 3.2 x the tile."""
     R.studio(sc, 5.12, tilt=0)
@@ -400,6 +379,99 @@ def scene_refresh(sc):
     return actors
 
 
+def scene_gift_open(sc):
+    """Reward: the box pops in, the lid flies off, stars pour out."""
+    R.studio(sc, 3.9, tilt=24, target=(0, 0, 0.35))
+    rnd = random.Random(31)
+    actors = []
+    cream = R.mat("cream", R.IVORY, 0.35, coat=0.5, sss=0.1)
+    teal = R.mat("teal", R.TEAL, 0.25, coat=0.8)
+    base = holder([
+        R.box(cream, (1.30, 1.30, 0.95), (0, 0, -0.42), bevel=0.09),
+        R.box(teal, (0.30, 1.34, 0.99), (0, 0, -0.42), bevel=0.05),
+        R.box(teal, (1.34, 0.30, 0.99), (0, 0, -0.42), bevel=0.05),
+    ])
+    tie = [(-0.62, 0.30), (-0.10, 0.07), (0.10, 0.07), (0.62, 0.30), (0.62, -0.30), (0.10, -0.07), (-0.10, -0.07), (-0.62, -0.30)]
+    bow = R.emblem("bow", R.fillet(tie, 0.10), teal, depth=0.07, puff=0.09)
+    bow.location = (0, 0, 0.57)
+    bow.rotation_euler = (math.radians(90), 0, math.radians(-32))
+    lid = holder([
+        R.box(cream, (1.46, 1.46, 0.30), (0, 0, 0.20), bevel=0.08),
+        R.box(teal, (0.31, 1.48, 0.32), (0, 0, 0.20), bevel=0.05),
+        R.box(teal, (1.48, 0.31, 0.32), (0, 0, 0.20), bevel=0.05),
+        bow,
+        R.prim("uv_sphere", teal, radius=0.25, location=(0, 0, 0.57)),
+    ])
+    root = holder([base, lid])
+    turn = math.radians(32)
+
+    def root_fn(t):
+        hop = 0.10 * math.sin(clamp01(t / 0.3) * math.pi)
+        return (0, 0, -0.15 + hop), (0, 0, turn), pop(t, 0.0, grow=0.16, end=0.84, out=0.14)
+    actors.append(Actor(root, root_fn))
+
+    def lid_fn(t):
+        u = clamp01((t - 0.30) / 0.30)
+        e = 1 - (1 - u) ** 2.4
+        return (0, 0.30 * e, 1.05 * e), (math.radians(-46) * e, 0, 0), 1.0
+    actors.append(Actor(lid, lid_fn))
+
+    def star(i):
+        return holder([R.emblem("star", R.fillet(R.star_points(0.24, 0.115), 0.04, 4),
+                                R.mat("sg", R.GOLD_LIGHT if i % 2 else R.MINT, 0.25, coat=0.8), depth=0.04, puff=0.04)])
+    burst(actors, star, 9, rnd, start=0.34, speed=(1.0, 1.7), gravity=-1.1, spin=3.0, y=-0.9, life=0.55)
+    sparkles(actors, rnd, 8, R.GOLD_LIGHT, radius=(0.7, 1.7), window=(0.36, 0.80))
+    return actors
+
+
+def scene_sparkle_burst(sc):
+    """Generic flourish behind a reward (medal, unlock): ring, stars, sparkles; empty centre."""
+    R.studio(sc, 4.6, tilt=0)
+    rnd = random.Random(21)
+    actors = []
+
+    def star(i):
+        return holder([R.emblem("star", R.fillet(R.star_points(0.24, 0.115), 0.04, 4),
+                                R.mat("sg", R.GOLD_LIGHT if i % 2 else R.MINT, 0.25, coat=0.8), depth=0.04, puff=0.04)])
+    burst(actors, star, 12, rnd, start=0.02, speed=(1.5, 2.1), gravity=0.7, spin=3.0, y=0.4, life=0.82)
+    ring_actor(actors, R.GOLD_LIGHT, 0.0, life=0.5, radius=1.9)
+    ring_actor(actors, R.MINT, 0.14, life=0.5, radius=1.5)
+    sparkles(actors, rnd, 10, R.GOLD_LIGHT, radius=(1.0, 2.0), window=(0.1, 0.72))
+    return actors
+
+
+def scene_flame_loop(sc):
+    """Seamless one-second flicker for the streak flame (t wraps around)."""
+    R.studio(sc, 2.5)
+    actors = []
+    two_pi = 2 * math.pi
+    outer = holder([R.emblem("flame", R.FLAME_OUTLINE, R.mat("flame", R.FLAME, 0.3, coat=0.7), depth=0.16, puff=0.13,
+                             smooth=True)])
+    inner = holder([R.emblem("inner", R.FLAME_INNER, R.mat("flame_in", R.FLAME_IN, 0.3, coat=0.7), depth=0.10,
+                             puff=0.08, y=-0.22, smooth=True)])
+
+    def outer_fn(t):
+        return ((0.02 * math.sin(two_pi * t), 0, -0.04 + 0.02 * math.sin(two_pi * 2 * t)),
+                (0, math.radians(4.5) * math.sin(two_pi * t), math.radians(-8)),
+                0.84 * (1 + 0.035 * math.sin(two_pi * 2 * t + 0.6)))
+    actors.append(Actor(outer, outer_fn))
+
+    def inner_fn(t):
+        return ((0.03 * math.sin(two_pi * t + 1.4), 0, -0.04 + 0.05 * math.sin(two_pi * 2 * t + 2.0)),
+                (0, math.radians(-7) * math.sin(two_pi * t + 0.9), math.radians(-8)),
+                0.84 * (1 + 0.07 * math.sin(two_pi * 3 * t)))
+    actors.append(Actor(inner, inner_fn))
+    # Embers drifting up; each one's own phase keeps the loop seamless.
+    for i, (x, phase) in enumerate(((-0.45, 0.0), (0.38, 0.37), (-0.05, 0.68))):
+        ember = spark(R.FLAME_IN, 0.12)
+
+        def fn(t, x=x, phase=phase):
+            u = (t + phase) % 1.0
+            return (x + 0.12 * math.sin(two_pi * u), -0.3, 0.25 + 0.85 * u), (0, u * 2.0, 0), math.sin(math.pi * u) ** 0.8
+        actors.append(Actor(ember, fn))
+    return actors
+
+
 def combo_numeral(body):
     def build(sc):
         R.studio(sc, 2.3, tilt=0)
@@ -416,11 +488,14 @@ SHEETS = {
     "new_record": (scene_new_record, 6, 6, 320, 30, True),
     "level_up": (scene_level_up, 6, 6, 320, 30, True),
     "tile_pop": (scene_tile_pop, 4, 4, 192, 30, False),
-    "drop_puff": (scene_drop_puff, 4, 3, 128, 30, False),
     "hammer": (scene_hammer, 5, 4, 256, 30, False),
     "joker": (scene_joker, 4, 4, 192, 30, False),
     "combo_burst": (scene_combo_burst, 5, 4, 256, 30, False),
     "refresh": (scene_refresh, 5, 4, 256, 30, True),
+    "gift_open": (scene_gift_open, 6, 5, 256, 30, True),
+    "sparkle_burst": (scene_sparkle_burst, 5, 5, 256, 30, False),
+    # Loops: every frame is drawn and time wraps (no empty frame).
+    "flame_loop": (scene_flame_loop, 6, 4, 160, 24, False, True),
 }
 # name -> (list of still builders, cell px): one frame per builder, laid out in a row.
 ATLASES = {
@@ -443,7 +518,7 @@ def save_meta(name, cols, rows, fps):
         f.write("\n")
 
 
-def render_sheet(name, build, cols, rows, cell, fps, first_empty):
+def render_sheet(name, build, cols, rows, cell, fps, first_empty, loop=False):
     frames = cols * rows
     sc = R.reset()
     sc.cycles.samples = 48
@@ -452,7 +527,7 @@ def render_sheet(name, build, cols, rows, cell, fps, first_empty):
     # Bake the procedural motion to keyframes and render as one animation:
     # a single render session keeps the GPU kernels loaded between frames.
     for f in range(frames):
-        t = f / (frames - 1)
+        t = f / frames if loop else f / (frames - 1)
         for a in actors:
             a.apply(t)
             for prop in ("location", "rotation_euler", "scale", "hide_render"):
@@ -462,7 +537,8 @@ def render_sheet(name, build, cols, rows, cell, fps, first_empty):
     sc.render.filepath = os.path.join(TMP, f"{name}_")
     bpy.ops.render.render(animation=True)
     sheet = np.zeros((rows * cell, cols * cell, 4), dtype=np.float32)
-    for f in range(1 if first_empty else 0, frames - 1):   # the last frame stays empty by contract
+    # One-shots leave the last frame empty by contract; loops use every frame.
+    for f in range(1 if first_empty else 0, frames if loop else frames - 1):
         r, c = divmod(f, cols)
         sheet[r * cell:(r + 1) * cell, c * cell:(c + 1) * cell] = read_png(os.path.join(TMP, f"{name}_{f + 1:04d}.png"))
     png = os.path.join(TMP, f"{name}.png")
@@ -493,10 +569,10 @@ def render_atlas(name, builders, cell):
 def main():
     os.makedirs(TMP, exist_ok=True)
     os.makedirs(os.path.join(ROOT, "assets/anim"), exist_ok=True)
-    for name, (build, cols, rows, cell, fps, first_empty) in SHEETS.items():
+    for name, spec in SHEETS.items():
         if ONLY and name not in ONLY:
             continue
-        render_sheet(name, build, cols, rows, cell, fps, first_empty)
+        render_sheet(name, *spec)
     for name, (builders, cell) in ATLASES.items():
         if ONLY and name not in ONLY:
             continue

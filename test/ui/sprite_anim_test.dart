@@ -33,7 +33,6 @@ void main() {
   test('sheets the code refers to are in the manifest', () {
     for (final name in [
       FxArt.tilePop,
-      FxArt.dropPuff,
       FxArt.hammer,
       FxArt.joker,
       FxArt.comboBurst,

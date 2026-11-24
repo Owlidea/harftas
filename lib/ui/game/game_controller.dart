@@ -37,6 +37,11 @@ class LevelToast extends GameToast {
   final LevelUpReward reward;
 }
 
+class WeeklyToast extends GameToast {
+  const WeeklyToast(this.goal);
+  final WeeklyGoal goal;
+}
+
 class TextToast extends GameToast {
   const TextToast(this.kind);
   final TextToastKind kind;
@@ -525,9 +530,6 @@ class GameController extends ChangeNotifier {
       boardFx.add(BoardFx(sheet, g.cellRectIndex(cell).center, g.cell * cells, startMs));
     }
 
-    for (final idx in placedIdx) {
-      fx(FxArt.dropPuff, idx, 2.6, t0 + 30);
-    }
     if (jokerIdx != null) fx(FxArt.joker, jokerIdx, 3.0, t0);
     // The mallet lands ~230 ms into its sheet; the tile breaks on impact.
     var hammerDelay = 0.0;
@@ -571,6 +573,8 @@ class GameController extends ChangeNotifier {
     final dealt = events.whereType<HandDealt>().isNotEmpty;
     if (dealt) handDealtAt = end;
     _animUntil = end + (dealt ? Motion.handIn.inMilliseconds + 3 * Motion.handStagger.inMilliseconds : 0) + 50;
+    // The landing ring outlasts the settle bounce.
+    if (placedIdx.isNotEmpty) _animUntil = math.max(_animUntil, t0 + Motion.landRing.inMilliseconds + 20);
 
     // Feedback, popups, particles, shake.
     final pal = _palette;
@@ -681,6 +685,11 @@ class GameController extends ChangeNotifier {
         final rec = app.recordMove(summary);
         for (final m in rec.missions) {
           toasts.add(MissionToast(m));
+        }
+        if (rec.weekly != null) toasts.add(WeeklyToast(rec.weekly!));
+        if (!reduceMotion && (rec.missions.isNotEmpty || rec.weekly != null)) {
+          // A reward was just paid out: the gift opens under the toast.
+          effects.add(const OverlayFx(AssetPaths.fxGiftOpen, align: Alignment(0, -0.56), size: 170));
         }
         for (final l in rec.levelUps) {
           toasts.add(LevelToast(l));

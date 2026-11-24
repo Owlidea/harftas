@@ -14,10 +14,15 @@
     "fps": 0,
     "rows": 1
   },
-  "drop_puff": {
-    "cols": 4,
+  "flame_loop": {
+    "cols": 6,
+    "fps": 24,
+    "rows": 4
+  },
+  "gift_open": {
+    "cols": 6,
     "fps": 30,
-    "rows": 3
+    "rows": 5
   },
   "hammer": {
     "cols": 5,
@@ -43,6 +48,11 @@
     "cols": 5,
     "fps": 30,
     "rows": 4
+  },
+  "sparkle_burst": {
+    "cols": 5,
+    "fps": 30,
+    "rows": 5
   },
   "tile_pop": {
     "cols": 4,

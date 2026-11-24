@@ -50,12 +50,11 @@ abstract final class FxArt {
 
   // Sheets drawn on the board canvas (kept in memory).
   static const String tilePop = 'tile_pop';
-  static const String dropPuff = 'drop_puff';
   static const String hammer = 'hammer';
   static const String joker = 'joker';
   static const String comboBurst = 'combo_burst';
   static const String comboNums = 'combo_nums';
-  static const List<String> _eager = [tilePop, dropPuff, hammer, joker, comboBurst, comboNums];
+  static const List<String> _eager = [tilePop, hammer, joker, comboBurst, comboNums];
 
   static Map<String, FxGrid> _grids = {};
   static final Map<String, FxSheet> _sheets = {};

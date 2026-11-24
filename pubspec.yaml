@@ -50,6 +50,7 @@ flutter:
     - assets/images/empty/
     - assets/images/tutorial/
     - assets/images/tiles/
+    - assets/images/boards/
     - assets/anim/
     - assets/audio/
 
