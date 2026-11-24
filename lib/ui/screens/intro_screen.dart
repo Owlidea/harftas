@@ -307,7 +307,7 @@ class _ScoreVisual extends StatelessWidget {
         const SizedBox(height: Space.s4),
         Text('1 + 1 + 1 + 1 + 2 = 6', style: context.text.bodyLarge!.copyWith(color: p.inkMuted)),
         const SizedBox(height: Space.s1),
-        Text('6 × 2 = 12', style: context.text.titleLarge!.copyWith(color: p.accent)),
+        Text('6 × 3 = 18', style: context.text.titleLarge!.copyWith(color: p.accent)),
       ],
     );
   }

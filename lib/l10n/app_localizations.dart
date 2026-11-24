@@ -1378,7 +1378,7 @@ abstract class L10n {
   /// No description provided for @intro3Body.
   ///
   /// In tr, this message translates to:
-  /// **'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 5 harf ×2, 6 harf ×3, 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.'**
+  /// **'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 4 harf ×2, 5 harf ×3, 6 harf ×4… 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.'**
   String get intro3Body;
 
   /// No description provided for @intro4Title.
@@ -1428,6 +1428,24 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'En iyi {n}'**
   String bestChip(int n);
+
+  /// No description provided for @nextGoalRecord.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rekora {n} puan kaldı'**
+  String nextGoalRecord(int n);
+
+  /// No description provided for @nextGoalLevel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviye {n} için {xp} XP kaldı'**
+  String nextGoalLevel(int n, int xp);
+
+  /// No description provided for @nextGoalMission.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görev: {text}'**
+  String nextGoalMission(String text);
 
   /// No description provided for @monthShort.
   ///

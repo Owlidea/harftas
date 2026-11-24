@@ -34,7 +34,7 @@ void main() {
     expect(r.streakAfter, 1);
   });
 
-  test('2: KALEM + ELMA combo x2, streak 2 -> 46 + 3 = 49', () {
+  test('2: KALEM + ELMA combo x2, streak 2 -> 67 + 3 = 70', () {
     final r = score([
       '........',
       '........',
@@ -45,25 +45,25 @@ void main() {
       '...A....',
       '.......Z',
     ], streakBefore: 2);
-    // base10 = 6*20 + 5*15 = 195; 195*2*12/100 = 46.8 -> 46
+    // base10 = 6*30 + 5*20 = 280; 280*2*12/100 = 67.2 -> 67
     expect(r.score.combo, 2);
-    expect(r.score.wordPoints, 46);
-    expect(r.score.total, 49);
+    expect(r.score.wordPoints, 67);
+    expect(r.score.total, 70);
     expect(r.streakAfter, 3);
   });
 
-  test('3: ELMA + KAR in one segment, 2 cells -> 21 + 2 = 23', () {
+  test('3: ELMA + KAR in one segment, 2 cells -> 26 + 2 = 28', () {
     final r = score(['ELMakAR.', '.......Z']);
-    // (75 + 30) * 2 * 10 / 100 = 21
-    expect(r.score.wordPoints, 21);
-    expect(r.score.total, 23);
+    // (100 + 30) * 2 * 10 / 100 = 26
+    expect(r.score.wordPoints, 26);
+    expect(r.score.total, 28);
   });
 
-  test('4: ARABA beats ARA; 5-letter x2', () {
+  test('4: ARABA beats ARA; 5-letter x3', () {
     final r = score(['aRABA...', '.......Z']);
-    // A1 R1 A1 B3 A1 = 7 x2 = 14
-    expect(r.score.wordPoints, 14);
-    expect(r.score.total, 15);
+    // A1 R1 A1 B3 A1 = 7 x3 = 21
+    expect(r.score.wordPoints, 21);
+    expect(r.score.total, 22);
   });
 
   test('5: no word -> placement only, streak resets', () {
@@ -92,10 +92,10 @@ void main() {
     expect(r.score.total, 55);
   });
 
-  test('9: x1.5 then x1.1 streak, floor once: KARE 4*1.5*1.1 = 6.6 -> 6', () {
+  test('9: x2 then x1.1 streak, floor once: KARE 4*2*1.1 = 8.8 -> 8', () {
     final r = score(['KARe....', '.......Z'], streakBefore: 1);
-    expect(r.score.wordPoints, 6);
-    expect(r.score.total, 7);
+    expect(r.score.wordPoints, 8);
+    expect(r.score.total, 9);
   });
 
   test('10: joker letter scores 0, no placement bonus, no streak reset', () {
@@ -141,8 +141,8 @@ void main() {
       baseScoreX10: letterSum * cfg.lengthMultiplierX10[len]!,
     );
     final six = scoreMove(config: cfg, hits: [hit(7, 6)], placedCells: 2, gridEmptyAfter: false, streakBefore: 0);
-    expect(six.score.wordPoints, 21); // 7 x3
+    expect(six.score.wordPoints, 28); // 7 x4
     final seven = scoreMove(config: cfg, hits: [hit(9, 7)], placedCells: 1, gridEmptyAfter: false, streakBefore: 0);
-    expect(seven.score.wordPoints, 36); // 9 x4
+    expect(seven.score.wordPoints, 45); // 9 x5
   });
 }

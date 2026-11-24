@@ -748,7 +748,7 @@ class L10nTr extends L10n {
 
   @override
   String get intro3Body =>
-      'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 5 harf ×2, 6 harf ×3, 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.';
+      'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 4 harf ×2, 5 harf ×3, 6 harf ×4… 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.';
 
   @override
   String get intro4Title => 'Oyun ne zaman biter?';
@@ -779,6 +779,21 @@ class L10nTr extends L10n {
   @override
   String bestChip(int n) {
     return 'En iyi $n';
+  }
+
+  @override
+  String nextGoalRecord(int n) {
+    return 'Rekora $n puan kaldı';
+  }
+
+  @override
+  String nextGoalLevel(int n, int xp) {
+    return 'Seviye $n için $xp XP kaldı';
+  }
+
+  @override
+  String nextGoalMission(String text) {
+    return 'Görev: $text';
   }
 
   @override

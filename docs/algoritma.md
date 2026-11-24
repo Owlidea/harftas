@@ -156,8 +156,8 @@ Harf puanları: K1 A1 R1 E1 L1 M2.
 | # | Durum | Hesap | Sonuç |
 |---|---|---|---|
 | 1 | Boş satıra `K A R` (3 hücre) konur, seri 0 | KAR = 3 × 1.0 = 3; kombo 1; seri ×1.0 → 3; +3 yerleştirme | **6**, seri 1 |
-| 2 | Yatay KALEM (5) + dikey ELMA (4), E paylaşımlı, 3 hücre konur, önceki seri 2 | base10 = 6·20 + 5·15 = 195; ×2 kombo; ×1.2 seri → 195·2·12/100 = 46.8 → 46; +3 | **49**, seri 3 |
-| 3 | Segment `E L M A K A R`, sözlükte ELMA ve KAR (çakışmıyor), seri 0, ortadaki `A K` (2 hücre) konur | ELMA 5·15=75, KAR 3·10=30 → base10 105; ×2 kombo; ×1.0 → 21; +2 | **23**, seri 1 |
+| 2 | Yatay KALEM (5) + dikey ELMA (4), E paylaşımlı, 3 hücre konur, önceki seri 2 | base10 = 6·30 + 5·20 = 280; ×2 kombo; ×1.2 seri → 280·2·12/100 = 67.2 → 67; +3 | **70**, seri 3 |
+| 3 | Segment `E L M A K A R`, sözlükte ELMA ve KAR (çakışmıyor), seri 0, ortadaki `A K` (2 hücre) konur | ELMA 5·20=100, KAR 3·10=30 → base10 130; ×2 kombo; ×1.0 → 26; +2 | **28**, seri 1 |
 | 4 | Segment `A R A B A`, aday ARA(0-2) ve ARABA(0-4) | çakışma → ARABA (uzun) kazanır; ARA atılır | 1 kelime |
 | 5 | Kelime oluşmayan hamle, 4 hücre, önceki seri 5 | kelime yok | **4**, seri 0 |
 | 6 | Örnek 1 sonucunda ızgara tamamen boşalır | 3 + 3 + 100 | **106** |

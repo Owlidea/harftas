@@ -27,3 +27,7 @@ Kaynak: ana spesifikasyon + başlangıç soruları 1–18 ("hepsi önerin gibi")
     alınmıştı; "Harf Kombo" iki mağazada da boştu). Mağaza adı "Harf Kombo: Kelime Bulmaca". Paket
     kimliği `com.owlidea.harftas`, ürün kimlikleri ve barındırılan sayfa adresleri
     (`owlidea.github.io/harftas/…`) değişmedi; kullanıcıya görünmezler ve mağazalar bu adresleri tutuyor.
+20. Uzunluk çarpanı 24 Kasım 2026'da sadeleşti: **her fazladan harf +1 çarpan** (3 harf ×1, 4 ×2, 5 ×3,
+    6 ×4, 7 ×5, 8 ×6; eski değerler 4 ×1,5 · 5 ×2 · 6 ×3 · 7 ×4). Amaç 3 harfli kelime baskınlığına
+    karşı uzun kelimeyi daha ödüllü kılmak. Simülatör (1000 oyun): oyun süresi değişmedi (62,4 hamle),
+    ortalama skor yaygın-kelime botunda 382 → 401, tam-sözlük botunda 989 → 1028.

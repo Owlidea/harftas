@@ -10,6 +10,7 @@ import '../../progress/profile.dart';
 import '../../core/core.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/calendar.dart';
+import '../../progress/next_goal.dart';
 import '../../progress/progression.dart';
 import '../components/app_icon.dart';
 import '../components/confetti.dart';
@@ -768,6 +769,17 @@ class _GameOverPanel extends StatelessWidget {
                 ),
               ),
           ],
+          if (!daily && r != null) ...[
+            const SizedBox(height: Space.s4),
+            _NextGoalRow(
+              NextGoal.pick(
+                score: s.score,
+                best: app.profile.bestScore,
+                missions: r.missionsAfter,
+                totalXp: app.profile.totalXp,
+              ),
+            ),
+          ],
           const SizedBox(height: Space.s5),
           if (daily) ...[
             if (r?.dailyResult != null)
@@ -804,6 +816,69 @@ class _GameOverPanel extends StatelessWidget {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// One line that points at the closest goal (record, mission or level), so
+/// "play again" has a reason attached.
+class _NextGoalRow extends StatelessWidget {
+  const _NextGoalRow(this.goal);
+  final NextGoal goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final p = context.palette;
+    final (icon, text) = switch (goal) {
+      RecordGoal(:final pointsLeft) => (AppIconName.crown, l.nextGoalRecord(pointsLeft)),
+      MissionGoal(:final mission) => (AppIconName.missions, l.nextGoalMission(missionText(l, mission))),
+      LevelGoal(:final nextLevel, :final xpLeft) => (AppIconName.star, l.nextGoalLevel(nextLevel, xpLeft)),
+    };
+    return Semantics(
+      label: text,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AppIcon(icon, size: 15, color: p.accent),
+              const SizedBox(width: Space.s2),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.bodySmall!.copyWith(color: p.ink, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Space.s2),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.pill),
+            child: SizedBox(
+              height: 6,
+              child: Stack(
+                children: [
+                  Container(color: p.surfaceAlt),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: goal.fraction.clamp(0.0, 1.0)),
+                    duration: context.reduceMotion ? Duration.zero : const Duration(milliseconds: 900),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, f, _) => FractionallySizedBox(
+                      widthFactor: f,
+                      child: Container(color: p.accent),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -181,7 +181,9 @@ def top_camera(sc, scale, tilt=16):
 
 def floor():
     bpy.ops.mesh.primitive_plane_add(size=80, location=(0, 0, 0))
-    bpy.context.object.is_shadow_catcher = True
+    ground = bpy.context.object
+    ground.is_shadow_catcher = True
+    return ground
 
 
 def render(sc, name):
@@ -246,11 +248,24 @@ def job_android_fg():
 def job_splash():
     sc = reset(1024, 1024)
     top_camera(sc, 4.9, tilt=14)
-    letter_tile("H", IVORY)
-    floor()
+    tile = letter_tile("H", IVORY)
+    ground = floor()
     light((-4, 5, 12), 1750, 9)
     light((6, -6, 7), 330, 10, color=(0.9, 0.97, 1.0))
-    write_png(os.path.join(ROOT, "assets/branding/splash_mark.png"), render(sc, "splash"))
+    # Two passes: the tile alone, then only its shadow. The mark sits on a flat
+    # launch colour where a full-strength shadow reads as a dark smudge, so the
+    # shadow is composited back at a fraction of its strength.
+    ground.hide_render = True
+    body = render(sc, "splash_body")
+    ground.hide_render = False
+    for part in tile.children:
+        part.visible_camera = False
+    shadow = render(sc, "splash_shadow")
+    sa = shadow[..., 3] * 0.30
+    a = body[..., 3]
+    out_a = a + sa * (1 - a)
+    rgb = body[..., :3] * (a / np.maximum(out_a, 1e-6))[..., None]
+    write_png(os.path.join(ROOT, "assets/branding/splash_mark.png"), np.dstack([rgb, out_a]))
 
 
 def wordmark(gap=2.16):
