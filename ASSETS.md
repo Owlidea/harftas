@@ -33,14 +33,16 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 | 9 | `assets/images/themes/preview_<tema>.png` (classic, olive, lavender, amber, dawn, sea, midnight) | ⏳ | Olursa iyi (canlı önizleme var) | 4 |
 | 10 | `assets/images/empty/{wordbook,calendar,missions}.svg` | ⏳ | Olursa iyi | 3–4 |
 | 11 | `assets/images/tutorial/hand.svg` | ⏳ | Olursa iyi | 3 |
-| 12 | `assets/anim/new_record.json` | ⏳ | Olursa iyi | 3 |
-| 13 | `assets/anim/board_clear.json`, `assets/anim/level_up.json` | ⏳ | Olursa iyi | 3–4 |
+| 12 | `assets/anim/new_record.webp` (Blender kare dizisi, 6×6 kare, 30 fps; Lottie `.json` de hâlâ desteklenir) | ✅ | Olursa iyi | 3 |
+| 13 | `assets/anim/board_clear.webp`, `assets/anim/level_up.webp` (Blender kare dizisi) | ✅ | Olursa iyi | 3–4 |
 
 Not: Uygulama simgesi ve açılış ekranı yerel proje dosyalarına girer (Flutter varlığı değildir).
 Teslim ettiğinizde `docs/yayin_kontrol_listesi.md` §3'teki adımı uygulayacağım.
 
 Blender varlıkları `tool/blender/build.sh` ile yeniden üretilir (Blender 5.x; betikler: `render_tiles.py`,
-`render_icons.py`). Önizleme için `preview_tiles.py` ve `contact_sheet.py`.
+`render_icons.py`, `render_anims.py`; animasyonlar için `brew install webp`). Önizleme için `preview_tiles.py` ve `contact_sheet.py`.
+
+Sizden beklenen görsel ve sesler için hazır üretim promptları: `docs/GORSEL_PROMPTLARI.md`.
 
 ## Ses (`assets/audio/`, 44,1 kHz OGG Vorbis; efektler mono, müzik stereo)
 | Dosya | Durum | Öncelik |

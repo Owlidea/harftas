@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../config/asset_paths.dart';
 import '../theme/app_theme.dart';
 import 'app_icon.dart';
+import 'sprite_anim.dart';
 
 /// One-shot celebration for a new record (spec 10). Plays the delivered
 /// Lottie (`assets/anim/new_record.json`) when present, otherwise a
@@ -19,6 +20,17 @@ class Celebration extends StatelessWidget {
     if (context.reduceMotion) return const SizedBox.shrink();
     if (AssetIndex.has(AssetPaths.animNewRecord)) {
       return IgnorePointer(child: Lottie.asset(AssetPaths.animNewRecord, repeat: false, fit: BoxFit.cover));
+    }
+    if (SpriteAnim.available(AssetPaths.fxNewRecord)) {
+      // Rendered 3D crown burst over the code-drawn confetti rain.
+      return const IgnorePointer(
+        child: Stack(
+          children: [
+            Positioned.fill(child: Confetti()),
+            Align(alignment: Alignment(0, -0.62), child: SpriteAnim(AssetPaths.fxNewRecord, size: 320)),
+          ],
+        ),
+      );
     }
     return const IgnorePointer(child: Confetti());
   }

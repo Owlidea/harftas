@@ -159,6 +159,10 @@ class GameController extends ChangeNotifier {
   GameEndResult? endResult;
   bool endRecorded = false;
   final List<GameToast> toasts = [];
+
+  /// One-shot celebration sprite sheets to play over the board (asset
+  /// paths); drained by the game screen.
+  final List<String> effects = [];
   final List<Timer> _timers = [];
   Palette? _palette;
 
@@ -528,7 +532,15 @@ class GameController extends ChangeNotifier {
         final semis = steps[math.min(streak - 2, steps.length - 1)];
         _at(popStart + 120, () => app.services.audio.play(SoundId.streakUp, pitch: math.pow(2, semis / 12).toDouble()));
       }
-      if ((score?.score.clearBonus ?? 0) > 0) _at(end, () => _feedback(SoundId.boardClear, HapticKind.combo));
+      if ((score?.score.clearBonus ?? 0) > 0) {
+        _at(end, () {
+          _feedback(SoundId.boardClear, HapticKind.combo);
+          if (!reduceMotion) {
+            effects.add(AssetPaths.fxBoardClear);
+            notifyListeners();
+          }
+        });
+      }
       if (!reduceMotion && pal != null) {
         _at(popStart, () {
           for (final h in hits) {
@@ -586,6 +598,7 @@ class GameController extends ChangeNotifier {
         }
         for (final l in rec.levelUps) {
           toasts.add(LevelToast(l));
+          if (!reduceMotion) effects.add(AssetPaths.fxLevelUp);
         }
       }
     }

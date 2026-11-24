@@ -253,12 +253,13 @@ def icon_gift(sc):
         box(teal, (0.30, 1.48, 1.27), (0, 0, -0.27), bevel=0.05),
         box(teal, (1.48, 0.30, 1.27), (0, 0, -0.27), bevel=0.05),
     ]
-    for sx in (-1, 1):
-        loop = prim("torus", teal, major_radius=0.24, minor_radius=0.085, location=(sx * 0.36, 0, 0.54),
-                    rotation=(math.radians(90), math.radians(sx * 40), 0), major_segments=48, minor_segments=20)
-        loop.scale = (1.35, 0.7, 1.0)
-        objs.append(loop)
-    objs.append(prim("uv_sphere", teal, radius=0.15, location=(0, 0, 0.44)))
+    # Puffy bow-tie standing on the lid, turned to face the camera.
+    tie = [(-0.62, 0.30), (-0.10, 0.07), (0.10, 0.07), (0.62, 0.30), (0.62, -0.30), (0.10, -0.07), (-0.10, -0.07), (-0.62, -0.30)]
+    bow = emblem("bow", fillet(tie, 0.10), teal, depth=0.07, puff=0.09)
+    bow.location = (0, 0, 0.57)
+    bow.rotation_euler = (math.radians(90), 0, math.radians(-32))
+    knot = prim("uv_sphere", teal, radius=0.25, location=(0, 0, 0.57))
+    objs += [bow, knot]
     group(objs, rot_z=32)
 
 
@@ -303,14 +304,19 @@ JOBS = {
     "badges/streak_100": medal(100, GOLD, GOLD_LIGHT),
 }
 
-for name, fn in JOBS.items():
-    if ONLY and not any(o in name for o in ONLY):
-        continue
-    sc = reset()
-    fn(sc)
-    out = os.path.join(ROOT, "assets/images", name + ".png")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    sc.render.filepath = out
-    bpy.ops.render.render(write_still=True)
-    print("WROTE", out)
-print("DONE")
+def main():
+    for name, fn in JOBS.items():
+        if ONLY and not any(o in name for o in ONLY):
+            continue
+        sc = reset()
+        fn(sc)
+        out = os.path.join(ROOT, "assets/images", name + ".png")
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        sc.render.filepath = out
+        bpy.ops.render.render(write_still=True)
+        print("WROTE", out)
+    print("DONE")
+
+
+if __name__ == "__main__":
+    main()
