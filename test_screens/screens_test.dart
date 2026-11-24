@@ -17,6 +17,7 @@ import 'package:harfblok/data/storage/json_store.dart';
 import 'package:harfblok/data/storage/storage_backend.dart';
 import 'package:harfblok/progress/profile.dart';
 import 'package:harfblok/progress/progression.dart';
+import 'package:harfblok/progress/streak.dart';
 import 'package:harfblok/progress/summaries.dart';
 import 'package:harfblok/services/ads_service.dart';
 import 'package:harfblok/services/analytics.dart';
@@ -29,6 +30,8 @@ import 'package:harfblok/services/purchase_service.dart';
 import 'package:harfblok/config/asset_paths.dart';
 import 'package:harfblok/ui/components/app_icon.dart';
 import 'package:harfblok/ui/components/sprite_anim.dart';
+import 'package:harfblok/ui/game/board_art.dart';
+import 'package:harfblok/ui/game/fx_art.dart';
 import 'package:harfblok/ui/game/game_controller.dart';
 import 'package:harfblok/ui/game/tile_art.dart';
 import 'package:harfblok/ui/screens/daily_screen.dart';
@@ -146,6 +149,8 @@ void main() {
     await _loadFont();
     await AssetIndex.load();
     await TileArt.load();
+    await FxArt.load();
+    await BoardArt.load();
     Directory(_outDir).createSync(recursive: true);
   });
 
@@ -188,6 +193,14 @@ void main() {
 
       final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
 
+      // Daily gift: the chip on the home screen opens the sheet.
+      await tester.tap(find.text('Hediye'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1400));
+      await shot(tester, key, '14_daily_gift_$mode');
+      nav.pop();
+      await tester.pump(const Duration(milliseconds: 600));
+
       Future<void> open(Widget w, String name) async {
         nav.push(MaterialPageRoute(builder: (_) => w));
         await tester.pump();
@@ -202,6 +215,34 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
       await shot(tester, key, '02_game_$mode');
+
+      // Board sprite effects frozen mid-flight (tile pop, dust puff, hammer,
+      // joker, combo) over the real board.
+      final c = (tester.state(find.byType(GameScreen)) as dynamic).c as GameController;
+      final geo = c.geometry!;
+      final clock = GameController.debugNow;
+      const t = 5e9;
+      GameController.debugNow = () => t;
+      c.boardFx
+        ..add(BoardFx(FxArt.sheet(FxArt.tilePop)!, geo.cellRect(1, 5).center, geo.cell * 2.6, t - 200))
+        ..add(BoardFx(FxArt.sheet(FxArt.hammer)!, geo.cellRect(6, 1).center, geo.cell * 3.2, t - 300))
+        ..add(BoardFx(FxArt.sheet(FxArt.joker)!, geo.cellRect(3, 3).center, geo.cell * 3.0, t - 230));
+      c.comboFx = ComboFx(3, Offset(geo.rect.width * 0.66, geo.rect.height * 0.80), t - 330);
+      c.frame.value++;
+      await shot(tester, key, '11_board_fx_$mode');
+      c.boardFx.clear();
+      c.comboFx = null;
+      GameController.debugNow = clock;
+
+      // Board surface styles (level rewards).
+      m.profile.unlockedBoardStyles.addAll(BoardArt.styles);
+      for (final id in BoardArt.styles.skip(1)) {
+        await tester.runAsync(() => m.updateSettings(m.settings.copyWith(boardStyleId: id)));
+        await tester.pump();
+        await shot(tester, key, '12_board_${id}_$mode');
+      }
+      await tester.runAsync(() => m.updateSettings(m.settings.copyWith(boardStyleId: 'plain')));
+      await tester.pump();
       nav.pop();
       await tester.pump(const Duration(milliseconds: 600));
 
@@ -229,6 +270,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
 
       await open(const DailyScreen(), '04_daily_$mode');
+
+      // A streak lost three days ago (shield spent): the rewarded repair offer.
+      final streak = m.profile.streak;
+      m.profile.streak = DailyStreak(
+        current: 9,
+        best: 9,
+        lastPlayed: m.today.addDays(-3),
+        shieldMonthUsed: m.today.monthKey,
+      );
+      await open(const DailyScreen(), '13_streak_repair_$mode');
+      m.profile.streak = streak;
       await open(const MissionsScreen(), '05_missions_$mode');
       await open(const WordbookScreen(), '06_wordbook_$mode');
       await open(const SettingsScreen(), '07_settings_$mode');

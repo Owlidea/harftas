@@ -45,15 +45,23 @@ void main() {
   });
 
   group('Levels (spec 8)', () {
-    test('XP = score / 10; level N needs round(500 * N^1.5)', () {
+    test('XP = score / 10; level N needs 250 + 150 * N (karar 21)', () {
       expect(Levels.xpForScore(1234), 123);
-      expect(Levels.xpToNext(1), 500);
-      expect(Levels.xpToNext(2), 1414);
-      expect(Levels.xpToNext(4), 4000);
+      expect(Levels.xpToNext(1), 400);
+      expect(Levels.xpToNext(2), 550);
+      expect(Levels.xpToNext(4), 850);
       expect(Levels.fromTotalXp(0).level, 1);
-      expect(Levels.fromTotalXp(499).level, 1);
-      expect(Levels.fromTotalXp(500).level, 2);
-      expect(Levels.fromTotalXp(500 + 1414).level, 3);
+      expect(Levels.fromTotalXp(399).level, 1);
+      expect(Levels.fromTotalXp(400).level, 2);
+      expect(Levels.fromTotalXp(400 + 550).level, 3);
+    });
+    test('a daily player reaches the cosmetic levels within weeks, not years', () {
+      int xpForLevel(int level) => [for (var l = 1; l < level; l++) Levels.xpToNext(l)].fold(0, (a, b) => a + b);
+      const perDay = 300; // three games plus the daily missions
+      expect(xpForLevel(3) / perDay, lessThan(4));
+      expect(xpForLevel(5) / perDay, lessThan(10));
+      expect(xpForLevel(10) / perDay, lessThan(35));
+      expect(xpForLevel(20) / perDay, lessThan(120));
     });
     test('rewards: themes, tile styles, powerups', () {
       expect(Levels.rewardFor(5).themeId, 'olive');
@@ -61,6 +69,17 @@ void main() {
       expect(Levels.rewardFor(2).powerup, isNotNull);
       expect(Levels.rewardFor(12).tileStyleId, 'grain');
       expect(Levels.rewardFor(20).tileStyleId, 'marble');
+      expect(Levels.rewardFor(4).boardStyleId, 'felt');
+      expect(Levels.rewardFor(7).boardStyleId, 'grain');
+      expect(Levels.rewardFor(14).boardStyleId, 'marble');
+    });
+    test('level-up unlocks the board style', () {
+      final p = PlayerProfile();
+      expect(p.unlockedBoardStyles, {'plain'});
+      final ups = Progression.addXp(p, Levels.xpToNext(1) + Levels.xpToNext(2) + Levels.xpToNext(3));
+      expect(ups.map((u) => u.level), [2, 3, 4]);
+      expect(p.unlockedBoardStyles, {'plain', 'felt'});
+      expect(PlayerProfile.fromJson(p.toJson()).unlockedBoardStyles, {'plain', 'felt'});
     });
     test('styles added later unlock for players already past their level', () {
       var xp = 0;

@@ -748,7 +748,7 @@ class L10nTr extends L10n {
 
   @override
   String get intro3Body =>
-      'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 5 harf ×2, 6 harf ×3, 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.';
+      'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 4 harf ×2, 5 harf ×3, 6 harf ×4… 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.';
 
   @override
   String get intro4Title => 'Oyun ne zaman biter?';
@@ -779,6 +779,21 @@ class L10nTr extends L10n {
   @override
   String bestChip(int n) {
     return 'En iyi $n';
+  }
+
+  @override
+  String nextGoalRecord(int n) {
+    return 'Rekora $n puan kaldı';
+  }
+
+  @override
+  String nextGoalLevel(int n, int xp) {
+    return 'Seviye $n için $xp XP kaldı';
+  }
+
+  @override
+  String nextGoalMission(String text) {
+    return 'Görev: $text';
   }
 
   @override
@@ -997,4 +1012,200 @@ class L10nTr extends L10n {
 
   @override
   String get ruleSkillTitle => 'Saf beceri';
+
+  @override
+  String missionScoreTotal(int target) {
+    return 'Toplam $target puan topla';
+  }
+
+  @override
+  String missionDailyPuzzles(int target) {
+    return '$target günlük bulmaca tamamla';
+  }
+
+  @override
+  String get weeklyTitle => 'Haftalık hedef';
+
+  @override
+  String weeklyDaysLeft(int n) {
+    return '$n gün kaldı';
+  }
+
+  @override
+  String get weeklyLastDay => 'Son gün';
+
+  @override
+  String weeklyReward(int xp, int n) {
+    return '+$xp XP · her güçlendiriciden $n';
+  }
+
+  @override
+  String get weeklyDone => 'Haftalık hedef tamam';
+
+  @override
+  String rewardBoardShort(String name) {
+    return '$name zemin';
+  }
+
+  @override
+  String get boardStyle => 'Tahta zemini';
+
+  @override
+  String get boardPlain => 'Düz';
+
+  @override
+  String get boardFelt => 'Keçe';
+
+  @override
+  String get boardGrain => 'Ahşap';
+
+  @override
+  String get boardMarble => 'Mermer';
+
+  @override
+  String levelUpUnlock(int level, String reward) {
+    return 'Seviye $level · $reward açıldı';
+  }
+
+  @override
+  String get achievementsTitle => 'Başarımlar';
+
+  @override
+  String achievementsCount(int a, int b) {
+    return '$a/$b';
+  }
+
+  @override
+  String achievementUnlocked(String name) {
+    return 'Başarım: $name';
+  }
+
+  @override
+  String get achWords => 'Kelime Ustası';
+
+  @override
+  String get achUnique => 'Koleksiyoncu';
+
+  @override
+  String get achLength => 'Uzun Soluk';
+
+  @override
+  String get achCombo => 'Kombocu';
+
+  @override
+  String get achScore => 'Skor Avcısı';
+
+  @override
+  String get achMoveStreak => 'Seri Ustası';
+
+  @override
+  String get achClears => 'Tertemiz';
+
+  @override
+  String get achGames => 'Müdavim';
+
+  @override
+  String get achRare => 'Nadir Harf';
+
+  @override
+  String get achDaily => 'Günlük Sadık';
+
+  @override
+  String achWordsDesc(int n) {
+    return '$n kelime kur';
+  }
+
+  @override
+  String achUniqueDesc(int n) {
+    return '$n farklı kelime bul';
+  }
+
+  @override
+  String achLengthDesc(int n) {
+    return '$n harfli bir kelime kur';
+  }
+
+  @override
+  String achComboDesc(int n) {
+    return 'Tek hamlede $n kelime patlat';
+  }
+
+  @override
+  String achScoreDesc(int n) {
+    return 'Bir oyunda $n puan yap';
+  }
+
+  @override
+  String achMoveStreakDesc(int n) {
+    return '$n hamlelik seri yap';
+  }
+
+  @override
+  String achClearsDesc(int n) {
+    return 'Izgarayı $n kez tamamen boşalt';
+  }
+
+  @override
+  String achGamesDesc(int n) {
+    return '$n oyun bitir';
+  }
+
+  @override
+  String get achRareDesc => 'J veya Ğ içeren bir kelime kur';
+
+  @override
+  String achDailyDesc(int n) {
+    return '$n günlük bulmaca tamamla';
+  }
+
+  @override
+  String get doubleXp => '2× XP';
+
+  @override
+  String get doubleXpA11y => 'XP\'yi ikiye katla';
+
+  @override
+  String get doubleXpA11yAd => 'Reklam izleyerek XP\'yi ikiye katla';
+
+  @override
+  String get xpDoubledLabel => 'XP ×2';
+
+  @override
+  String streakLostTitle(int n) {
+    return '$n günlük serin bozuldu';
+  }
+
+  @override
+  String get streakLostBody => 'Bugünün bulmacasını oynamadan önce geri alabilirsin.';
+
+  @override
+  String get streakRepairAd => 'Reklam izle, seriyi kurtar';
+
+  @override
+  String get streakRepairFree => 'Seriyi kurtar';
+
+  @override
+  String streakRepaired(int n) {
+    return 'Serin geri geldi: $n gün';
+  }
+
+  @override
+  String get giftChip => 'Hediye';
+
+  @override
+  String get giftTitle => 'Günlük hediye';
+
+  @override
+  String giftGot(int n, String name) {
+    return '+$n $name';
+  }
+
+  @override
+  String get giftDoubleAd => 'Reklam izle, bir tane daha al';
+
+  @override
+  String get giftDoubleFree => 'Bir tane daha al';
+
+  @override
+  String get giftTomorrow => 'Yarın yeni bir hediye seni bekliyor.';
 }

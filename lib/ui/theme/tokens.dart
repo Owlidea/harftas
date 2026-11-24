@@ -35,6 +35,9 @@ abstract final class Radii {
 abstract final class Motion {
   static const pick = Duration(milliseconds: 120);
   static const settle = Duration(milliseconds: 180);
+
+  /// Ring pushed out from under a tile as it lands.
+  static const landRing = Duration(milliseconds: 320);
   static const wordHighlight = Duration(milliseconds: 200);
   static const popPerLetter = Duration(milliseconds: 50);
   static const pop = Duration(milliseconds: 250);

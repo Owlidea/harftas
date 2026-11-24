@@ -8,6 +8,8 @@ import '../../l10n/app_localizations.dart';
 import '../../progress/calendar.dart';
 import '../../progress/progression.dart';
 import '../components/app_icon.dart';
+import '../components/overlays.dart';
+import '../components/sprite_anim.dart';
 import '../components/hero.dart';
 import '../components/widgets.dart';
 import '../theme/app_theme.dart';
@@ -262,6 +264,60 @@ class _RuleStrip extends StatelessWidget {
   }
 }
 
+/// Shown when a streak worth keeping was just lost: one rewarded ad (free
+/// without ads) brings it back, as long as today's puzzle is still unplayed.
+class _StreakRepair extends StatefulWidget {
+  const _StreakRepair({required this.days});
+  final int days;
+  @override
+  State<_StreakRepair> createState() => _StreakRepairState();
+}
+
+class _StreakRepairState extends State<_StreakRepair> {
+  bool _busy = false;
+
+  Future<void> _repair() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final app = AppScope.read(context);
+    final l = L10n.of(context);
+    final ok = await app.repairStreak();
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (ok) showGameToast(context, l.streakRepaired(app.profile.streak.current), icon: AppIconName.streak);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final p = context.palette;
+    final app = AppScope.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: Space.s4),
+      padding: const EdgeInsets.all(Space.s4),
+      decoration: BoxDecoration(
+        color: p.accentSoft,
+        borderRadius: BorderRadius.circular(Radii.lg),
+        border: Border.all(color: p.accent.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.streakLostTitle(widget.days), style: context.text.labelLarge!.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 2),
+          Text(l.streakLostBody, style: context.text.bodySmall!.copyWith(color: p.inkMuted)),
+          const SizedBox(height: Space.s3),
+          PrimaryButton(
+            label: app.profile.adsRemoved ? l.streakRepairFree : l.streakRepairAd,
+            icon: AppIconName.streak,
+            onPressed: _busy ? null : _repair,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Big flame count, best streak, last-7-days strip and badge track.
 class _StreakPanel extends StatelessWidget {
   const _StreakPanel({required this.today});
@@ -276,18 +332,33 @@ class _StreakPanel extends StatelessWidget {
     final current = streak.displayed(today);
     final next = streak.nextMilestone;
     final weekdays = l.weekdaysShort.split(',');
+    final repairable = app.dailyDoneToday ? 0 : app.repairableStreak;
+    final canWatch = app.services.ads.supported || app.profile.adsRemoved;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (repairable > 0 && canWatch) _StreakRepair(days: repairable),
         Row(
           children: [
             SizedBox(
               width: 48,
               height: 64,
               child: Center(
+                // A live streak burns: the flame is a looping render.
                 child: current > 0
-                    ? const ArtIcon(AppIconName.streak, size: 40, artScale: 1.25)
+                    ? (SpriteAnim.available(AssetPaths.fxFlame)
+                          ? const OverflowBox(
+                              maxWidth: 56,
+                              maxHeight: 56,
+                              child: SpriteAnim(
+                                AssetPaths.fxFlame,
+                                size: 56,
+                                loop: true,
+                                placeholder: ArtIcon(AppIconName.streak, size: 40, artScale: 1.25),
+                              ),
+                            )
+                          : const ArtIcon(AppIconName.streak, size: 40, artScale: 1.25))
                     : AppIcon(AppIconName.streak, size: 40, color: p.inkMuted),
               ),
             ),

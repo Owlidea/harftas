@@ -10,6 +10,7 @@ import '../../progress/profile.dart';
 import '../../core/core.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/calendar.dart';
+import '../../progress/next_goal.dart';
 import '../../progress/progression.dart';
 import '../components/app_icon.dart';
 import '../components/confetti.dart';
@@ -22,7 +23,8 @@ import '../game/pause_sheet.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
-import 'missions_screen.dart' show missionText;
+import 'achievements_section.dart' show achievementName;
+import 'missions_screen.dart' show levelUpText, missionText;
 import 'share_card.dart';
 
 class GameScreen extends StatefulWidget {
@@ -85,8 +87,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     setState(() {});
     _showToasts();
     if (c.effects.isNotEmpty) {
-      for (final asset in c.effects) {
-        if (SpriteAnim.available(asset)) _fx.add((id: _fxSeq++, asset: asset));
+      for (final e in c.effects) {
+        if (SpriteAnim.available(e.asset)) _fx.add((id: _fxSeq++, fx: e));
       }
       c.effects.clear();
     }
@@ -94,8 +96,15 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (c.phase == UiPhase.over && c.endResult?.dailyResult != null) _maybeAskNotifications();
   }
 
+  /// The chosen board surface, if the player has unlocked it.
+  String _boardStyle(BuildContext context) {
+    final app = AppScope.of(context);
+    final id = app.settings.boardStyleId;
+    return app.profile.unlockedBoardStyles.contains(id) ? id : 'plain';
+  }
+
   /// Celebration sprite sheets currently playing over the board.
-  final List<({int id, String asset})> _fx = [];
+  final List<({int id, OverlayFx fx})> _fx = [];
   int _fxSeq = 0;
 
   void _showToasts() {
@@ -106,7 +115,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     for (final t in items) {
       final text = switch (t) {
         MissionToast(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
-        LevelToast(:final reward) => l.levelUp(reward.level),
+        LevelToast(:final reward) => levelUpText(l, reward.level, reward.reward),
+        WeeklyToast() => l.weeklyDone,
         TextToast(kind: TextToastKind.dailyNoPowerups) => l.dailyNoPowerups,
         TextToast(kind: TextToastKind.noPowerupLeft) => l.noPowerupLeft,
       };
@@ -116,6 +126,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         icon: switch (t) {
           MissionToast() => AppIconName.missions,
           LevelToast() => AppIconName.star,
+          WeeklyToast() => AppIconName.gift,
           TextToast() => AppIconName.info,
         },
       );
@@ -295,7 +306,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                           const Spacer(flex: 2),
                           SizedBox.square(
                             dimension: boardSize,
-                            child: BoardView(controller: c, renderer: _renderer!, boardKey: _boardKey),
+                            child: BoardView(
+                              controller: c,
+                              renderer: _renderer!,
+                              boardKey: _boardKey,
+                              boardStyle: _boardStyle(context),
+                            ),
                           ),
                           const SizedBox(height: Space.s4),
                           _PowerupBar(controller: c, leftHanded: left),
@@ -332,10 +348,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 key: ValueKey(fx.id),
                 child: IgnorePointer(
                   child: Align(
-                    alignment: const Alignment(0, -0.18),
+                    alignment: fx.fx.align,
                     child: SpriteAnim(
-                      fx.asset,
-                      size: 340,
+                      fx.fx.asset,
+                      size: fx.fx.size,
                       onDone: () {
                         if (mounted) setState(() => _fx.removeWhere((e) => e.id == fx.id));
                       },
@@ -677,7 +693,9 @@ class _GameOverPanel extends StatelessWidget {
     final earned = <String>[
       for (final rw in r?.rewards ?? const <Reward>[])
         switch (rw) {
-          LevelUpReward(:final level) => l.levelUp(level),
+          LevelUpReward(:final level, :final reward) => levelUpText(l, level, reward),
+          AchievementReward(:final achievement) => l.achievementUnlocked(achievementName(l, achievement)),
+          WeeklyReward() => l.weeklyDone,
           MissionReward(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
           StreakBadgeReward(:final days) => l.streakBadge(days),
         },
@@ -685,11 +703,16 @@ class _GameOverPanel extends StatelessWidget {
     ];
 
     final title = daily ? l.dailyComplete : (record ? l.newRecord : l.gameOver);
+    final badge = (r?.rewards ?? const <Reward>[]).whereType<StreakBadgeReward>().lastOrNull;
     return _Sheet(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (badge != null) ...[
+            Center(child: _BadgeReveal(days: badge.days)),
+            const SizedBox(height: Space.s2),
+          ],
           Text(
             TurkishText.toUpper(title),
             textAlign: TextAlign.center,
@@ -741,14 +764,26 @@ class _GameOverPanel extends StatelessWidget {
                   VerticalDivider(color: p.divider, width: 1),
                   _Mini(label: l.bestWord, value: s.bestWord.isEmpty ? l.dash : s.bestWord),
                   VerticalDivider(color: p.divider, width: 1),
-                  _Mini(label: 'XP', value: '+${r?.xpGained ?? 0}'),
+                  _Mini(
+                    label: controller.xpBonus > 0 ? l.xpDoubledLabel : 'XP',
+                    value: '+${(r?.xpGained ?? 0) + controller.xpBonus}',
+                    action: controller.canDoubleXp && (app.services.ads.supported || app.profile.adsRemoved)
+                        ? _XpDoublePill(
+                            label: l.doubleXp,
+                            // A play mark says "video" without a long label.
+                            ad: !app.profile.adsRemoved,
+                            semantics: app.profile.adsRemoved ? l.doubleXpA11y : l.doubleXpA11yAd,
+                            onTap: controller.doubleXp,
+                          )
+                        : null,
+                  ),
                 ],
               ),
             ),
           ),
           if (earned.isNotEmpty) ...[
             const SizedBox(height: Space.s3),
-            for (final line in earned.take(2))
+            for (final line in earned.take(3))
               Padding(
                 padding: const EdgeInsets.only(top: Space.s1),
                 child: Row(
@@ -767,6 +802,17 @@ class _GameOverPanel extends StatelessWidget {
                   ],
                 ),
               ),
+          ],
+          if (!daily && r != null) ...[
+            const SizedBox(height: Space.s4),
+            _NextGoalRow(
+              NextGoal.pick(
+                score: s.score,
+                best: app.profile.bestScore,
+                missions: r.missionsAfter,
+                totalXp: r.totalXpAfter,
+              ),
+            ),
           ],
           const SizedBox(height: Space.s5),
           if (daily) ...[
@@ -810,10 +856,186 @@ class _GameOverPanel extends StatelessWidget {
   }
 }
 
+/// A freshly earned streak medal: pops in over a rendered sparkle burst.
+class _BadgeReveal extends StatelessWidget {
+  const _BadgeReveal({required this.days});
+  final int days;
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = AssetPaths.streakBadge(days);
+    if (!AssetIndex.has(asset)) return const SizedBox.shrink();
+    return Semantics(
+      label: L10n.of(context).streakBadge(days),
+      child: SizedBox(
+        width: 104,
+        height: 104,
+        child: OverflowBox(
+          maxWidth: 220,
+          maxHeight: 220,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (SpriteAnim.available(AssetPaths.fxSparkle)) const SpriteAnim(AssetPaths.fxSparkle, size: 220),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: context.reduceMotion ? Duration.zero : const Duration(milliseconds: 650),
+                curve: Curves.easeOutBack,
+                builder: (_, t, child) => Transform.rotate(
+                  angle: (1 - t) * -0.5,
+                  child: Transform.scale(scale: t, child: child),
+                ),
+                child: Image.asset(asset, width: 96, height: 96, filterQuality: FilterQuality.medium),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One line that points at the closest goal (record, mission or level), so
+/// "play again" has a reason attached.
+class _NextGoalRow extends StatelessWidget {
+  const _NextGoalRow(this.goal);
+  final NextGoal goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final p = context.palette;
+    final (icon, text) = switch (goal) {
+      RecordGoal(:final pointsLeft) => (AppIconName.crown, l.nextGoalRecord(pointsLeft)),
+      MissionGoal(:final mission) => (AppIconName.missions, l.nextGoalMission(missionText(l, mission))),
+      LevelGoal(:final nextLevel, :final xpLeft) => (AppIconName.star, l.nextGoalLevel(nextLevel, xpLeft)),
+    };
+    return Semantics(
+      label: text,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AppIcon(icon, size: 15, color: p.accent),
+              const SizedBox(width: Space.s2),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.bodySmall!.copyWith(color: p.ink, fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: Space.s2),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.pill),
+            child: SizedBox(
+              height: 6,
+              child: Stack(
+                children: [
+                  Container(color: p.surfaceAlt),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: goal.fraction.clamp(0.0, 1.0)),
+                    duration: context.reduceMotion ? Duration.zero : const Duration(milliseconds: 900),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, f, _) => FractionallySizedBox(
+                      widthFactor: f,
+                      child: Container(color: p.accent),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Opt-in rewarded offer under the XP figure: small on purpose.
+class _XpDoublePill extends StatelessWidget {
+  const _XpDoublePill({required this.label, required this.ad, required this.semantics, required this.onTap});
+  final String label;
+  final bool ad;
+  final String semantics;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Semantics(
+      button: true,
+      label: semantics,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          tapFeedback(context);
+          onTap();
+        },
+        child: Padding(
+          // Keeps the touch target comfortable around a small pill.
+          padding: const EdgeInsets.fromLTRB(Space.s1, Space.s1, Space.s1, Space.s2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: Space.s2 + 2, vertical: 5),
+            decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (ad) ...[
+                  CustomPaint(size: const Size(7, 9), painter: _PlayTriangle(p.onAccent)),
+                  const SizedBox(width: 5),
+                ],
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: context.text.labelSmall!.copyWith(
+                    color: p.onAccent,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayTriangle extends CustomPainter {
+  _PlayTriangle(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) => canvas.drawPath(
+    Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, size.height / 2)
+      ..lineTo(0, size.height)
+      ..close(),
+    Paint()..color = color,
+  );
+
+  @override
+  bool shouldRepaint(_PlayTriangle old) => old.color != color;
+}
+
 class _Mini extends StatelessWidget {
-  const _Mini({required this.label, required this.value});
+  const _Mini({required this.label, required this.value, this.action});
   final String label;
   final String value;
+
+  /// Optional small control shown instead of the label.
+  final Widget? action;
   @override
   Widget build(BuildContext context) => Expanded(
     child: Column(
@@ -825,7 +1047,7 @@ class _Mini extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 2),
-        Text(label, style: context.text.bodySmall!.copyWith(fontSize: 12), textAlign: TextAlign.center),
+        action ?? Text(label, style: context.text.bodySmall!.copyWith(fontSize: 12), textAlign: TextAlign.center),
       ],
     ),
   );

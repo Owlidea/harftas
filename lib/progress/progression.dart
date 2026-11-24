@@ -1,4 +1,5 @@
 import '../core/model/game_state.dart';
+import 'achievements.dart';
 import 'calendar.dart';
 import 'levels.dart';
 import 'missions.dart';
@@ -29,6 +30,16 @@ class StreakBadgeReward extends Reward {
   final String themeId;
 }
 
+class AchievementReward extends Reward {
+  const AchievementReward(this.achievement);
+  final Achievement achievement;
+}
+
+class WeeklyReward extends Reward {
+  const WeeklyReward(this.goal);
+  final WeeklyGoal goal;
+}
+
 class GameEndResult {
   const GameEndResult({
     required this.xpGained,
@@ -38,6 +49,7 @@ class GameEndResult {
     this.dailyResult,
     this.shieldUsed = false,
     this.missionsAfter = const [],
+    this.totalXpAfter = 0,
   });
 
   final int xpGained;
@@ -49,6 +61,9 @@ class GameEndResult {
 
   /// Today's missions after this game (for the game-over summary).
   final List<Mission> missionsAfter;
+
+  /// Total XP once everything this game earned is counted.
+  final int totalXpAfter;
 }
 
 /// Pure progression rules (spec 8). Mutates the given profile / wordbook.
@@ -62,20 +77,30 @@ abstract final class Progression {
     }
   }
 
-  /// Returns newly completed missions and any level-ups their XP caused.
-  static ({List<Mission> missions, List<LevelUpReward> levelUps}) applyMove(
+  static void ensureWeekly(PlayerProfile p, DayKey today) {
+    if (p.weekly?.week != WeeklyGoal.weekOf(today)) p.weekly = WeeklyGoal.forDay(today);
+  }
+
+  /// Returns newly completed missions, the weekly goal if this move finished
+  /// it, and any level-ups their XP caused.
+  static ({List<Mission> missions, WeeklyGoal? weekly, List<LevelUpReward> levelUps}) applyMove(
     PlayerProfile p,
     MoveSummary move,
     DayKey today,
   ) {
     ensureMissions(p, today);
+    ensureWeekly(p, today);
+    if (move.combo > p.bestCombo) p.bestCombo = move.combo;
     final done = _updateMissions(p, (m) => MissionPool.applyMove(m, move));
     final levels = <LevelUpReward>[for (final m in done) ...addXp(p, m.rewardXp)];
-    return (missions: done, levelUps: levels);
+    final weekly = _updateWeekly(p, (m) => MissionPool.applyMove(m, move));
+    if (weekly != null) levels.addAll(addXp(p, WeeklyGoal.rewardXp));
+    return (missions: done, weekly: weekly, levelUps: levels);
   }
 
   static GameEndResult applyGameEnd(PlayerProfile p, Wordbook book, GameSummary g, DayKey today) {
     ensureMissions(p, today);
+    ensureWeekly(p, today);
     final rewards = <Reward>[];
 
     var newWords = 0;
@@ -89,11 +114,19 @@ abstract final class Progression {
     p.totalWords += g.wordCount;
     p.totalLetters += g.words.fold(0, (n, w) => n + w.length);
     if (g.bestStreak > p.bestMoveStreak) p.bestMoveStreak = g.bestStreak;
+    p.boardClears += g.boardClears;
 
     for (final m in _updateMissions(p, (m) => MissionPool.applyGame(m, g))) {
       rewards
         ..add(MissionReward(m))
         ..addAll(addXp(p, m.rewardXp));
+    }
+
+    final weekly = _updateWeekly(p, (m) => MissionPool.applyGame(m, g));
+    if (weekly != null) {
+      rewards
+        ..add(WeeklyReward(weekly))
+        ..addAll(addXp(p, WeeklyGoal.rewardXp));
     }
 
     DailyResult? daily;
@@ -119,6 +152,7 @@ abstract final class Progression {
 
     final xp = Levels.xpForScore(g.score);
     rewards.addAll(addXp(p, xp));
+    rewards.addAll(claimAchievements(p, book));
 
     return GameEndResult(
       xpGained: xp,
@@ -128,7 +162,21 @@ abstract final class Progression {
       dailyResult: daily,
       shieldUsed: shieldUsed,
       missionsAfter: List.unmodifiable(p.missions),
+      totalXpAfter: p.totalXp,
     );
+  }
+
+  /// Marks every newly reached achievement as earned and pays its XP.
+  static List<Reward> claimAchievements(PlayerProfile p, Wordbook book) {
+    final out = <Reward>[];
+    for (final a in Achievements.all) {
+      if (p.achievements.contains(a.id) || !Achievements.reached(a, p, book)) continue;
+      p.achievements.add(a.id);
+      out
+        ..add(AchievementReward(a))
+        ..addAll(addXp(p, a.rewardXp));
+    }
+    return out;
   }
 
   static List<LevelUpReward> addXp(PlayerProfile p, int xp) {
@@ -149,6 +197,7 @@ abstract final class Progression {
       final r = Levels.rewardFor(l);
       if (r.themeId != null) changed = p.unlockedThemes.add(r.themeId!) || changed;
       if (r.tileStyleId != null) changed = p.unlockedTileStyles.add(r.tileStyleId!) || changed;
+      if (r.boardStyleId != null) changed = p.unlockedBoardStyles.add(r.boardStyleId!) || changed;
     }
     return changed;
   }
@@ -157,8 +206,23 @@ abstract final class Progression {
     final r = Levels.rewardFor(level);
     if (r.themeId != null) p.unlockedThemes.add(r.themeId!);
     if (r.tileStyleId != null) p.unlockedTileStyles.add(r.tileStyleId!);
+    if (r.boardStyleId != null) p.unlockedBoardStyles.add(r.boardStyleId!);
     if (r.powerup != null) p.powerups[r.powerup!] = (p.powerups[r.powerup!] ?? 0) + 1;
     return LevelUpReward(level, r);
+  }
+
+  /// Advances the weekly goal; returns it when this update completed it
+  /// (its powerups are granted here, its XP by the caller).
+  static WeeklyGoal? _updateWeekly(PlayerProfile p, Mission Function(Mission) f) {
+    final w = p.weekly;
+    if (w == null || w.mission.done) return null;
+    final next = WeeklyGoal(week: w.week, mission: f(w.mission));
+    p.weekly = next;
+    if (!next.mission.done) return null;
+    for (final t in PowerupType.values) {
+      p.powerups[t] = (p.powerups[t] ?? 0) + WeeklyGoal.rewardPowerups;
+    }
+    return next;
   }
 
   static List<Mission> _updateMissions(PlayerProfile p, Mission Function(Mission) f) {

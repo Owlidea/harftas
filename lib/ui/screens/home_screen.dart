@@ -14,6 +14,7 @@ import '../components/widgets.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
+import 'daily_gift_sheet.dart';
 import 'daily_screen.dart';
 import 'game_screen.dart';
 import 'intro_screen.dart';
@@ -176,6 +177,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           spacing: Space.s2,
                           runSpacing: Space.s2,
                           children: [
+                            // Today's free gift, until it is opened.
+                            if (app.dailyGiftAvailable)
+                              Semantics(
+                                button: true,
+                                label: l.giftTitle,
+                                excludeSemantics: true,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    tapFeedback(context);
+                                    showDailyGiftSheet(context);
+                                  },
+                                  child: InfoChip(icon: AppIconName.gift, text: l.giftChip, highlight: true),
+                                ),
+                              ),
                             InfoChip(icon: AppIconName.missions, text: l.levelN(level)),
                             if (streak > 0)
                               InfoChip(

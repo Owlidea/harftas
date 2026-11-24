@@ -3,6 +3,7 @@
 // the placement that leaves the most free cells, then the first found.
 //
 //   dart run tool/simulate.dart [--games 1000] [--min 3] [--seed 1] [--mode classic|daily]
+//                               [--bot common] [--tiers ...] [--mult 4:20]
 //
 // Powerups and "continue" are not used, so results measure the raw rules.
 import 'dart:io';
@@ -38,6 +39,15 @@ void main(List<String> args) {
             weights: [for (final w in t.split(':')[1].split(',')) int.parse(w)],
           ),
       ],
+    );
+  }
+  final mult = opt('mult'); // e.g. "4:20" (x10 scale): overrides word-length multipliers
+  if (mult != null) {
+    cfg = cfg.copyWith(
+      lengthMultiplierX10: {
+        ...cfg.lengthMultiplierX10,
+        for (final m in mult.split(',')) int.parse(m.split(':')[0]): int.parse(m.split(':')[1]),
+      },
     );
   }
   final engine = GameEngine(config: cfg, dictionary: words, common: common);
@@ -98,7 +108,7 @@ void main(List<String> args) {
   final avgMoves = totalMoves / games;
   final b = StringBuffer()
     ..writeln(
-      '## MIN_WORD_LEN = $minLen · ${mode.name} · bot=${opt('bot') ?? 'full'}${tiers == null ? '' : ' · tiers=$tiers'} · $games oyun',
+      '## MIN_WORD_LEN = $minLen · ${mode.name} · bot=${opt('bot') ?? 'full'}${tiers == null ? '' : ' · tiers=$tiers'}${mult == null ? '' : ' · mult=$mult'} · $games oyun',
     )
     ..writeln()
     ..writeln('| Ölçüt | Değer |')

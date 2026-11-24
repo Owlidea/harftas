@@ -104,6 +104,7 @@ class GameEngine {
       HammerAction() => _hammer(s, a),
       ContinueAction() => _continue(s),
       EndAction() => _end(s),
+      GrantAction() => _grant(s, a),
     };
     return StepResult(r.state.copyWith(actions: List.unmodifiable([...s.actions, a])), List.unmodifiable(r.events));
   }
@@ -250,6 +251,19 @@ class GameEngine {
     if (s.status != GameStatus.stuck) throw const InvalidActionException('end only while stuck');
     final events = <GameEvent>[const StatusChanged(GameStatus.over, GameOverReason.noFit)];
     return StepResult(s.copyWith(status: GameStatus.over, overReason: GameOverReason.noFit), events);
+  }
+
+  StepResult _grant(GameState s, GrantAction a) {
+    if (s.mode != GameMode.classic) throw const InvalidActionException('grants only in classic');
+    if (s.status == GameStatus.over) throw const InvalidActionException('game is over');
+    final pw = Map<PowerupType, int>.of(s.powerups);
+    for (final e in a.powerups.entries) {
+      if (e.value < 0) throw InvalidActionException('negative grant: ${e.key.name}');
+      pw[e.key] = (pw[e.key] ?? 0) + e.value;
+    }
+    // Board, hand and score are untouched; a stuck game stays stuck but now
+    // has something to spend.
+    return _settle(s.copyWith(powerups: Map.unmodifiable(pw)), <GameEvent>[]);
   }
 
   // ---------------------------------------------------------------- helpers

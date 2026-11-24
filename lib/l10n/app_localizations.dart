@@ -1378,7 +1378,7 @@ abstract class L10n {
   /// No description provided for @intro3Body.
   ///
   /// In tr, this message translates to:
-  /// **'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 5 harf ×2, 6 harf ×3, 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.'**
+  /// **'Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 4 harf ×2, 5 harf ×3, 6 harf ×4… 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.'**
   String get intro3Body;
 
   /// No description provided for @intro4Title.
@@ -1428,6 +1428,24 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'En iyi {n}'**
   String bestChip(int n);
+
+  /// No description provided for @nextGoalRecord.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rekora {n} puan kaldı'**
+  String nextGoalRecord(int n);
+
+  /// No description provided for @nextGoalLevel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviye {n} için {xp} XP kaldı'**
+  String nextGoalLevel(int n, int xp);
+
+  /// No description provided for @nextGoalMission.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görev: {text}'**
+  String nextGoalMission(String text);
 
   /// No description provided for @monthShort.
   ///
@@ -1812,6 +1830,318 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'Saf beceri'**
   String get ruleSkillTitle;
+
+  /// No description provided for @missionScoreTotal.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam {target} puan topla'**
+  String missionScoreTotal(int target);
+
+  /// No description provided for @missionDailyPuzzles.
+  ///
+  /// In tr, this message translates to:
+  /// **'{target} günlük bulmaca tamamla'**
+  String missionDailyPuzzles(int target);
+
+  /// No description provided for @weeklyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık hedef'**
+  String get weeklyTitle;
+
+  /// No description provided for @weeklyDaysLeft.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} gün kaldı'**
+  String weeklyDaysLeft(int n);
+
+  /// No description provided for @weeklyLastDay.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son gün'**
+  String get weeklyLastDay;
+
+  /// No description provided for @weeklyReward.
+  ///
+  /// In tr, this message translates to:
+  /// **'+{xp} XP · her güçlendiriciden {n}'**
+  String weeklyReward(int xp, int n);
+
+  /// No description provided for @weeklyDone.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık hedef tamam'**
+  String get weeklyDone;
+
+  /// No description provided for @rewardBoardShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} zemin'**
+  String rewardBoardShort(String name);
+
+  /// No description provided for @boardStyle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tahta zemini'**
+  String get boardStyle;
+
+  /// No description provided for @boardPlain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düz'**
+  String get boardPlain;
+
+  /// No description provided for @boardFelt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Keçe'**
+  String get boardFelt;
+
+  /// No description provided for @boardGrain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ahşap'**
+  String get boardGrain;
+
+  /// No description provided for @boardMarble.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mermer'**
+  String get boardMarble;
+
+  /// No description provided for @levelUpUnlock.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seviye {level} · {reward} açıldı'**
+  String levelUpUnlock(int level, String reward);
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarımlar'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{a}/{b}'**
+  String achievementsCount(int a, int b);
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarım: {name}'**
+  String achievementUnlocked(String name);
+
+  /// No description provided for @achWords.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelime Ustası'**
+  String get achWords;
+
+  /// No description provided for @achUnique.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koleksiyoncu'**
+  String get achUnique;
+
+  /// No description provided for @achLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uzun Soluk'**
+  String get achLength;
+
+  /// No description provided for @achCombo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kombocu'**
+  String get achCombo;
+
+  /// No description provided for @achScore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Skor Avcısı'**
+  String get achScore;
+
+  /// No description provided for @achMoveStreak.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Ustası'**
+  String get achMoveStreak;
+
+  /// No description provided for @achClears.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tertemiz'**
+  String get achClears;
+
+  /// No description provided for @achGames.
+  ///
+  /// In tr, this message translates to:
+  /// **'Müdavim'**
+  String get achGames;
+
+  /// No description provided for @achRare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nadir Harf'**
+  String get achRare;
+
+  /// No description provided for @achDaily.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük Sadık'**
+  String get achDaily;
+
+  /// No description provided for @achWordsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} kelime kur'**
+  String achWordsDesc(int n);
+
+  /// No description provided for @achUniqueDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} farklı kelime bul'**
+  String achUniqueDesc(int n);
+
+  /// No description provided for @achLengthDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} harfli bir kelime kur'**
+  String achLengthDesc(int n);
+
+  /// No description provided for @achComboDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tek hamlede {n} kelime patlat'**
+  String achComboDesc(int n);
+
+  /// No description provided for @achScoreDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir oyunda {n} puan yap'**
+  String achScoreDesc(int n);
+
+  /// No description provided for @achMoveStreakDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} hamlelik seri yap'**
+  String achMoveStreakDesc(int n);
+
+  /// No description provided for @achClearsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Izgarayı {n} kez tamamen boşalt'**
+  String achClearsDesc(int n);
+
+  /// No description provided for @achGamesDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} oyun bitir'**
+  String achGamesDesc(int n);
+
+  /// No description provided for @achRareDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'J veya Ğ içeren bir kelime kur'**
+  String get achRareDesc;
+
+  /// No description provided for @achDailyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} günlük bulmaca tamamla'**
+  String achDailyDesc(int n);
+
+  /// No description provided for @doubleXp.
+  ///
+  /// In tr, this message translates to:
+  /// **'2× XP'**
+  String get doubleXp;
+
+  /// No description provided for @doubleXpA11y.
+  ///
+  /// In tr, this message translates to:
+  /// **'XP\'yi ikiye katla'**
+  String get doubleXpA11y;
+
+  /// No description provided for @doubleXpA11yAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izleyerek XP\'yi ikiye katla'**
+  String get doubleXpA11yAd;
+
+  /// No description provided for @xpDoubledLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'XP ×2'**
+  String get xpDoubledLabel;
+
+  /// No description provided for @streakLostTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} günlük serin bozuldu'**
+  String streakLostTitle(int n);
+
+  /// No description provided for @streakLostBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bugünün bulmacasını oynamadan önce geri alabilirsin.'**
+  String get streakLostBody;
+
+  /// No description provided for @streakRepairAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izle, seriyi kurtar'**
+  String get streakRepairAd;
+
+  /// No description provided for @streakRepairFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seriyi kurtar'**
+  String get streakRepairFree;
+
+  /// No description provided for @streakRepaired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Serin geri geldi: {n} gün'**
+  String streakRepaired(int n);
+
+  /// No description provided for @giftChip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hediye'**
+  String get giftChip;
+
+  /// No description provided for @giftTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük hediye'**
+  String get giftTitle;
+
+  /// No description provided for @giftGot.
+  ///
+  /// In tr, this message translates to:
+  /// **'+{n} {name}'**
+  String giftGot(int n, String name);
+
+  /// No description provided for @giftDoubleAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izle, bir tane daha al'**
+  String get giftDoubleAd;
+
+  /// No description provided for @giftDoubleFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir tane daha al'**
+  String get giftDoubleFree;
+
+  /// No description provided for @giftTomorrow.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yarın yeni bir hediye seni bekliyor.'**
+  String get giftTomorrow;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

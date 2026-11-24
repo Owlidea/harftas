@@ -23,17 +23,23 @@ flutter build web --release && python3 -m http.server 8765 --directory build/web
 
 **Android:** `flutter run` (emülatör ya da cihaz). Sahte reklam/satın almayla:
 `flutter run --dart-define=FAKE_SERVICES=true`.
-**iOS:** tam Xcode kurulumu gerekir (bu makinede yok).
+**iOS:** Xcode gerekir. Simülatörde: `flutter run -d "iPhone 18 Pro" --dart-define=FAKE_SERVICES=true`.
+
+Geliştirici araçları (tüm tema/karo/zeminleri açma, XP ekleme, animasyonları oynatma) için
+`--dart-define=TEST_TOOLS=true` ekleyin: Ayarlar'ın altında "Test araçları" bölümü çıkar.
+
+Gereken sürüm: Flutter 3.50.1 (Dart 3.14) veya üstü.
 
 ## Testler ve araçlar
 
 | Komut | Ne yapar |
 |---|---|
-| `flutter test` | 126 birim testi: Türkçe harf, tespit, puan, RNG, üretim, motor, replay, ilerleme, kontrast |
+| `flutter test` | Birim testleri: Türkçe harf, tespit, puan, RNG, üretim, motor, replay, ilerleme, haftalık hedef, başarımlar, kontrast |
 | `flutter test test_screens` | Tüm ekranların açık/koyu PNG görüntüleri → `docs/screenshots/` |
 | `dart run tool/build_dictionary.dart` | Zemberek'ten sözlüğü yeniden üretir (bayt bayt aynı çıktı) |
-| `dart run tool/simulate.dart --games 1000 --bot common` | Denge simülatörü (`--min 4`, `--mode daily`, `--tiers ...`) |
+| `dart run tool/simulate.dart --games 1000 --bot common` | Denge simülatörü (`--min 4`, `--mode daily`, `--tiers ...`, `--mult 4:20`) |
 | `dart run tool/export_balance.dart` | Varsayılan dengeyi `assets/config/balance.json`'a yazar |
+| `tool/blender/build.sh` | Blender varlıklarını yeniden üretir: karolar, ikonlar, efektler, zeminler, marka görselleri |
 
 ## Yapı
 

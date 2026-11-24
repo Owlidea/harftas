@@ -1,0 +1,62 @@
+{
+  "board_clear": {
+    "cols": 6,
+    "fps": 30,
+    "rows": 6
+  },
+  "combo_burst": {
+    "cols": 5,
+    "fps": 30,
+    "rows": 4
+  },
+  "combo_nums": {
+    "cols": 4,
+    "fps": 0,
+    "rows": 1
+  },
+  "flame_loop": {
+    "cols": 6,
+    "fps": 24,
+    "rows": 4
+  },
+  "gift_open": {
+    "cols": 6,
+    "fps": 30,
+    "rows": 5
+  },
+  "hammer": {
+    "cols": 5,
+    "fps": 30,
+    "rows": 4
+  },
+  "joker": {
+    "cols": 4,
+    "fps": 30,
+    "rows": 4
+  },
+  "level_up": {
+    "cols": 6,
+    "fps": 30,
+    "rows": 6
+  },
+  "new_record": {
+    "cols": 6,
+    "fps": 30,
+    "rows": 6
+  },
+  "refresh": {
+    "cols": 5,
+    "fps": 30,
+    "rows": 4
+  },
+  "sparkle_burst": {
+    "cols": 5,
+    "fps": 30,
+    "rows": 5
+  },
+  "tile_pop": {
+    "cols": 4,
+    "fps": 30,
+    "rows": 4
+  }
+}

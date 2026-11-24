@@ -59,3 +59,17 @@ Sonuç: günlük bulmaca kısa (≈3 dk) ve klasikten zor. 20 el sınırı prati
    analitiğiyle gerçek süre ölçülüp eşikler yeniden ayarlanmalı.
 3. **3 harfli kelime baskınlığı:** Kelimelerin ~%85'i 3 harfli. Uzun kelime kovalamayı teşvik
    için 4 harf çarpanı 1.5 → 2 denenebilir (puan gerilimi artar, süre değişmez).
+
+## Ek (2026-11-24): uzunluk çarpanı merdiveni
+
+Öneri 3 uygulandı ve genişletildi (karar 20): 4 ×2, 5 ×3, 6 ×4, 7 ×5, 8 ×6.
+`dart run tool/simulate.dart --games 1000 --bot common --mult 4:15,5:20,6:30,7:40` eski değerleri verir.
+
+| Ölçüt | Eski · common | Yeni · common | Eski · full | Yeni · full |
+|---|---|---|---|---|
+| Ortalama hamle | 62.4 | 62.4 | 122.8 | 121.4 |
+| Ortalama skor | 382 | 401 | 989 | 1028 |
+| Kelimesiz hamle | %49.1 | %49.0 | %32.9 | %33.0 |
+
+Açgözlü bot uzun kelime "kovalamadığı" için uzunluk dağılımı değişmiyor; gerçek oyuncudaki etki
+analitik bağlandıktan sonra ölçülmeli.

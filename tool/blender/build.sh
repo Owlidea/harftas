@@ -12,5 +12,9 @@ BLENDER="${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}"
 # Afterwards: dart run flutter_launcher_icons && dart run flutter_native_splash:create
 # (the splash tool rewrites AndroidManifest.xml: restore it with git checkout).
 "$BLENDER" -b --factory-startup -P tool/blender/render_brand.py -- "$PWD"
-# Celebration sprite sheets (needs cwebp: brew install webp). ~12 minutes.
+# Celebration and board-effect sprite sheets (needs cwebp: brew install webp). ~20 minutes.
 "$BLENDER" -b --factory-startup -P tool/blender/render_anims.py -- "$PWD"
+# Board surface textures (needs cwebp).
+"$BLENDER" -b --factory-startup -P tool/blender/render_boards.py -- "$PWD"
+# Promo video (EEVEE, needs ffmpeg). ~10 minutes.
+"$BLENDER" -b --factory-startup -P tool/blender/render_video.py -- "$PWD"
