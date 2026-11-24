@@ -29,6 +29,7 @@ import 'package:harfblok/services/purchase_service.dart';
 import 'package:harfblok/config/asset_paths.dart';
 import 'package:harfblok/ui/components/app_icon.dart';
 import 'package:harfblok/ui/components/sprite_anim.dart';
+import 'package:harfblok/ui/game/fx_art.dart';
 import 'package:harfblok/ui/game/game_controller.dart';
 import 'package:harfblok/ui/game/tile_art.dart';
 import 'package:harfblok/ui/screens/daily_screen.dart';
@@ -146,6 +147,7 @@ void main() {
     await _loadFont();
     await AssetIndex.load();
     await TileArt.load();
+    await FxArt.load();
     Directory(_outDir).createSync(recursive: true);
   });
 
@@ -202,6 +204,25 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
       await shot(tester, key, '02_game_$mode');
+
+      // Board sprite effects frozen mid-flight (tile pop, dust puff, hammer,
+      // joker, combo) over the real board.
+      final c = (tester.state(find.byType(GameScreen)) as dynamic).c as GameController;
+      final geo = c.geometry!;
+      final clock = GameController.debugNow;
+      const t = 5e9;
+      GameController.debugNow = () => t;
+      c.boardFx
+        ..add(BoardFx(FxArt.sheet(FxArt.tilePop)!, geo.cellRect(1, 5).center, geo.cell * 2.6, t - 200))
+        ..add(BoardFx(FxArt.sheet(FxArt.dropPuff)!, geo.cellRect(4, 5).center, geo.cell * 2.6, t - 130))
+        ..add(BoardFx(FxArt.sheet(FxArt.hammer)!, geo.cellRect(6, 1).center, geo.cell * 3.2, t - 300))
+        ..add(BoardFx(FxArt.sheet(FxArt.joker)!, geo.cellRect(3, 3).center, geo.cell * 3.0, t - 230));
+      c.comboFx = ComboFx(3, Offset(geo.rect.width * 0.66, geo.rect.height * 0.80), t - 330);
+      c.frame.value++;
+      await shot(tester, key, '11_board_fx_$mode');
+      c.boardFx.clear();
+      c.comboFx = null;
+      GameController.debugNow = clock;
       nav.pop();
       await tester.pump(const Duration(milliseconds: 600));
 

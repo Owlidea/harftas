@@ -49,6 +49,7 @@ abstract final class AssetPaths {
   static const String fxNewRecord = 'assets/anim/new_record.webp';
   static const String fxBoardClear = 'assets/anim/board_clear.webp';
   static const String fxLevelUp = 'assets/anim/level_up.webp';
+  static const String fxRefresh = 'assets/anim/refresh.webp';
 
   // Audio
   static String sound(SoundId id) => 'assets/audio/${id.fileName}.ogg';

@@ -16,6 +16,7 @@ import '../../services/ads_service.dart';
 import '../../services/analytics.dart';
 import '../../services/haptics_service.dart';
 import '../theme/tokens.dart';
+import 'fx_art.dart';
 import 'tile_renderer.dart';
 
 /// UI state machine (spec 14): Idle -> Dragging -> Resolving -> Idle | Over.
@@ -50,6 +51,34 @@ class ScorePopup {
   final Offset at; // board-local
   final double startMs;
   final bool big;
+}
+
+/// A sprite-sheet effect playing on the board canvas (tile pop, dust puff,
+/// hammer, joker). [center] is board-local.
+class BoardFx {
+  BoardFx(this.sheet, this.center, this.size, this.startMs);
+  final FxSheet sheet;
+  final Offset center;
+  final double size;
+  final double startMs;
+}
+
+/// The "×N" combo flourish: burst sheet plus a 3D numeral popped by code.
+class ComboFx {
+  ComboFx(this.count, this.center, this.startMs);
+  final int count;
+  final Offset center; // board-local
+  final double startMs;
+
+  static const double durationMs = 900;
+}
+
+/// A one-shot sprite sheet played by the game screen above everything.
+class OverlayFx {
+  const OverlayFx(this.asset, {this.align = const Alignment(0, -0.18), this.size = 340});
+  final String asset;
+  final Alignment align;
+  final double size;
 }
 
 /// Board geometry in global coordinates, measured by the screen.
@@ -160,9 +189,13 @@ class GameController extends ChangeNotifier {
   bool endRecorded = false;
   final List<GameToast> toasts = [];
 
-  /// One-shot celebration sprite sheets to play over the board (asset
-  /// paths); drained by the game screen.
-  final List<String> effects = [];
+  /// One-shot celebration sprite sheets to play over the screen; drained by
+  /// the game screen.
+  final List<OverlayFx> effects = [];
+
+  /// Sprite effects painted by the board itself.
+  final List<BoardFx> boardFx = [];
+  ComboFx? comboFx;
   final List<Timer> _timers = [];
   Palette? _palette;
 
@@ -171,7 +204,13 @@ class GameController extends ChangeNotifier {
   // ------------------------------------------------------------- frames
 
   bool get animating =>
-      nowMs < _animUntil || particles.active || dragPiece != null || returningPiece != null || popups.isNotEmpty;
+      nowMs < _animUntil ||
+      particles.active ||
+      dragPiece != null ||
+      returningPiece != null ||
+      popups.isNotEmpty ||
+      boardFx.isNotEmpty ||
+      comboFx != null;
 
   void tick(Duration elapsed) {
     final dt = ((elapsed - _lastTick).inMicroseconds / 1e6).clamp(0, 0.05).toDouble();
@@ -179,6 +218,9 @@ class GameController extends ChangeNotifier {
     particles.update(dt);
     final now = nowMs;
     popups.removeWhere((p) => now - p.startMs > Motion.scoreFloat.inMilliseconds + 400);
+    boardFx.removeWhere((f) => now - f.startMs > f.sheet.grid.durationMs);
+    final cf = comboFx;
+    if (cf != null && now - cf.startMs > ComboFx.durationMs) comboFx = null;
     if (returningPiece != null && now - returnAt > Motion.returnToHand.inMilliseconds) {
       returningPiece = null;
     }
@@ -417,6 +459,8 @@ class GameController extends ChangeNotifier {
     scoreFrom = scoreTo = s.score;
     popups.clear();
     particles.clear();
+    boardFx.clear();
+    comboFx = null;
     endResult = null;
     endRecorded = false;
     selectedPiece = null;
@@ -447,6 +491,8 @@ class GameController extends ChangeNotifier {
     // Board as it looks right after placement, before explosions.
     final pre = before.grid.copy();
     var placedCells = 0;
+    final placedIdx = <int>[];
+    int? jokerIdx;
     for (final e in events) {
       if (e is PiecePlaced) {
         final piece = before.hand[e.pieceIndex]!;
@@ -456,10 +502,12 @@ class GameController extends ChangeNotifier {
           pre.set(idx, Cell(piece.letters[k]));
           placedAt[idx] = t0;
           placedCells++;
+          placedIdx.add(idx);
         }
       } else if (e is JokerPlaced) {
         pre.set(e.cell, Cell(e.letter, isJoker: true));
         placedAt[e.cell] = t0;
+        jokerIdx = e.cell;
       }
     }
     displayGrid = pre;
@@ -470,7 +518,26 @@ class GameController extends ChangeNotifier {
     final hiStart = t0 + Motion.settle.inMilliseconds;
     final popStart = hiStart + Motion.wordHighlight.inMilliseconds;
 
+    // Rendered sprite effects (optional art, see FxArt); none with reduced motion.
+    void fx(String name, int cell, double cells, double startMs) {
+      final sheet = FxArt.sheet(name);
+      if (g == null || sheet == null || reduceMotion) return;
+      boardFx.add(BoardFx(sheet, g.cellRectIndex(cell).center, g.cell * cells, startMs));
+    }
+
+    for (final idx in placedIdx) {
+      fx(FxArt.dropPuff, idx, 2.6, t0 + 30);
+    }
+    if (jokerIdx != null) fx(FxArt.joker, jokerIdx, 3.0, t0);
+    // The mallet lands ~230 ms into its sheet; the tile breaks on impact.
+    var hammerDelay = 0.0;
+    if (action is HammerAction && g != null && !reduceMotion && FxArt.sheet(FxArt.hammer) != null) {
+      hammerDelay = 233;
+      fx(FxArt.hammer, Grid.indexOf(action.x, action.y), 3.2, t0);
+    }
+
     if (hits.isNotEmpty) {
+      final popped = <int>{};
       for (final h in hits) {
         for (var k = 0; k < h.cells.length; k++) {
           final c = h.cells[k];
@@ -478,6 +545,7 @@ class GameController extends ChangeNotifier {
           final at = popStart + k * Motion.popPerLetter.inMilliseconds;
           clearAt[c] = clearAt[c] > t0 ? math.min(clearAt[c], at) : at;
           end = math.max(end, at + Motion.pop.inMilliseconds);
+          if (popped.add(c)) fx(FxArt.tilePop, c, 2.6, at);
         }
       }
     }
@@ -485,9 +553,10 @@ class GameController extends ChangeNotifier {
       if (hits.isNotEmpty) continue;
       // Hammer / continue: pop row by row, left to right.
       for (var k = 0; k < e.cells.length; k++) {
-        final at = t0 + (e.cells.length > 1 ? (k % 8) * Motion.popPerLetter.inMilliseconds : 0);
+        final at = t0 + hammerDelay + (e.cells.length > 1 ? (k % 8) * Motion.popPerLetter.inMilliseconds : 0);
         clearAt[e.cells[k]] = at;
         end = math.max(end, at + Motion.pop.inMilliseconds);
+        fx(FxArt.tilePop, e.cells[k], 2.6, at);
       }
     }
 
@@ -506,9 +575,12 @@ class GameController extends ChangeNotifier {
     // Feedback, popups, particles, shake.
     final pal = _palette;
     if (placedCells > 0) _feedback(SoundId.drop, HapticKind.place);
-    if (action is RefreshAction) _feedback(SoundId.puRefresh, HapticKind.word);
+    if (action is RefreshAction) {
+      _feedback(SoundId.puRefresh, HapticKind.word);
+      if (!reduceMotion) effects.add(const OverlayFx(AssetPaths.fxRefresh, align: Alignment(0, 0.70), size: 190));
+    }
     if (action is JokerAction) _feedback(SoundId.puJoker, HapticKind.place);
-    if (action is HammerAction) _feedback(SoundId.puHammer, HapticKind.word);
+    if (action is HammerAction) _at(t0 + hammerDelay, () => _feedback(SoundId.puHammer, HapticKind.word));
     if (hits.isNotEmpty && g != null) {
       final maxLen = hits.map((h) => h.length).reduce(math.max);
       final combo = hits.length;
@@ -536,7 +608,7 @@ class GameController extends ChangeNotifier {
         _at(end, () {
           _feedback(SoundId.boardClear, HapticKind.combo);
           if (!reduceMotion) {
-            effects.add(AssetPaths.fxBoardClear);
+            effects.add(const OverlayFx(AssetPaths.fxBoardClear));
             notifyListeners();
           }
         });
@@ -545,7 +617,9 @@ class GameController extends ChangeNotifier {
         _at(popStart, () {
           for (final h in hits) {
             for (final c in h.cells) {
-              particles.spawn(g.cellRectIndex(c).center, pal.highlight, 3 + combo * 2, g.cell * 5, g.cell * 0.18);
+              // The rendered shards carry the pop; keep only a sprinkle of theme colour.
+              final n = FxArt.sheet(FxArt.tilePop) != null ? 1 + combo : 3 + combo * 2;
+              particles.spawn(g.cellRectIndex(c).center, pal.highlight, n, g.cell * 5, g.cell * 0.18);
             }
           }
         });
@@ -570,9 +644,21 @@ class GameController extends ChangeNotifier {
           ScorePopup(_label('+${score?.score.wordPoints ?? 0}', pal.ink, g.cell * 0.62), at, popStart, big: true),
         );
         if (combo >= 2) {
-          popups.add(
-            ScorePopup(_label('×$combo', pal.highlight, g.cell * 0.46), at + Offset(0, g.cell * 0.7), popStart + 80),
-          );
+          final art = !reduceMotion && FxArt.sheet(FxArt.comboBurst) != null && FxArt.sheet(FxArt.comboNums) != null;
+          if (art) {
+            // Below the "+N" label, kept inside the board.
+            final m = g.cell * 1.4;
+            final size = g.rect.size;
+            comboFx = ComboFx(
+              combo,
+              Offset(at.dx.clamp(m, size.width - m), (at.dy + g.cell * 1.2).clamp(m, size.height - m)),
+              popStart + 60,
+            );
+          } else {
+            popups.add(
+              ScorePopup(_label('×$combo', pal.highlight, g.cell * 0.46), at + Offset(0, g.cell * 0.7), popStart + 80),
+            );
+          }
         }
         if ((score?.score.clearBonus ?? 0) > 0) {
           popups.add(
@@ -598,7 +684,7 @@ class GameController extends ChangeNotifier {
         }
         for (final l in rec.levelUps) {
           toasts.add(LevelToast(l));
-          if (!reduceMotion) effects.add(AssetPaths.fxLevelUp);
+          if (!reduceMotion) effects.add(const OverlayFx(AssetPaths.fxLevelUp));
         }
       }
     }

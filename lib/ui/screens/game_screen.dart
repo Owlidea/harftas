@@ -86,8 +86,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     setState(() {});
     _showToasts();
     if (c.effects.isNotEmpty) {
-      for (final asset in c.effects) {
-        if (SpriteAnim.available(asset)) _fx.add((id: _fxSeq++, asset: asset));
+      for (final e in c.effects) {
+        if (SpriteAnim.available(e.asset)) _fx.add((id: _fxSeq++, fx: e));
       }
       c.effects.clear();
     }
@@ -96,7 +96,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   /// Celebration sprite sheets currently playing over the board.
-  final List<({int id, String asset})> _fx = [];
+  final List<({int id, OverlayFx fx})> _fx = [];
   int _fxSeq = 0;
 
   void _showToasts() {
@@ -333,10 +333,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 key: ValueKey(fx.id),
                 child: IgnorePointer(
                   child: Align(
-                    alignment: const Alignment(0, -0.18),
+                    alignment: fx.fx.align,
                     child: SpriteAnim(
-                      fx.asset,
-                      size: 340,
+                      fx.fx.asset,
+                      size: fx.fx.size,
                       onDone: () {
                         if (mounted) setState(() => _fx.removeWhere((e) => e.id == fx.id));
                       },

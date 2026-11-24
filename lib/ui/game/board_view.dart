@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import 'game_controller.dart';
+import 'fx_art.dart';
 import 'tile_renderer.dart';
 
 /// The 8x8 board: tiles, previews, explosions, popups and particles.
@@ -86,6 +87,7 @@ class _BoardPainter extends CustomPainter {
   final Paint _paint = Paint();
   final Paint _ring = Paint()..style = PaintingStyle.stroke;
   final Paint _layer = Paint();
+  final Paint _fx = Paint()..filterQuality = FilterQuality.medium;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -193,7 +195,51 @@ class _BoardPainter extends CustomPainter {
       }
     }
 
+    // Rendered sprite effects: dust puffs, shards, hammer, joker.
+    for (final f in c.boardFx) {
+      final frame = f.sheet.frameAt(now - f.startMs);
+      if (frame < 0) continue;
+      canvas.drawImageRect(
+        f.sheet.image,
+        f.sheet.src(frame),
+        Rect.fromCenter(center: f.center, width: f.size, height: f.size),
+        _fx,
+      );
+    }
+
     c.particles.paint(canvas);
+
+    final combo = c.comboFx;
+    final burst = FxArt.sheet(FxArt.comboBurst);
+    final nums = FxArt.sheet(FxArt.comboNums);
+    if (combo != null && burst != null && nums != null) {
+      final ms = now - combo.startMs;
+      if (ms >= 0 && ms < ComboFx.durationMs) {
+        final t = ms / ComboFx.durationMs;
+        // Bigger with every extra word.
+        final size = g.cell * (3.0 + 0.55 * math.min(combo.count - 2, 3));
+        final frame = burst.frameAt(ms);
+        if (frame >= 0) {
+          canvas.drawImageRect(
+            burst.image,
+            burst.src(frame),
+            Rect.fromCenter(center: combo.center, width: size * 1.25, height: size * 1.25),
+            _fx,
+          );
+        }
+        final grow = Curves.easeOutBack.transform((t / 0.3).clamp(0, 1).toDouble());
+        final fade = t < 0.72 ? 1.0 : 1 - (t - 0.72) / 0.28;
+        final n = size * 0.72 * grow * (1 + 0.04 * math.sin(t * 22));
+        _fx.color = Color.fromRGBO(255, 255, 255, fade.clamp(0, 1).toDouble());
+        canvas.drawImageRect(
+          nums.image,
+          nums.src(math.min(combo.count, nums.grid.cols + 1) - 2),
+          Rect.fromCenter(center: combo.center, width: n, height: n),
+          _fx,
+        );
+        _fx.color = const Color(0xFFFFFFFF);
+      }
+    }
 
     for (final pop in c.popups) {
       final t = (now - pop.startMs) / Motion.scoreFloat.inMilliseconds;

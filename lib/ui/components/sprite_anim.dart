@@ -3,12 +3,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../game/fx_art.dart';
 import '../theme/app_theme.dart';
 import 'app_icon.dart';
 
 /// Plays a pre-rendered sprite sheet once (`assets/anim/*.webp`, produced by
-/// `tool/blender/render_anims.py`). The sheet is a [cols] x [rows] grid of
-/// square frames; first and last frame are empty so nothing pops in or out.
+/// `tool/blender/render_anims.py`). The sheet is a grid of square frames whose
+/// layout comes from [FxArt.gridOf]; the last frame is empty so nothing is left
+/// on screen.
 ///
 /// Shows nothing when the file is missing or "reduce motion" is on.
 class SpriteAnim extends StatefulWidget {
@@ -18,12 +20,6 @@ class SpriteAnim extends StatefulWidget {
   final double size;
   final VoidCallback? onDone;
 
-  // Mirrors tool/blender/render_anims.py.
-  static const int cols = 6;
-  static const int rows = 6;
-  static const int fps = 30;
-  static const int frames = cols * rows;
-
   static bool available(String asset) => AssetIndex.has(asset);
 
   @override
@@ -31,9 +27,10 @@ class SpriteAnim extends StatefulWidget {
 }
 
 class _SpriteAnimState extends State<SpriteAnim> with SingleTickerProviderStateMixin {
+  late final FxGrid _grid = FxArt.gridOf(widget.asset);
   late final AnimationController _c = AnimationController(
     vsync: this,
-    duration: Duration(milliseconds: SpriteAnim.frames * 1000 ~/ SpriteAnim.fps),
+    duration: Duration(milliseconds: _grid.durationMs.round()),
   );
   ui.Image? _sheet;
 
@@ -76,26 +73,27 @@ class _SpriteAnimState extends State<SpriteAnim> with SingleTickerProviderStateM
     if (sheet == null || context.reduceMotion) return SizedBox.square(dimension: widget.size);
     return IgnorePointer(
       child: RepaintBoundary(
-        child: CustomPaint(size: Size.square(widget.size), painter: _SheetPainter(sheet, _c)),
+        child: CustomPaint(size: Size.square(widget.size), painter: _SheetPainter(sheet, _grid, _c)),
       ),
     );
   }
 }
 
 class _SheetPainter extends CustomPainter {
-  _SheetPainter(this.sheet, this.anim) : super(repaint: anim);
+  _SheetPainter(this.sheet, this.grid, this.anim) : super(repaint: anim);
   final ui.Image sheet;
+  final FxGrid grid;
   final Animation<double> anim;
   final Paint _paint = Paint()..filterQuality = FilterQuality.medium;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final f = (anim.value * (SpriteAnim.frames - 1)).round().clamp(0, SpriteAnim.frames - 1);
-    final cw = sheet.width / SpriteAnim.cols;
-    final ch = sheet.height / SpriteAnim.rows;
+    final f = (anim.value * (grid.frames - 1)).round().clamp(0, grid.frames - 1);
+    final cw = sheet.width / grid.cols;
+    final ch = sheet.height / grid.rows;
     canvas.drawImageRect(
       sheet,
-      Rect.fromLTWH((f % SpriteAnim.cols) * cw, (f ~/ SpriteAnim.cols) * ch, cw, ch),
+      Rect.fromLTWH((f % grid.cols) * cw, (f ~/ grid.cols) * ch, cw, ch),
       Offset.zero & size,
       _paint,
     );
