@@ -17,7 +17,7 @@ Kaynak: ana spesifikasyon + başlangıç soruları 1–18 ("hepsi önerin gibi")
 12. v1 yalnızca yalın kökler; öğretici ve "Nasıl oynanır"da açıkça belirtilir. Çekimler Aşama 2 sonrası değerlendirilir.
 13. Seri: ilk kelimeli hamle ×1.0, sonra her biri +0.1, üst sınır ×2.0. Yenile/Çekiç seriyi değiştirmez;
     Joker kelime kurarsa kelimeli hamle, kurmazsa nötr.
-14. XP eşiği seviye başına: N → N+1 için `round(500 · N^1.5)`.
+14. ~~XP eşiği seviye başına: N → N+1 için `round(500 · N^1.5)`.~~ **Karar 21 ile değişti:** `250 + 150·N`.
 15. Günlük bulmacada ödüllü "Devam Et" yok.
 16. Şekil seçimi: hücre sayısı (%15/35/35/15) → aile (eşit) → yön (eşit).
 17. Sözlük: Zemberek-NLP (Apache-2.0, Aşama 1'de doğrulanacak). Yaygın liste frekans kaynağından
@@ -57,3 +57,7 @@ Kaynak: ana spesifikasyon + başlangıç soruları 1–18 ("hepsi önerin gibi")
     paketler de süren oyuna devam edilince kayboluyordu.
 27. Dosya kayıtları belge başına sıraya alınır (`FileBackend`). Üst üste binen iki yazma aynı geçici
     dosyayı paylaşıyor ve bozuk kayıt (dolayısıyla profil sıfırlanması) üretebiliyordu.
+28. Küçük ekran güvencesi (25 Kasım 2026): 360×640 ve 375×667'de, en büyük yazı boyutuyla (1,35) ana
+    ekranlar taşmaz; `test/ui/small_screen_test.dart` bunu her test çalışmasında doğrular. Oyun sonu
+    paneli sığmadığında kayar; dar ve büyük yazılı ekranda alt tepsi biraz kısalır (parçalar tepsiye
+    göre ölçeklenir).

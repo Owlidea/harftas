@@ -325,4 +325,117 @@ void main() {
     });
     await tester.pump(const Duration(seconds: 2));
   });
+
+  // The real resolve timeline, stepped with a fake clock: a combo move, the
+  // hammer and the joker, one PNG per step in build/fx_frames (not committed).
+  // Lets the effects be judged in motion without a device.
+  testWidgets('effect timelines', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final dir = Directory.systemTemp.createTempSync('hb');
+    final m = (await tester.runAsync(() => _model(dir, dark: false)))!;
+    final out = Directory('build/fx_frames')..createSync(recursive: true);
+    final clock = GameController.debugNow;
+    var now = 7e9;
+    GameController.debugNow = () => now;
+    addTearDown(() => GameController.debugNow = clock);
+
+    final key = GlobalKey();
+    await tester.pumpWidget(RepaintBoundary(key: key, child: HarfBlokApp(model: m)));
+    await tester.pump();
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    final (start, move) = _comboMove(m);
+    nav.push(GameScreen.route(start));
+    await tester.pump();
+    now += 2000;
+    await tester.pump(const Duration(seconds: 2));
+    final c = (tester.state(find.byType(GameScreen)) as dynamic).c as GameController;
+
+    Future<void> frames(String name, int count, int stepMs) async {
+      for (var i = 0; i < count; i++) {
+        await tester.runAsync(() async {
+          final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+          final img = await b.toImage(pixelRatio: 1);
+          final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
+          File('${out.path}/${name}_${i.toString().padLeft(2, '0')}.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+        });
+        now += stepMs;
+        await tester.pump(Duration(milliseconds: stepMs));
+      }
+    }
+
+    Future<void> settle() async {
+      now += 3000;
+      await tester.pump(const Duration(seconds: 3));
+    }
+
+    // 1. A placement that explodes two words at once.
+    final first = start.hand[move.pieceIndex]!.shape.cells.first;
+    c
+      ..tapPiece(move.pieceIndex)
+      ..tapCell(Grid.indexOf(move.x + first.dx, move.y + first.dy));
+    await tester.pump();
+    await frames('word', 18, 80);
+    await settle();
+
+    // 2. Hammer on a filled cell.
+    final filled = [
+      for (var i = 0; i < 64; i++)
+        if (c.state.grid.isFilled(i)) i,
+    ];
+    if (filled.isNotEmpty && c.state.powerup(PowerupType.hammer) > 0) {
+      c
+        ..tapPowerup(PowerupType.hammer)
+        ..tapCell(filled[filled.length ~/ 2]);
+      await tester.pump();
+      await frames('hammer', 12, 70);
+      await settle();
+    }
+
+    // 3. Joker on an empty cell.
+    final empty = [
+      for (var i = 0; i < 64; i++)
+        if (!c.state.grid.isFilled(i)) i,
+    ];
+    if (empty.isNotEmpty && c.state.powerup(PowerupType.joker) > 0) {
+      // Straight to the letter choice: going through tapCell would open the picker sheet over the board.
+      c
+        ..jokerCell = empty[empty.length ~/ 2]
+        ..chooseJokerLetter('A');
+      await tester.pump();
+      await frames('joker', 10, 70);
+      await settle();
+    }
+    GameController.debugNow = clock;
+    m.dispose();
+  });
+}
+
+/// A classic position (reached by a greedy bot) and a placement in it that
+/// explodes at least two words.
+(GameState, PlaceAction) _comboMove(AppModel m) {
+  final e = m.engine!;
+  for (var seed = 1; seed < 400; seed++) {
+    var s = e.newGame(seed: seed, mode: GameMode.classic, startedAt: _now, powerups: Map.of(m.profile.powerups));
+    for (var i = 0; i < 60 && !s.isOver; i++) {
+      PlaceAction? best;
+      var bs = -1;
+      for (var p = 0; p < 3; p++) {
+        final piece = s.hand[p];
+        if (piece == null) continue;
+        for (final pos in Placement.positions(s.grid, piece.shape)) {
+          final pv = e.preview(s, p, pos.x, pos.y)!;
+          if (pv.hits.length >= 2) return (s, PlaceAction(p, pos.x, pos.y));
+          if (pv.score.total > bs) {
+            bs = pv.score.total;
+            best = PlaceAction(p, pos.x, pos.y);
+          }
+        }
+      }
+      if (best == null) break;
+      s = e.apply(s, best).state;
+    }
+  }
+  throw StateError('no combo position found');
 }

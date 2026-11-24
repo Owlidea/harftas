@@ -77,4 +77,9 @@ abstract final class AdConfig {
   /// sessions, never after the daily puzzle.
   static const int interstitialEveryGames = 3;
   static const int interstitialFreeSessions = 3;
+
+  /// No interstitial this soon after the player chose to watch a rewarded ad
+  /// ("2x XP" or "Devam Et" at game over would otherwise be followed by a
+  /// second, forced ad on the way out). The skipped one comes a game later.
+  static const Duration interstitialAfterRewarded = Duration(minutes: 2);
 }

@@ -21,8 +21,9 @@ import 'package:harfblok/services/haptics_service.dart';
 import 'package:harfblok/services/notification_service.dart';
 import 'package:harfblok/services/purchase_service.dart';
 
-// Tuesday 24 November 2026, noon in Istanbul.
-final _now = DateTime.utc(2026, 11, 24, 9);
+// Tuesday 24 November 2026, noon in Istanbul. Tests may move the clock.
+final _start = DateTime.utc(2026, 11, 24, 9);
+var _now = _start;
 
 class _Rig {
   _Rig(this.model, this.ads, this.purchases, this.store);
@@ -33,6 +34,7 @@ class _Rig {
 }
 
 Future<_Rig> _rig() async {
+  _now = _start;
   const crash = ConsoleCrashReporter();
   final store = JsonStore(MemoryBackend(), crash: crash);
   final ads = FakeAdsService();
@@ -126,9 +128,7 @@ void main() {
       m.newClassicGame();
       m.profile
         ..missionsDay = m.today.toString()
-        ..missions = [
-          const Mission(type: MissionType.wordsOfLength, tier: MissionTier.easy, target: 1, length: 3),
-        ];
+        ..missions = [const Mission(type: MissionType.wordsOfLength, tier: MissionTier.easy, target: 1, length: 3)];
       final before = m.profile.powerups[PowerupType.refresh]!;
       final rec = m.recordMove(
         const MoveSummary(words: [WordResult('KAR', 3)], placedCells: 3, streakAfter: 1, clearedBoard: false),
@@ -208,8 +208,12 @@ void main() {
 
     test('streak repair is not offered for short, intact or long-gone streaks', () {
       final today = DayKey.istanbul(_now);
-      DailyStreak s(int current, int daysAgo) =>
-          DailyStreak(current: current, best: current, lastPlayed: today.addDays(-daysAgo), shieldMonthUsed: today.monthKey);
+      DailyStreak s(int current, int daysAgo) => DailyStreak(
+        current: current,
+        best: current,
+        lastPlayed: today.addDays(-daysAgo),
+        shieldMonthUsed: today.monthKey,
+      );
       expect(s(2, 3).repairable(today), 0, reason: 'too short to be worth an ad');
       expect(s(9, 1).repairable(today), 0, reason: 'not broken');
       expect(s(9, 2).repairable(today), 9, reason: 'missed yesterday, shield spent');
@@ -217,6 +221,22 @@ void main() {
       expect(s(9, DailyStreak.repairMaxGap + 1).repairable(today), 0);
       // With the monthly shield still available a single missed day is covered for free.
       expect(DailyStreak(current: 9, best: 9, lastPlayed: today.addDays(-2)).repairable(today), 0);
+    });
+
+    test('no interstitial right after a rewarded ad; it comes a game later', () async {
+      final r = await _rig();
+      final m = r.model;
+      m.profile
+        ..sessions = 10
+        ..gamesSinceInterstitial = AdConfig.interstitialEveryGames - 1; // due now
+      expect(await m.watchRewarded(RewardPlacement.doubleXp), isTrue);
+      await m.maybeInterstitial(GameMode.classic);
+      expect(r.ads.interstitialsShown, 0, reason: 'the player just chose to watch an ad');
+      expect(m.profile.gamesSinceInterstitial, AdConfig.interstitialEveryGames, reason: 'still owed');
+      _now = _now.add(AdConfig.interstitialAfterRewarded + const Duration(seconds: 1));
+      await m.maybeInterstitial(GameMode.classic);
+      expect(r.ads.interstitialsShown, 1);
+      expect(m.profile.gamesSinceInterstitial, 0);
     });
 
     test('bonus XP levels up and its powerup reaches the running game', () async {
