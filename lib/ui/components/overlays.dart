@@ -110,7 +110,7 @@ class _ToastState extends State<_Toast> with SingleTickerProviderStateMixin {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: Space.s2),
-                        child: AppIcon(widget.icon, size: 20, color: p.accent),
+                        child: ArtIcon(widget.icon, size: 20, artScale: 1.5, color: p.accent),
                       ),
                       const SizedBox(width: Space.s3),
                       Flexible(

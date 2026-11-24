@@ -26,7 +26,9 @@ import 'package:harfblok/services/crash_reporter.dart';
 import 'package:harfblok/services/haptics_service.dart';
 import 'package:harfblok/services/notification_service.dart';
 import 'package:harfblok/services/purchase_service.dart';
+import 'package:harfblok/config/asset_paths.dart';
 import 'package:harfblok/ui/components/app_icon.dart';
+import 'package:harfblok/ui/components/sprite_anim.dart';
 import 'package:harfblok/ui/game/game_controller.dart';
 import 'package:harfblok/ui/game/tile_art.dart';
 import 'package:harfblok/ui/screens/daily_screen.dart';
@@ -235,4 +237,40 @@ void main() {
       m.dispose();
     });
   }
+
+  // Mid-flight frames of the celebration sprite sheets on the dark board colour.
+  testWidgets('celebrations', (tester) async {
+    tester.view.physicalSize = const Size(340 * 3 * 2, 340 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: RepaintBoundary(
+          key: key,
+          child: const ColoredBox(
+            color: Color(0xFF16203A),
+            child: Row(
+              children: [
+                SpriteAnim(AssetPaths.fxBoardClear, size: 340),
+                SpriteAnim(AssetPaths.fxNewRecord, size: 340),
+                SpriteAnim(AssetPaths.fxLevelUp, size: 340),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 1500)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 520));
+    await tester.runAsync(() async {
+      final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      final img = await b.toImage(pixelRatio: 2);
+      final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
+      File('$_outDir/10_celebrations.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+    });
+    await tester.pump(const Duration(seconds: 2));
+  });
 }

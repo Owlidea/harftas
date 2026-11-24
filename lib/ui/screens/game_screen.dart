@@ -14,6 +14,7 @@ import '../../progress/progression.dart';
 import '../components/app_icon.dart';
 import '../components/confetti.dart';
 import '../components/overlays.dart';
+import '../components/sprite_anim.dart';
 import '../components/widgets.dart';
 import '../game/board_view.dart';
 import '../game/game_controller.dart';
@@ -83,9 +84,19 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (!mounted) return;
     setState(() {});
     _showToasts();
+    if (c.effects.isNotEmpty) {
+      for (final asset in c.effects) {
+        if (SpriteAnim.available(asset)) _fx.add((id: _fxSeq++, asset: asset));
+      }
+      c.effects.clear();
+    }
     if (c.phase == UiPhase.pickJokerLetter && !_letterSheetOpen) _pickLetter();
     if (c.phase == UiPhase.over && c.endResult?.dailyResult != null) _maybeAskNotifications();
   }
+
+  /// Celebration sprite sheets currently playing over the board.
+  final List<({int id, String asset})> _fx = [];
+  int _fxSeq = 0;
 
   void _showToasts() {
     if (c.toasts.isEmpty) return;
@@ -316,6 +327,22 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             Positioned.fill(
               child: DragOverlay(controller: c, renderer: _renderer!),
             ),
+            for (final fx in _fx)
+              Positioned.fill(
+                key: ValueKey(fx.id),
+                child: IgnorePointer(
+                  child: Align(
+                    alignment: const Alignment(0, -0.18),
+                    child: SpriteAnim(
+                      fx.asset,
+                      size: 340,
+                      onDone: () {
+                        if (mounted) setState(() => _fx.removeWhere((e) => e.id == fx.id));
+                      },
+                    ),
+                  ),
+                ),
+              ),
             if (c.phase == UiPhase.pickHammerCell || c.phase == UiPhase.pickJokerCell)
               _Hint(
                 text: c.phase == UiPhase.pickHammerCell
