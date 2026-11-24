@@ -195,14 +195,13 @@ class WeeklyGoal {
   /// Granted of every powerup type on completion.
   static const int rewardPowerups = 1;
 
-  static const DayKey _epoch = DayKey(2024, 1, 1);
   // Letters common enough that a handful of games reaches the target.
   static const _letters = ['Ş', 'Ç', 'Ü', 'Y', 'Z'];
 
-  static int weekOf(DayKey day) => _epoch.daysUntil(day) ~/ 7;
+  static int weekOf(DayKey day) => day.weekIndex;
 
   /// Days left including [day]: 7 on Monday, 1 on Sunday.
-  static int daysLeft(DayKey day) => 7 - _epoch.daysUntil(day) % 7;
+  static int daysLeft(DayKey day) => 8 - day.weekday;
 
   static final List<Mission Function(int week)> _pool = [
     (_) => const Mission(type: MissionType.scoreTotal, tier: MissionTier.hard, target: 4000),

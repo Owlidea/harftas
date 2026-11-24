@@ -274,8 +274,7 @@ class SettingsScreen extends StatelessWidget {
                     icon: AppIconName.missions,
                     title: '+500 XP ekle (seviye ödüllerini dene)',
                     onTap: () {
-                      Progression.addXp(app.profile, 500);
-                      unawaited(app.saveProfile());
+                      app.grantBonusXp(500);
                     },
                   ),
                   for (final (title, asset) in const [

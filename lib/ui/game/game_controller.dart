@@ -418,6 +418,31 @@ class GameController extends ChangeNotifier {
     if (phase == UiPhase.stuck) _apply(const EndAction());
   }
 
+  /// Bonus XP the rewarded "2x XP" already paid for this game.
+  int xpBonus = 0;
+
+  /// Offered once per game, and only when there is something worth doubling.
+  bool get canDoubleXp => !tutorial && phase == UiPhase.over && xpBonus == 0 && (endResult?.xpGained ?? 0) >= 10;
+
+  /// Rewarded "2x XP": pays this game's XP a second time, right away.
+  Future<void> doubleXp() async {
+    if (!canDoubleXp) return;
+    final xp = endResult!.xpGained;
+    if (!await app.watchRewarded(RewardPlacement.doubleXp)) return;
+    xpBonus = xp;
+    app.services.analytics.log(AnalyticsEvent.xpDoubled, {'xp': xp});
+    final ups = app.grantBonusXp(xp);
+    for (final l in ups) {
+      toasts.add(LevelToast(l));
+      if (!reduceMotion) effects.add(const OverlayFx(AssetPaths.fxLevelUp));
+    }
+    if (ups.isNotEmpty) _feedback(SoundId.levelUp, null);
+    // A classic result is only a preview until the player leaves: redo it so
+    // the "next goal" line counts the bonus.
+    if (!endRecorded) endResult = app.previewGameEnd(state);
+    notifyListeners();
+  }
+
   bool get canContinue =>
       !tutorial &&
       state.mode == GameMode.classic &&
@@ -466,6 +491,7 @@ class GameController extends ChangeNotifier {
     particles.clear();
     boardFx.clear();
     comboFx = null;
+    xpBonus = 0;
     endResult = null;
     endRecorded = false;
     selectedPiece = null;
@@ -683,6 +709,7 @@ class GameController extends ChangeNotifier {
       _logAnalytics(action, summary);
       if (action is! ContinueAction && action is! EndAction) {
         final rec = app.recordMove(summary);
+        _adoptGrants();
         for (final m in rec.missions) {
           toasts.add(MissionToast(m));
         }
@@ -737,6 +764,15 @@ class GameController extends ChangeNotifier {
       if (r is LevelUpReward) _at(nowMs + 900, () => _feedback(SoundId.levelUp, null));
     }
     notifyListeners();
+  }
+
+  /// Rewards paid mid-game (missions, levels, the weekly goal) are recorded
+  /// in the saved classic game by the app model; pick that state up so the
+  /// new powerups are usable now and survive the next save.
+  void _adoptGrants() {
+    final saved = app.savedClassic;
+    if (tutorial || _state.mode != GameMode.classic || saved == null || identical(saved, _state)) return;
+    if (saved.seed == _state.seed && saved.actions.length > _state.actions.length) _state = saved;
   }
 
   UiPhase _phaseFor(GameState s) => switch (s.status) {

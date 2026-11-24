@@ -19,6 +19,10 @@ sealed class GameAction {
         return const ContinueAction();
       case 'end':
         return const EndAction();
+      case 'grant':
+        return GrantAction({
+          for (final e in (j['pw'] as Map).entries) PowerupType.values.byName(e.key as String): e.value as int,
+        });
     }
     throw FormatException('Unknown action: ${j['t']}');
   }
@@ -72,4 +76,19 @@ class EndAction extends GameAction {
   const EndAction();
   @override
   Map<String, dynamic> toJson() => {'t': 'end'};
+}
+
+/// Powerups added to a running classic game from outside play: mission,
+/// level and weekly rewards, purchases, gifts. While a classic game is in
+/// progress it owns the powerup counts, so every grant is recorded here;
+/// otherwise the next save would overwrite the inventory with the game's
+/// stale counts, and a replay could not explain the extra uses.
+class GrantAction extends GameAction {
+  const GrantAction(this.powerups);
+  final Map<PowerupType, int> powerups;
+  @override
+  Map<String, dynamic> toJson() => {
+    't': 'grant',
+    'pw': {for (final e in powerups.entries) e.key.name: e.value},
+  };
 }

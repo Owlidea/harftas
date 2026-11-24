@@ -24,6 +24,9 @@ abstract final class AnalyticsEvent {
   static const adRewarded = 'ad_rewarded';
   static const purchase = 'purchase';
   static const settingsChanged = 'settings_changed';
+  static const xpDoubled = 'xp_doubled';
+  static const streakRepaired = 'streak_repaired';
+  static const dailyGift = 'daily_gift';
 }
 
 class ConsoleAnalytics implements Analytics {

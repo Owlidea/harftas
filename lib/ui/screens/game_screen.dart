@@ -764,7 +764,19 @@ class _GameOverPanel extends StatelessWidget {
                   VerticalDivider(color: p.divider, width: 1),
                   _Mini(label: l.bestWord, value: s.bestWord.isEmpty ? l.dash : s.bestWord),
                   VerticalDivider(color: p.divider, width: 1),
-                  _Mini(label: 'XP', value: '+${r?.xpGained ?? 0}'),
+                  _Mini(
+                    label: controller.xpBonus > 0 ? l.xpDoubledLabel : 'XP',
+                    value: '+${(r?.xpGained ?? 0) + controller.xpBonus}',
+                    action: controller.canDoubleXp && (app.services.ads.supported || app.profile.adsRemoved)
+                        ? _XpDoublePill(
+                            label: l.doubleXp,
+                            // A play mark says "video" without a long label.
+                            ad: !app.profile.adsRemoved,
+                            semantics: app.profile.adsRemoved ? l.doubleXpA11y : l.doubleXpA11yAd,
+                            onTap: controller.doubleXp,
+                          )
+                        : null,
+                  ),
                 ],
               ),
             ),
@@ -946,10 +958,84 @@ class _NextGoalRow extends StatelessWidget {
   }
 }
 
+/// Opt-in rewarded offer under the XP figure: small on purpose.
+class _XpDoublePill extends StatelessWidget {
+  const _XpDoublePill({required this.label, required this.ad, required this.semantics, required this.onTap});
+  final String label;
+  final bool ad;
+  final String semantics;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Semantics(
+      button: true,
+      label: semantics,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          tapFeedback(context);
+          onTap();
+        },
+        child: Padding(
+          // Keeps the touch target comfortable around a small pill.
+          padding: const EdgeInsets.fromLTRB(Space.s1, Space.s1, Space.s1, Space.s2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: Space.s2 + 2, vertical: 5),
+            decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (ad) ...[
+                  CustomPaint(size: const Size(7, 9), painter: _PlayTriangle(p.onAccent)),
+                  const SizedBox(width: 5),
+                ],
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: context.text.labelSmall!.copyWith(
+                    color: p.onAccent,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayTriangle extends CustomPainter {
+  _PlayTriangle(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) => canvas.drawPath(
+    Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, size.height / 2)
+      ..lineTo(0, size.height)
+      ..close(),
+    Paint()..color = color,
+  );
+
+  @override
+  bool shouldRepaint(_PlayTriangle old) => old.color != color;
+}
+
 class _Mini extends StatelessWidget {
-  const _Mini({required this.label, required this.value});
+  const _Mini({required this.label, required this.value, this.action});
   final String label;
   final String value;
+
+  /// Optional small control shown instead of the label.
+  final Widget? action;
   @override
   Widget build(BuildContext context) => Expanded(
     child: Column(
@@ -961,7 +1047,7 @@ class _Mini extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 2),
-        Text(label, style: context.text.bodySmall!.copyWith(fontSize: 12), textAlign: TextAlign.center),
+        action ?? Text(label, style: context.text.bodySmall!.copyWith(fontSize: 12), textAlign: TextAlign.center),
       ],
     ),
   );

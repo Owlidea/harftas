@@ -175,15 +175,86 @@ class AppModel extends ChangeNotifier {
     unawaited(saveProfile());
   }
 
-  void _addAllPowerups(int n) {
+  void _addAllPowerups(int n) => _inventory(() {
     for (final t in PowerupType.values) {
       profile.powerups[t] = (profile.powerups[t] ?? 0) + n;
     }
-  }
+  });
 
   void addPowerup(PowerupType t, [int n = 1]) {
-    profile.powerups[t] = (profile.powerups[t] ?? 0) + n;
+    _inventory(() => profile.powerups[t] = (profile.powerups[t] ?? 0) + n);
     unawaited(saveProfile());
+  }
+
+  /// Runs [change], which may add powerups to the profile, then records
+  /// whatever it added in the classic game in progress. That game owns the
+  /// counts while it runs ([saveGame] copies them back after every move), so
+  /// without this a reward or purchase would vanish on the next move.
+  T _inventory<T>(T Function() change) {
+    final before = Map.of(profile.powerups);
+    final out = change();
+    final running = savedClassic;
+    final e = engine;
+    if (running == null || running.isOver || e == null) return out;
+    final added = {
+      for (final t in PowerupType.values)
+        if ((profile.powerups[t] ?? 0) > (before[t] ?? 0)) t: (profile.powerups[t] ?? 0) - (before[t] ?? 0),
+    };
+    if (added.isEmpty) return out;
+    final next = e.apply(running, GrantAction(added)).state;
+    savedClassic = next;
+    unawaited(services.games.saveClassic(next));
+    return out;
+  }
+
+  /// XP earned outside a game result (rewarded "2x XP", gifts). Returns the
+  /// level-ups it caused.
+  List<LevelUpReward> grantBonusXp(int xp) {
+    final ups = _inventory(() => Progression.addXp(profile, xp));
+    for (final l in ups) {
+      services.analytics.log(AnalyticsEvent.levelUp, {'level': l.level});
+    }
+    unawaited(saveProfile());
+    return ups;
+  }
+
+  // ------------------------------------------------------ rewarded extras
+
+  /// The daily streak that was just lost and can still be repaired, or 0.
+  int get repairableStreak => profileLoaded ? profile.streak.repairable(today) : 0;
+
+  /// Rewarded "seri kurtarma": brings a just-broken daily streak back so
+  /// today's puzzle continues it.
+  Future<bool> repairStreak() async {
+    if (repairableStreak == 0) return false;
+    if (!await watchRewarded(RewardPlacement.streakRepair)) return false;
+    profile.streak = profile.streak.repair(today);
+    services.analytics.log(AnalyticsEvent.streakRepaired, {'streak': profile.streak.current});
+    await saveProfile();
+    return true;
+  }
+
+  bool get dailyGiftAvailable => profileLoaded && profile.giftDay != today.toString();
+
+  /// Today's gift: one powerup, a different kind each day.
+  PowerupType get dailyGiftType => PowerupType.values[today.dayIndex % PowerupType.values.length];
+
+  /// Opens today's gift (free, once per Istanbul day). Returns what was in
+  /// it, or null when it was already taken.
+  PowerupType? openDailyGift() {
+    if (!dailyGiftAvailable) return null;
+    final t = dailyGiftType;
+    profile.giftDay = today.toString();
+    services.analytics.log(AnalyticsEvent.dailyGift, {'type': t.name});
+    addPowerup(t);
+    return t;
+  }
+
+  /// Rewarded: a second one of today's gift.
+  Future<bool> doubleDailyGift(PowerupType t) async {
+    if (!await watchRewarded(RewardPlacement.dailyGift)) return false;
+    addPowerup(t);
+    return true;
   }
 
   /// Rewarded ad (or free when ads are removed). Returns true on reward.
@@ -254,7 +325,7 @@ class AppModel extends ChangeNotifier {
 
   /// Missions progress after each action.
   ({List<Mission> missions, WeeklyGoal? weekly, List<LevelUpReward> levelUps}) recordMove(MoveSummary m) {
-    final r = Progression.applyMove(profile, m, today);
+    final r = _inventory(() => Progression.applyMove(profile, m, today));
     for (final mission in r.missions) {
       services.analytics.log(AnalyticsEvent.missionCompleted, {'id': mission.type.name, 'tier': mission.tier.name});
     }
@@ -308,7 +379,8 @@ class AppModel extends ChangeNotifier {
 
   Future<GameEndResult> recordGameEnd(GameState s) async {
     final g = summarize(s);
-    final r = Progression.applyGameEnd(profile, wordbook, g, today);
+    // A classic game may be paused while the daily puzzle pays out rewards.
+    final r = _inventory(() => Progression.applyGameEnd(profile, wordbook, g, today));
     services.analytics.log(AnalyticsEvent.gameOver, {
       'mode': g.mode.name,
       'score': g.score,

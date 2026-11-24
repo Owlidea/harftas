@@ -35,6 +35,12 @@ class DayKey implements Comparable<DayKey> {
   /// Monday = 1 ... Sunday = 7.
   int get weekday => _utcNoon.weekday;
 
+  /// Whole weeks since Monday 2024-01-01 (weeks run Monday to Sunday).
+  int get weekIndex => const DayKey(2024, 1, 1).daysUntil(this) ~/ 7;
+
+  /// Whole days since 2024-01-01 (for daily rotations).
+  int get dayIndex => const DayKey(2024, 1, 1).daysUntil(this);
+
   String get monthKey => '$year-${month.toString().padLeft(2, '0')}';
 
   /// Next Istanbul midnight as a UTC instant.

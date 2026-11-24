@@ -67,4 +67,5 @@ rastgele çalınan varyasyonlardır. Ses dosyası yokken oyun sessiz çalışır
 |---|---|
 | Ekran görüntüsü çerçeve/başlık şablonu (1320×2868, 2064×2752, 1080×1920) | ⏳ |
 | Google Play öne çıkan görsel 1024×500: `docs/magaza-gorselleri-v6/one-cikan-gorsel.png`, logo: `logo.png` (Blender) | ✅ |
-| Tanıtım videosu müziği ve kapanış kartı (isteğe bağlı) | ⏳ |
+| Tanıtım videosu: `docs/magaza-gorselleri-v6/tanitim.mp4` (8 sn, 1080×1920, sessiz; `tool/blender/render_video.py`) | ✅ |
+| Tanıtım videosu müziği (isteğe bağlı) | ⏳ |

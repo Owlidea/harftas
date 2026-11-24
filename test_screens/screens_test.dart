@@ -17,6 +17,7 @@ import 'package:harfblok/data/storage/json_store.dart';
 import 'package:harfblok/data/storage/storage_backend.dart';
 import 'package:harfblok/progress/profile.dart';
 import 'package:harfblok/progress/progression.dart';
+import 'package:harfblok/progress/streak.dart';
 import 'package:harfblok/progress/summaries.dart';
 import 'package:harfblok/services/ads_service.dart';
 import 'package:harfblok/services/analytics.dart';
@@ -192,6 +193,14 @@ void main() {
 
       final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
 
+      // Daily gift: the chip on the home screen opens the sheet.
+      await tester.tap(find.text('Hediye'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1400));
+      await shot(tester, key, '14_daily_gift_$mode');
+      nav.pop();
+      await tester.pump(const Duration(milliseconds: 600));
+
       Future<void> open(Widget w, String name) async {
         nav.push(MaterialPageRoute(builder: (_) => w));
         await tester.pump();
@@ -261,6 +270,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
 
       await open(const DailyScreen(), '04_daily_$mode');
+
+      // A streak lost three days ago (shield spent): the rewarded repair offer.
+      final streak = m.profile.streak;
+      m.profile.streak = DailyStreak(
+        current: 9,
+        best: 9,
+        lastPlayed: m.today.addDays(-3),
+        shieldMonthUsed: m.today.monthKey,
+      );
+      await open(const DailyScreen(), '13_streak_repair_$mode');
+      m.profile.streak = streak;
       await open(const MissionsScreen(), '05_missions_$mode');
       await open(const WordbookScreen(), '06_wordbook_$mode');
       await open(const SettingsScreen(), '07_settings_$mode');

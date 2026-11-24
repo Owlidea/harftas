@@ -1157,4 +1157,55 @@ class L10nTr extends L10n {
   String achDailyDesc(int n) {
     return '$n günlük bulmaca tamamla';
   }
+
+  @override
+  String get doubleXp => '2× XP';
+
+  @override
+  String get doubleXpA11y => 'XP\'yi ikiye katla';
+
+  @override
+  String get doubleXpA11yAd => 'Reklam izleyerek XP\'yi ikiye katla';
+
+  @override
+  String get xpDoubledLabel => 'XP ×2';
+
+  @override
+  String streakLostTitle(int n) {
+    return '$n günlük serin bozuldu';
+  }
+
+  @override
+  String get streakLostBody => 'Bugünün bulmacasını oynamadan önce geri alabilirsin.';
+
+  @override
+  String get streakRepairAd => 'Reklam izle, seriyi kurtar';
+
+  @override
+  String get streakRepairFree => 'Seriyi kurtar';
+
+  @override
+  String streakRepaired(int n) {
+    return 'Serin geri geldi: $n gün';
+  }
+
+  @override
+  String get giftChip => 'Hediye';
+
+  @override
+  String get giftTitle => 'Günlük hediye';
+
+  @override
+  String giftGot(int n, String name) {
+    return '+$n $name';
+  }
+
+  @override
+  String get giftDoubleAd => 'Reklam izle, bir tane daha al';
+
+  @override
+  String get giftDoubleFree => 'Bir tane daha al';
+
+  @override
+  String get giftTomorrow => 'Yarın yeni bir hediye seni bekliyor.';
 }

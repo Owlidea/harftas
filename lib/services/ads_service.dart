@@ -6,7 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../config/app_info.dart';
 import 'crash_reporter.dart';
 
-enum RewardPlacement { continueGame, earnPowerup }
+enum RewardPlacement { continueGame, earnPowerup, doubleXp, streakRepair, dailyGift }
 
 /// Ads behind an interface (spec 12). Never shown during play.
 abstract interface class AdsService {

@@ -425,5 +425,24 @@
   "@achGamesDesc": {"placeholders": {"n": {"type": "int"}}},
   "achRareDesc": "J veya Ğ içeren bir kelime kur",
   "achDailyDesc": "{n} günlük bulmaca tamamla",
-  "@achDailyDesc": {"placeholders": {"n": {"type": "int"}}}
+  "@achDailyDesc": {"placeholders": {"n": {"type": "int"}}},
+
+  "doubleXp": "2× XP",
+  "doubleXpA11y": "XP'yi ikiye katla",
+  "doubleXpA11yAd": "Reklam izleyerek XP'yi ikiye katla",
+  "xpDoubledLabel": "XP ×2",
+  "streakLostTitle": "{n} günlük serin bozuldu",
+  "@streakLostTitle": {"placeholders": {"n": {"type": "int"}}},
+  "streakLostBody": "Bugünün bulmacasını oynamadan önce geri alabilirsin.",
+  "streakRepairAd": "Reklam izle, seriyi kurtar",
+  "streakRepairFree": "Seriyi kurtar",
+  "streakRepaired": "Serin geri geldi: {n} gün",
+  "@streakRepaired": {"placeholders": {"n": {"type": "int"}}},
+  "giftChip": "Hediye",
+  "giftTitle": "Günlük hediye",
+  "giftGot": "+{n} {name}",
+  "@giftGot": {"placeholders": {"n": {"type": "int"}, "name": {"type": "String"}}},
+  "giftDoubleAd": "Reklam izle, bir tane daha al",
+  "giftDoubleFree": "Bir tane daha al",
+  "giftTomorrow": "Yarın yeni bir hediye seni bekliyor."
 }

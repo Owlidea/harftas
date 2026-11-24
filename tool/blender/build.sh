@@ -16,3 +16,5 @@ BLENDER="${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}"
 "$BLENDER" -b --factory-startup -P tool/blender/render_anims.py -- "$PWD"
 # Board surface textures (needs cwebp).
 "$BLENDER" -b --factory-startup -P tool/blender/render_boards.py -- "$PWD"
+# Promo video (EEVEE, needs ffmpeg). ~10 minutes.
+"$BLENDER" -b --factory-startup -P tool/blender/render_video.py -- "$PWD"

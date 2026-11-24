@@ -2052,6 +2052,96 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'{n} günlük bulmaca tamamla'**
   String achDailyDesc(int n);
+
+  /// No description provided for @doubleXp.
+  ///
+  /// In tr, this message translates to:
+  /// **'2× XP'**
+  String get doubleXp;
+
+  /// No description provided for @doubleXpA11y.
+  ///
+  /// In tr, this message translates to:
+  /// **'XP\'yi ikiye katla'**
+  String get doubleXpA11y;
+
+  /// No description provided for @doubleXpA11yAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izleyerek XP\'yi ikiye katla'**
+  String get doubleXpA11yAd;
+
+  /// No description provided for @xpDoubledLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'XP ×2'**
+  String get xpDoubledLabel;
+
+  /// No description provided for @streakLostTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} günlük serin bozuldu'**
+  String streakLostTitle(int n);
+
+  /// No description provided for @streakLostBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bugünün bulmacasını oynamadan önce geri alabilirsin.'**
+  String get streakLostBody;
+
+  /// No description provided for @streakRepairAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izle, seriyi kurtar'**
+  String get streakRepairAd;
+
+  /// No description provided for @streakRepairFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seriyi kurtar'**
+  String get streakRepairFree;
+
+  /// No description provided for @streakRepaired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Serin geri geldi: {n} gün'**
+  String streakRepaired(int n);
+
+  /// No description provided for @giftChip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hediye'**
+  String get giftChip;
+
+  /// No description provided for @giftTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük hediye'**
+  String get giftTitle;
+
+  /// No description provided for @giftGot.
+  ///
+  /// In tr, this message translates to:
+  /// **'+{n} {name}'**
+  String giftGot(int n, String name);
+
+  /// No description provided for @giftDoubleAd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izle, bir tane daha al'**
+  String get giftDoubleAd;
+
+  /// No description provided for @giftDoubleFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir tane daha al'**
+  String get giftDoubleFree;
+
+  /// No description provided for @giftTomorrow.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yarın yeni bir hediye seni bekliyor.'**
+  String get giftTomorrow;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

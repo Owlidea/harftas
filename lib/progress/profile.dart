@@ -49,6 +49,7 @@ class PlayerProfile {
     this.bestCombo = 0,
     this.boardClears = 0,
     Set<String>? achievements,
+    this.giftDay,
   }) : powerups = powerups ?? {for (final t in PowerupType.values) t: 1},
        daily = daily ?? {},
        badges = badges ?? {},
@@ -92,6 +93,7 @@ class PlayerProfile {
       bestCombo: j['bestCombo'] as int? ?? 0,
       boardClears: j['boardClears'] as int? ?? 0,
       achievements: strings(j['achievements']),
+      giftDay: j['giftDay'] as String?,
     );
   }
 
@@ -134,6 +136,9 @@ class PlayerProfile {
   /// Ids of achievements already earned and rewarded.
   final Set<String> achievements;
 
+  /// Day ([DayKey.toString]) the daily gift was last opened.
+  String? giftDay;
+
   double get averageWordLength => totalWords == 0 ? 0 : totalLetters / totalWords;
 
   DailyResult? dailyFor(DayKey d) => daily[d.toString()];
@@ -165,6 +170,7 @@ class PlayerProfile {
     'bestCombo': bestCombo,
     'boardClears': boardClears,
     'achievements': achievements.toList()..sort(),
+    'giftDay': giftDay,
   };
 }
 
