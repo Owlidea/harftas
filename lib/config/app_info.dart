@@ -1,5 +1,10 @@
 /// App identity and product configuration.
 abstract final class AppInfo {
+  /// Build-time switch: `--dart-define=TEST_TOOLS=true` adds a "Test araçları"
+  /// section to Settings (unlock every look, replay celebrations). Never set
+  /// for store builds.
+  static const bool testTools = bool.fromEnvironment('TEST_TOOLS');
+
   /// Chosen 2026-11-13 (karar 1), renamed to "Harf Kombo" 2026-11-21 (karar: ad
   /// iki mağazada da benzersiz). Hosted pages keep the owlidea.github.io/harftas
   /// URL, which the stores already link to. Native labels: AndroidManifest

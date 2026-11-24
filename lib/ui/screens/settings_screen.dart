@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 
+import '../components/sprite_anim.dart';
 import '../../app/app_model.dart';
 import '../../config/app_info.dart';
 import '../../config/asset_paths.dart';
@@ -35,6 +36,8 @@ String themeName(L10n l, String id) => switch (id) {
 String tileStyleName(L10n l, String id) => switch (id) {
   'soft' => l.tileSoft,
   'sharp' => l.tileSharp,
+  'grain' => l.tileGrain,
+  'marble' => l.tileMarble,
   _ => l.tileClassic,
 };
 
@@ -220,6 +223,44 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (AppInfo.testTools) ...[
+            // Developer-only (TEST_TOOLS build flag); intentionally not localised.
+            const SectionHeader('Test araçları'),
+            Panel(
+              padding: const EdgeInsets.symmetric(horizontal: Space.s2, vertical: Space.s1),
+              child: Column(
+                children: [
+                  ListRow(
+                    icon: AppIconName.palette,
+                    title: 'Tüm tema ve karo stillerini aç',
+                    onTap: () {
+                      app.profile.unlockedThemes.addAll(ThemeDef.all.map((t) => t.id));
+                      app.profile.unlockedTileStyles.addAll(TileStyle.all.map((t) => t.id));
+                      unawaited(app.saveProfile());
+                    },
+                  ),
+                  for (final (title, asset) in const [
+                    ('Yeni rekor animasyonu', AssetPaths.fxNewRecord),
+                    ('Izgara boşaldı animasyonu', AssetPaths.fxBoardClear),
+                    ('Seviye atlama animasyonu', AssetPaths.fxLevelUp),
+                  ])
+                    ListRow(
+                      icon: AppIconName.star,
+                      title: title,
+                      onTap: () => showGeneralDialog<void>(
+                        context: context,
+                        barrierDismissible: true,
+                        barrierLabel: title,
+                        barrierColor: const Color(0x99000000),
+                        pageBuilder: (dialogContext, _, _) => Center(
+                          child: SpriteAnim(asset, size: 340, onDone: () => Navigator.of(dialogContext).maybePop()),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
           SectionHeader(l.sectionAbout),
           Panel(
             padding: const EdgeInsets.symmetric(horizontal: Space.s2, vertical: Space.s1),
@@ -282,10 +323,7 @@ class _Segmented<T> extends StatelessWidget {
               widthFactor: 1 / values.length,
               heightFactor: 1,
               child: Container(
-                decoration: BoxDecoration(
-                  color: p.accent,
-                  borderRadius: BorderRadius.circular(Radii.pill),
-                ),
+                decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
               ),
             ),
           ),
@@ -321,7 +359,6 @@ class _Segmented<T> extends StatelessWidget {
     );
   }
 }
-
 
 /// Horizontal snap-free slider of option cards. Cards are clipped by the
 /// panel (a half-visible card on the right says "swipe"), and the selected
@@ -475,8 +512,7 @@ class _OptionCard extends StatelessWidget {
                             child: Center(child: AppIcon(AppIconName.check, size: 12, color: p.onAccent)),
                           ),
                         ),
-                      if (locked)
-                        Center(child: AppIcon(AppIconName.lock, size: 24, color: p.ink)),
+                      if (locked) Center(child: AppIcon(AppIconName.lock, size: 24, color: p.ink)),
                     ],
                   ),
                 ),

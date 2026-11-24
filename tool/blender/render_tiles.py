@@ -29,6 +29,10 @@ STYLES = {
     "classic": dict(radius=0.18, h=0.60, base=0.30, round=0.13, rim=False),
     "soft":    dict(radius=0.32, h=0.42, base=0.0,  round=0.26, rim=False),
     "sharp":   dict(radius=0.06, h=0.40, base=0.14, round=0.035, rim=True),
+    # Premium looks (level rewards): greyscale surface detail baked into the
+    # face layer, so the palette still tints them like any other style.
+    "grain":   dict(radius=0.18, h=0.60, base=0.30, round=0.13, rim=False, tex="wood"),
+    "marble":  dict(radius=0.12, h=0.50, base=0.22, round=0.07, rim=False, tex="marble"),
 }
 
 
@@ -105,6 +109,47 @@ def material(name, color, rough, spec, coat=0.0):
     b.inputs["Specular IOR Level"].default_value = spec
     b.inputs["Coat Weight"].default_value = coat
     b.inputs["Coat Roughness"].default_value = 0.12
+    return m
+
+
+def textured(kind):
+    """Matte material whose brightness carries wood grain or marble veins."""
+    m = material("tex_" + kind, (0.8, 0.8, 0.8), 1.0, 0.0)
+    nt = m.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    mapping = nt.nodes.new("ShaderNodeMapping")
+    wave = nt.nodes.new("ShaderNodeTexWave")
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    nt.links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+    nt.links.new(mapping.outputs["Vector"], wave.inputs["Vector"])
+    nt.links.new(wave.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    el = ramp.color_ramp.elements
+    if kind == "wood":
+        mapping.inputs["Rotation"].default_value = (0, 0, math.radians(8))
+        mapping.inputs["Scale"].default_value = (0.16, 1.0, 1.0)
+        wave.wave_type = 'BANDS'
+        wave.bands_direction = 'Y'
+        wave.inputs["Scale"].default_value = 2.2
+        wave.inputs["Distortion"].default_value = 5.0
+        wave.inputs["Detail"].default_value = 3.0
+        wave.inputs["Detail Scale"].default_value = 1.6
+        el[0].position, el[0].color = 0.20, (0.64, 0.64, 0.64, 1)
+        el[1].position, el[1].color = 0.80, (0.80, 0.80, 0.80, 1)
+    else:
+        mapping.inputs["Rotation"].default_value = (0, 0, math.radians(35))
+        wave.wave_type = 'BANDS'
+        wave.inputs["Scale"].default_value = 0.9
+        wave.inputs["Distortion"].default_value = 9.0
+        wave.inputs["Detail"].default_value = 5.0
+        wave.inputs["Detail Scale"].default_value = 1.1
+        # Thin dark veins on a bright field.
+        el[0].position, el[0].color = 0.0, (0.80, 0.80, 0.80, 1)
+        el[1].position, el[1].color = 1.0, (0.80, 0.80, 0.80, 1)
+        for pos, v in ((0.46, 0.80), (0.50, 0.50), (0.54, 0.80)):
+            e = el.new(pos)
+            e.color = (v, v, v, 1)
     return m
 
 
@@ -195,7 +240,8 @@ def build(style, s):
         return read_render(path)
 
     edge_parts = [parts[k] for k in ("base", "rim") if k in parts]
-    face = render("face", [cap], holdout=edge_parts)
+    tex = s.get("tex")
+    face = render("face", [cap], holdout=edge_parts, mat=textured(tex) if tex else matte)
     edge = render("edge", edge_parts, holdout=[cap]) if edge_parts else np.zeros_like(face)
     shadow = render("shadow", [], camera_visible=False, with_floor=True)
     # Highlights: black glossy body, a strip light for a sheen across the top.
@@ -217,9 +263,11 @@ def build(style, s):
     fa = face[..., 3]
     cy0 = box[1] + int(TILE * 0.25); cy1 = box[1] + int(TILE * 0.55)
     cx0 = box[0] + int(TILE * 0.3);  cx1 = box[0] + int(TILE * 0.7)
-    ref = float(np.median(lum(face)[cy0:cy1, cx0:cx1]))
+    # Textured faces: the bright field (not the veins) is the palette colour.
+    patch = lum(face)[cy0:cy1, cx0:cx1]
+    ref = float(np.percentile(patch, 88) if tex else np.median(patch))
     fm = lum(face) / ref
-    over = np.clip(fm - 1.0, 0, 1)
+    over = np.clip(fm - 1.0, 0, 1) * (0.3 if tex else 1.0)
     fm = np.clip(fm, 0, 1)
     # Keep shading gentle: tiles must stay readable in every theme.
     fm = 1 - (1 - fm) * 0.85

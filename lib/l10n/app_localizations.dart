@@ -1039,6 +1039,18 @@ abstract class L10n {
   /// **'Keskin'**
   String get tileSharp;
 
+  /// No description provided for @tileGrain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ahşap damar'**
+  String get tileGrain;
+
+  /// No description provided for @tileMarble.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mermer'**
+  String get tileMarble;
+
   /// No description provided for @aboutTitle.
   ///
   /// In tr, this message translates to:

@@ -553,6 +553,12 @@ class L10nTr extends L10n {
   String get tileSharp => 'Keskin';
 
   @override
+  String get tileGrain => 'Ahşap damar';
+
+  @override
+  String get tileMarble => 'Mermer';
+
+  @override
   String get aboutTitle => 'Hakkında';
 
   @override

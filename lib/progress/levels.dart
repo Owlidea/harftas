@@ -27,7 +27,9 @@ abstract final class Levels {
       5: LevelReward.theme('olive'),
       8: LevelReward.tileStyle('sharp'),
       10: LevelReward.theme('lavender'),
+      12: LevelReward.tileStyle('grain'),
       15: LevelReward.theme('amber'),
+      20: LevelReward.tileStyle('marble'),
     };
     return unlocks[level] ?? LevelReward.powerup(PowerupType.values[level % PowerupType.values.length]);
   }
