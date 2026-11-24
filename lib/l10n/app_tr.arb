@@ -201,6 +201,8 @@
   "tileClassic": "Klasik",
   "tileSoft": "Yumuşak",
   "tileSharp": "Keskin",
+  "tileGrain": "Ahşap damar",
+  "tileMarble": "Mermer",
 
   "aboutTitle": "Hakkında",
   "aboutVersion": "Sürüm {v}",

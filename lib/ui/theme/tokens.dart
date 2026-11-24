@@ -320,6 +320,10 @@ class TileStyle {
     TileStyle('classic', radiusFactor: 0.18, bevel: true, border: false),
     TileStyle('soft', radiusFactor: 0.32, bevel: false, border: false),
     TileStyle('sharp', radiusFactor: 0.06, bevel: false, border: true),
+    // Premium looks: surface detail lives in the rendered art (TileArt); the
+    // code-drawn fallback is a plain bevelled tile.
+    TileStyle('grain', radiusFactor: 0.18, bevel: true, border: false),
+    TileStyle('marble', radiusFactor: 0.12, bevel: true, border: false),
   ];
 
   static TileStyle byId(String id) => all.firstWhere((t) => t.id == id, orElse: () => all.first);

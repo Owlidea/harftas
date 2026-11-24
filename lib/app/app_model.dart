@@ -90,6 +90,7 @@ class AppModel extends ChangeNotifier {
   Future<void> init(AssetBundle bundle) async {
     settings = await services.profiles.loadSettings();
     profile = await services.profiles.loadProfile();
+    Progression.syncLevelUnlocks(profile);
     wordbook = await services.profiles.loadWordbook();
     profile.sessions++;
     Progression.ensureMissions(profile, today);

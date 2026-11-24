@@ -59,6 +59,20 @@ void main() {
       expect(Levels.rewardFor(5).themeId, 'olive');
       expect(Levels.rewardFor(3).tileStyleId, 'soft');
       expect(Levels.rewardFor(2).powerup, isNotNull);
+      expect(Levels.rewardFor(12).tileStyleId, 'grain');
+      expect(Levels.rewardFor(20).tileStyleId, 'marble');
+    });
+    test('styles added later unlock for players already past their level', () {
+      var xp = 0;
+      for (var l = 1; l < 13; l++) {
+        xp += Levels.xpToNext(l);
+      }
+      final p = PlayerProfile(totalXp: xp); // level 13, saved before 'grain' existed
+      expect(p.unlockedTileStyles, {'classic'});
+      expect(Progression.syncLevelUnlocks(p), isTrue);
+      expect(p.unlockedTileStyles, containsAll(['soft', 'sharp', 'grain']));
+      expect(p.unlockedTileStyles, isNot(contains('marble')));
+      expect(Progression.syncLevelUnlocks(p), isFalse);
     });
   });
 

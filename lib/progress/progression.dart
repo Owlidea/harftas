@@ -138,6 +138,21 @@ abstract final class Progression {
     return [for (var l = before + 1; l <= after; l++) _grantLevel(p, l)];
   }
 
+  /// Unlocks every theme / tile style whose level the player has already
+  /// passed. Rewards added in an update (e.g. new tile styles) would otherwise
+  /// stay locked for players who were above that level. Powerups are not
+  /// re-granted. Returns true when something was unlocked.
+  static bool syncLevelUnlocks(PlayerProfile p) {
+    final level = Levels.fromTotalXp(p.totalXp).level;
+    var changed = false;
+    for (var l = 2; l <= level; l++) {
+      final r = Levels.rewardFor(l);
+      if (r.themeId != null) changed = p.unlockedThemes.add(r.themeId!) || changed;
+      if (r.tileStyleId != null) changed = p.unlockedTileStyles.add(r.tileStyleId!) || changed;
+    }
+    return changed;
+  }
+
   static LevelUpReward _grantLevel(PlayerProfile p, int level) {
     final r = Levels.rewardFor(level);
     if (r.themeId != null) p.unlockedThemes.add(r.themeId!);

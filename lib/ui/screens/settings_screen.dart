@@ -35,6 +35,8 @@ String themeName(L10n l, String id) => switch (id) {
 String tileStyleName(L10n l, String id) => switch (id) {
   'soft' => l.tileSoft,
   'sharp' => l.tileSharp,
+  'grain' => l.tileGrain,
+  'marble' => l.tileMarble,
   _ => l.tileClassic,
 };
 

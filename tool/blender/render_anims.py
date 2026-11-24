@@ -77,7 +77,7 @@ def spark(color, size=0.22):
 
 def ring(color):
     m = R.mat("ring", color, 0.25, coat=0.6)
-    return R.prim("torus", m, major_radius=1.0, minor_radius=0.035, location=(0, 0, 0),
+    return R.prim("torus", m, major_radius=1.0, minor_radius=0.022, location=(0, 0, 0),
                   rotation=(math.radians(90), 0, 0), major_segments=96, minor_segments=12)
 
 
@@ -174,7 +174,7 @@ def scene_new_record(sc):
                      R.mat("sg", R.GOLD_LIGHT if i % 2 else R.MINT, 0.25, coat=0.8), depth=0.04, puff=0.04)
         return holder([s])
     burst(actors, star, 12, rnd, start=0.12, speed=(1.6, 2.2), gravity=1.0, spin=3.0, y=0.6, life=0.7)
-    ring_actor(actors, R.GOLD_LIGHT, 0.10, radius=2.0)
+    ring_actor(actors, R.GOLD_LIGHT, 0.10, radius=1.75)
     sparkles(actors, rnd, 8, R.IVORY)
     return actors
 
@@ -201,7 +201,7 @@ def scene_level_up(sc):
             s = math.sin(math.pi * u) ** 0.6 if 0 < u < 1 else 0.0
             return (x, 0.2, -0.9 + 1.9 * u), (0, 0, 0), s
         actors.append(Actor(ob, fn))
-    ring_actor(actors, R.MINT, 0.08, radius=2.0)
+    ring_actor(actors, R.MINT, 0.08, radius=1.75)
     sparkles(actors, rnd, 10, R.GOLD_LIGHT)
     return actors
 

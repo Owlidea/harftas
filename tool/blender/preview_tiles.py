@@ -20,7 +20,7 @@ themes = [  # background, tile, edge, shadow alpha
     ("16203A", "EAE5D8", "B9B19D", 0.60), ("16203A", "4CC3BA", "317F79", 0.60),
     ("E9E3D6", "F1E4FA", "D9CDB2", 0.30),
 ]
-styles = [s for s in ("classic", "soft", "sharp") if s in meta["styles"]]
+styles = [s for s in ("classic", "soft", "sharp", "grain", "marble") if s in meta["styles"]]
 canvas = np.zeros((C * len(styles), C * len(themes), 3), dtype=np.float32)
 for r, st in enumerate(styles):
     at = load(os.path.join(src, f"tile_{st}.png"))

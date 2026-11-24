@@ -10,7 +10,7 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 | Öğe | Durum |
 |---|---|
 | Izgara, sürükleme önizlemesi, kelime vurgusu, karo harf ve puanları | 🧩 |
-| Karo gövdeleri (3 stil): `assets/images/tiles/tile_{classic,soft,sharp}.png` + `tiles.json`, Blender render'ı; kod tema rengiyle boyar. Dosya yoksa kodla çizilen karoya düşer | ✅ Blender |
+| Karo gövdeleri (5 stil): `assets/images/tiles/tile_{classic,soft,sharp,grain,marble}.png` + `tiles.json`, Blender render'ı; kod tema rengiyle boyar. Dosya yoksa kodla çizilen karoya düşer | ✅ Blender |
 | Patlama parçacıkları, puan etiketleri, kombo sarsıntısı, sayaçlar | 🧩 |
 | Tema paletleri (7 tema × açık/koyu) ve renk körlüğü paleti | 🧩 |
 | Takvim, ilerleme çubukları, rozet yer tutucuları, paylaşım kartı yerleşimi | 🧩 |
@@ -24,9 +24,9 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 | 1 | `assets/fonts/Nunito-{Regular,Medium,SemiBold,Bold,ExtraBold}.ttf` (+ `Nunito-OFL.txt`) | ✓ | Zorunlu | 3 |
 | 2 | `assets/images/brand/logo_light.svg`, `logo_dark.svg` | ⏳ | Zorunlu | 3 |
 | 3 | `assets/images/icons/ic_{pause,settings,book,missions,calendar,stats,share,sound,music,haptic,back,home,close,lock,check,store,info,powerup_refresh,powerup_joker,powerup_hammer,streak,crown,gift,star,palette,tiles}.svg` | ⏳ | Zorunlu | 3 |
-| 4 | `assets/branding/app_icon_ios_1024.png` (geçici simge var; değiştirince `dart run flutter_launcher_icons`) | ⏳ | Zorunlu | 5 |
-| 5 | `assets/branding/android_{fg,bg,mono}.png` → `android/app/src/main/res/mipmap-anydpi-v26/` | ⏳ | Zorunlu | 5 |
-| 6 | `assets/branding/splash_mark.png` | ⏳ | Zorunlu | 3 |
+| 4 | `assets/branding/app_icon_ios_1024.png` (Blender: H ve K karoları; `tool/blender/render_brand.py`) | ✅ | Zorunlu | 5 |
+| 5 | `assets/branding/android_{fg,bg}.png` (Blender), `android_mono.png` (kodla, düz) → `android/app/src/main/res/mipmap-anydpi-v26/` | ✅ | Zorunlu | 5 |
+| 6 | `assets/branding/splash_mark.png` (Blender) | ✅ | Zorunlu | 3 |
 | 7 | `assets/images/badges/streak_{7,30,100}.png` (512 px, Blender) | ✅ | Zorunlu | 4 |
 | 7b | `assets/images/art/{star,flame,crown,lock,gift}.png` (512 px 3B ikonlar; `ArtIcon` yoksa çizgi simgeye düşer) | ✅ | Olursa iyi | 4 |
 | 8 | `assets/images/badges/level_*.svg` | ⏳ | Olursa iyi | 4 |
@@ -63,5 +63,5 @@ rastgele çalınan varyasyonlardır. Ses dosyası yokken oyun sessiz çalışır
 | Öğe | Durum |
 |---|---|
 | Ekran görüntüsü çerçeve/başlık şablonu (1320×2868, 2064×2752, 1080×1920) | ⏳ |
-| Google Play öne çıkan görsel 1024×500 | ⏳ |
+| Google Play öne çıkan görsel 1024×500: `docs/magaza-gorselleri-v6/one-cikan-gorsel.png`, logo: `logo.png` (Blender) | ✅ |
 | Tanıtım videosu müziği ve kapanış kartı (isteğe bağlı) | ⏳ |
