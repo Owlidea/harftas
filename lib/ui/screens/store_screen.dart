@@ -166,7 +166,7 @@ class _MobileOnlyNote extends StatelessWidget {
       decoration: _flat(p),
       child: Column(
         children: [
-          AppIcon(AppIconName.crown, size: 32, color: _Gold.of(context)),
+          ArtIcon(AppIconName.crown, size: 32, artScale: 1.5, color: _Gold.of(context)),
           const SizedBox(height: Space.s3),
           Text(text, textAlign: TextAlign.center, style: context.text.bodyLarge),
         ],
@@ -317,7 +317,7 @@ class _RemoveAdsCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const AppIcon(AppIconName.crown, size: 22, color: _Gold.light),
+                      const ArtIcon(AppIconName.crown, size: 22, artScale: 1.6, color: _Gold.light),
                       const SizedBox(width: Space.s2),
                       Text(
                         TurkishText.toUpper(l.storePremium),
@@ -510,7 +510,7 @@ class _FreeRow extends StatelessWidget {
             padding: const EdgeInsets.all(Space.s4),
             child: Row(
               children: [
-                AppIcon(AppIconName.gift, size: 30, color: c),
+                ArtIcon(AppIconName.gift, size: 30, artScale: 1.4, color: c),
                 const SizedBox(width: Space.s4),
                 Expanded(
                   child: Column(

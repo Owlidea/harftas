@@ -19,6 +19,7 @@ import 'services/haptics_service.dart';
 import 'services/notification_service.dart';
 import 'services/purchase_service.dart';
 import 'ui/components/app_icon.dart';
+import 'ui/game/tile_art.dart';
 import 'ui/theme/app_theme.dart';
 
 /// Build-time switch: `--dart-define=FAKE_SERVICES=true` uses the fake ads
@@ -57,7 +58,7 @@ Future<void> main() async {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
-  await Future.wait([loadAppFonts(), AssetIndex.load()]);
+  await Future.wait([loadAppFonts(), AssetIndex.load(), TileArt.load()]);
 
   final store = JsonStore(await createStorageBackend(), crash: crash);
   // Web / desktop: real ads, purchases, notifications and audio are not

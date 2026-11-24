@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/app_model.dart';
@@ -286,7 +285,11 @@ class _StreakPanel extends StatelessWidget {
             SizedBox(
               width: 48,
               height: 64,
-              child: Center(child: AppIcon(AppIconName.streak, size: 40, color: current > 0 ? p.accent : p.inkMuted)),
+              child: Center(
+                child: current > 0
+                    ? const ArtIcon(AppIconName.streak, size: 40, artScale: 1.25)
+                    : AppIcon(AppIconName.streak, size: 40, color: p.inkMuted),
+              ),
             ),
             const SizedBox(width: Space.s4),
             Expanded(
@@ -434,7 +437,13 @@ class _BadgeTrack extends StatelessWidget {
                         child: AssetIndex.has(asset)
                             ? Opacity(
                                 opacity: got ? 1 : 0.35,
-                                child: SvgPicture.asset(asset, width: node, height: node),
+                                child: Image.asset(
+                                  asset,
+                                  width: node,
+                                  height: node,
+                                  filterQuality: FilterQuality.medium,
+                                  excludeFromSemantics: true,
+                                ),
                               )
                             : Container(
                                 width: node,

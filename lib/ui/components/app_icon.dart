@@ -45,6 +45,45 @@ class AppIcon extends StatelessWidget {
   }
 }
 
+/// Full-colour 3D artwork (`assets/images/art/`) when delivered, otherwise
+/// the single-colour [AppIcon] in [color]. Artwork ignores [color].
+class ArtIcon extends StatelessWidget {
+  const ArtIcon(this.name, {super.key, this.size = 24, this.color, this.artScale = 1});
+
+  final AppIconName name;
+  final double size;
+  final Color? color;
+
+  /// Artwork has more visual mass than a line icon; lets a call site enlarge
+  /// it without changing the layout box.
+  final double artScale;
+
+  /// Flame artwork is filed under the streak icon's name.
+  static String pathOf(AppIconName name) =>
+      name == AppIconName.streak ? 'assets/images/art/flame.png' : AssetPaths.artwork(name);
+
+  @override
+  Widget build(BuildContext context) {
+    final path = pathOf(name);
+    if (!AssetIndex.has(path)) return AppIcon(name, size: size, color: color);
+    return SizedBox.square(
+      dimension: size,
+      child: OverflowBox(
+        maxWidth: size * artScale,
+        maxHeight: size * artScale,
+        child: Image.asset(
+          path,
+          width: size * artScale,
+          height: size * artScale,
+          filterQuality: FilterQuality.medium,
+          excludeFromSemantics: true,
+          errorBuilder: (_, _, _) => AppIcon(name, size: size, color: color),
+        ),
+      ),
+    );
+  }
+}
+
 /// Placeholder line icons on a 24-unit grid, 2-unit stroke (spec 13).
 class _GlyphPainter extends CustomPainter {
   _GlyphPainter(this.name, this.color);
