@@ -196,7 +196,8 @@ class WeeklyGoal {
   static const int rewardPowerups = 1;
 
   static const DayKey _epoch = DayKey(2024, 1, 1);
-  static const _letters = ['Ş', 'Ç', 'Ö', 'Ü', 'Y', 'Z'];
+  // Letters common enough that a handful of games reaches the target.
+  static const _letters = ['Ş', 'Ç', 'Ü', 'Y', 'Z'];
 
   static int weekOf(DayKey day) => _epoch.daysUntil(day) ~/ 7;
 
@@ -211,7 +212,7 @@ class WeeklyGoal {
     (w) => Mission(
       type: MissionType.wordWithLetter,
       tier: MissionTier.hard,
-      target: 15,
+      target: 10,
       letter: _letters[(w ~/ 7) % _letters.length],
     ),
     (_) => const Mission(type: MissionType.wordsOfLength, tier: MissionTier.hard, target: 8, length: 5),

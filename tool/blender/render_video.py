@@ -52,6 +52,9 @@ def main():
     os.makedirs(TMP, exist_ok=True)
     os.makedirs(OUT_DIR, exist_ok=True)
     sc = B.reset(W, H, samples=40)
+    # EEVEE, not Cycles: 240 full-HD frames take hours to path-trace, minutes to rasterise.
+    sc.render.engine = 'BLENDER_EEVEE'
+    sc.eevee.taa_render_samples = 24
     rnd = random.Random(8)
     actors = []   # (object, fn(t seconds) -> (loc, rot, scale))
 
@@ -103,15 +106,14 @@ def main():
     # Loose tiles drifting behind.
     for i in range(12):
         tile = B.letter_tile("EKLTNARİMO"[i % 10], B.IVORY if i % 3 else B.TEAL, with_score=False)
-        x = rnd.uniform(-7.5, 7.5)
+        # Keep to the left and right edges so nothing sits behind the wordmark or the tagline.
+        x = rnd.uniform(5.6, 9.0) * (1 if i % 2 else -1)
         y = rnd.uniform(7, 20)
-        z = rnd.uniform(-13, 13)
-        if abs(z - 3) < 4 and abs(x) < 6:
-            z += 9 if z > 3 else -9
+        z = -14 + 28 * ((i // 2) + rnd.uniform(0.1, 0.9)) / 6
         r0 = (math.radians(80 + rnd.uniform(-40, 40)), math.radians(rnd.uniform(-45, 45)), math.radians(rnd.uniform(-35, 35)))
         dr = (rnd.uniform(-0.12, 0.12), rnd.uniform(-0.12, 0.12), rnd.uniform(-0.1, 0.1))
         ph = rnd.uniform(0, 6.28)
-        s = rnd.uniform(0.6, 0.95)
+        s = rnd.uniform(0.5, 0.8)
 
         def fn(t, x=x, y=y, z=z, r0=r0, dr=dr, ph=ph, s=s):
             return ((x + 0.25 * math.sin(t * 0.5 + ph), y, z + 0.5 * math.sin(t * 0.4 + ph) + 0.12 * t),
@@ -124,13 +126,15 @@ def main():
     cam.data.lens = 118
     cam.data.sensor_fit = 'HORIZONTAL'
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 0.25
+    cam.data.dof.aperture_fstop = 0.06
     sc.camera = cam
     actors.append((cam, lambda t: ((0, -46 + 3.0 * (t / SECONDS), 0), (math.radians(90), 0, 0), 1.0)))
 
     B.light((-9, -16, 16), 5200, 16)
     B.light((11, -14, -6), 1500, 16, color=(0.85, 0.97, 1.0))
     B.light((0, 10, 14), 2600, 12)
+    # The demo word sits well below the wordmark: give it its own key.
+    B.light((-6, -16, 2), 3600, 14, target=(0, 0, -8.6))
 
     for f in range(1, FRAMES + 1):
         t = (f - 1) / FPS
