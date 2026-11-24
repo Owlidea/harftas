@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
+import 'tile_art.dart';
 
 /// Draws letter tiles on a canvas. Text layouts are cached per (letter,
 /// size) so painting a frame allocates nothing once warm (spec 14).
@@ -57,26 +58,37 @@ class TileRenderer {
     }
     if (opacity < 1) {
       _layer.color = Color.fromRGBO(0, 0, 0, opacity);
-      canvas.saveLayer(r.inflate(r.width * 0.2), _layer);
+      canvas.saveLayer(r.inflate(r.width * 0.3), _layer);
     }
     final radius = Radius.circular(r.width * style.radiusFactor);
-    final depth = style.bevel ? r.height * 0.07 : 0.0;
+    final art = TileArt.sprite(
+      style.id,
+      tile: joker ? palette.joker : palette.tile,
+      edge: palette.tileEdge,
+      shadow: palette.shadow,
+    );
+    final depth = art != null ? r.height * art.depth : (style.bevel ? r.height * 0.07 : 0.0);
     final face = Rect.fromLTRB(r.left, r.top, r.right, r.bottom - depth);
 
-    if (style.bevel) {
-      _edge.color = palette.tileEdge;
-      canvas.drawRRect(RRect.fromRectAndRadius(r, radius), _edge);
+    if (art != null) {
+      // Rendered 3D body (shadow, base, face and highlights in one sprite).
+      art.paint(canvas, r);
     } else {
-      _edge.color = palette.shadow;
-      canvas.drawRRect(RRect.fromRectAndRadius(r.shift(Offset(0, r.height * 0.04)), radius), _edge);
-    }
-    _face.color = joker ? palette.joker : palette.tile;
-    canvas.drawRRect(RRect.fromRectAndRadius(face, radius), _face);
-    if (style.border) {
-      _stroke
-        ..color = palette.tileEdge
-        ..strokeWidth = r.width * 0.03;
-      canvas.drawRRect(RRect.fromRectAndRadius(face.deflate(r.width * 0.015), radius), _stroke);
+      if (style.bevel) {
+        _edge.color = palette.tileEdge;
+        canvas.drawRRect(RRect.fromRectAndRadius(r, radius), _edge);
+      } else {
+        _edge.color = palette.shadow;
+        canvas.drawRRect(RRect.fromRectAndRadius(r.shift(Offset(0, r.height * 0.04)), radius), _edge);
+      }
+      _face.color = joker ? palette.joker : palette.tile;
+      canvas.drawRRect(RRect.fromRectAndRadius(face, radius), _face);
+      if (style.border) {
+        _stroke
+          ..color = palette.tileEdge
+          ..strokeWidth = r.width * 0.03;
+        canvas.drawRRect(RRect.fromRectAndRadius(face.deflate(r.width * 0.015), radius), _stroke);
+      }
     }
 
     final lt = _text(_letters, letter, r.width * 0.54, FontWeight.w700, palette.tileInk);

@@ -44,10 +44,12 @@ flutter:
     - assets/fonts/
     - assets/images/brand/
     - assets/images/icons/
+    - assets/images/art/
     - assets/images/badges/
     - assets/images/themes/
     - assets/images/empty/
     - assets/images/tutorial/
+    - assets/images/tiles/
     - assets/anim/
     - assets/audio/
 

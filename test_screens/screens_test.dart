@@ -28,6 +28,7 @@ import 'package:harfblok/services/notification_service.dart';
 import 'package:harfblok/services/purchase_service.dart';
 import 'package:harfblok/ui/components/app_icon.dart';
 import 'package:harfblok/ui/game/game_controller.dart';
+import 'package:harfblok/ui/game/tile_art.dart';
 import 'package:harfblok/ui/screens/daily_screen.dart';
 import 'package:harfblok/ui/screens/game_screen.dart';
 import 'package:harfblok/ui/screens/intro_screen.dart';
@@ -142,6 +143,7 @@ void main() {
     GameController.debugNow = () => fakeMs += 1000;
     await _loadFont();
     await AssetIndex.load();
+    await TileArt.load();
     Directory(_outDir).createSync(recursive: true);
   });
 

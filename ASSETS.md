@@ -9,7 +9,8 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 ## Kodla yapılanlar (sizden istenmiyor)
 | Öğe | Durum |
 |---|---|
-| Karolar (3 stil), ızgara, gölgeler, sürükleme önizlemesi, kelime vurgusu | 🧩 |
+| Izgara, sürükleme önizlemesi, kelime vurgusu, karo harf ve puanları | 🧩 |
+| Karo gövdeleri (3 stil): `assets/images/tiles/tile_{classic,soft,sharp}.png` + `tiles.json`, Blender render'ı; kod tema rengiyle boyar. Dosya yoksa kodla çizilen karoya düşer | ✅ Blender |
 | Patlama parçacıkları, puan etiketleri, kombo sarsıntısı, sayaçlar | 🧩 |
 | Tema paletleri (7 tema × açık/koyu) ve renk körlüğü paleti | 🧩 |
 | Takvim, ilerleme çubukları, rozet yer tutucuları, paylaşım kartı yerleşimi | 🧩 |
@@ -26,7 +27,8 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 | 4 | `assets/branding/app_icon_ios_1024.png` (geçici simge var; değiştirince `dart run flutter_launcher_icons`) | ⏳ | Zorunlu | 5 |
 | 5 | `assets/branding/android_{fg,bg,mono}.png` → `android/app/src/main/res/mipmap-anydpi-v26/` | ⏳ | Zorunlu | 5 |
 | 6 | `assets/branding/splash_mark.png` | ⏳ | Zorunlu | 3 |
-| 7 | `assets/images/badges/streak_{7,30,100}.svg` | ⏳ | Zorunlu | 4 |
+| 7 | `assets/images/badges/streak_{7,30,100}.png` (512 px, Blender) | ✅ | Zorunlu | 4 |
+| 7b | `assets/images/art/{star,flame,crown,lock,gift}.png` (512 px 3B ikonlar; `ArtIcon` yoksa çizgi simgeye düşer) | ✅ | Olursa iyi | 4 |
 | 8 | `assets/images/badges/level_*.svg` | ⏳ | Olursa iyi | 4 |
 | 9 | `assets/images/themes/preview_<tema>.png` (classic, olive, lavender, amber, dawn, sea, midnight) | ⏳ | Olursa iyi (canlı önizleme var) | 4 |
 | 10 | `assets/images/empty/{wordbook,calendar,missions}.svg` | ⏳ | Olursa iyi | 3–4 |
@@ -36,6 +38,9 @@ Durum: ⏳ bekleniyor · ✅ teslim edildi · 🧩 kodla yapıldı
 
 Not: Uygulama simgesi ve açılış ekranı yerel proje dosyalarına girer (Flutter varlığı değildir).
 Teslim ettiğinizde `docs/yayin_kontrol_listesi.md` §3'teki adımı uygulayacağım.
+
+Blender varlıkları `tool/blender/build.sh` ile yeniden üretilir (Blender 5.x; betikler: `render_tiles.py`,
+`render_icons.py`). Önizleme için `preview_tiles.py` ve `contact_sheet.py`.
 
 ## Ses (`assets/audio/`, 44,1 kHz OGG Vorbis; efektler mono, müzik stereo)
 | Dosya | Durum | Öncelik |

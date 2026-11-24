@@ -20,8 +20,13 @@ abstract final class AssetPaths {
   static String powerupArtwork(AppIconName name) =>
       'assets/images/icons/ic_${name.fileName}.png';
 
+  /// Full-colour 3D artwork for hero spots (store, streak, lock). Optional:
+  /// [ArtIcon] falls back to the tinted line icon.
+  static String artwork(AppIconName name) => 'assets/images/art/${name.fileName}.png';
+
   // Badges
-  static String streakBadge(int days) => 'assets/images/badges/streak_$days.svg';
+  // Streak medals are 3D renders (tool/blender/render_icons.py).
+  static String streakBadge(int days) => 'assets/images/badges/streak_$days.png';
   static String levelBadge(int level) => 'assets/images/badges/level_$level.svg';
 
   // Theme previews

@@ -133,7 +133,7 @@ class _ShieldBadge extends StatelessWidget {
   const _ShieldBadge();
 
   @override
-  Widget build(BuildContext context) => AppIcon(AppIconName.lock, size: 56, color: context.palette.accent);
+  Widget build(BuildContext context) => ArtIcon(AppIconName.lock, size: 56, artScale: 1.2, color: context.palette.accent);
 }
 
 /// One surface, rows split by inset hairlines.
