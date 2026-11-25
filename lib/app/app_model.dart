@@ -262,19 +262,28 @@ class AppModel extends ChangeNotifier {
     if (profile.adsRemoved) return true;
     final ok = await services.ads.showRewarded(placement);
     services.analytics.log(AnalyticsEvent.adShown, {'type': 'rewarded', 'placement': placement.name});
-    if (ok) services.analytics.log(AnalyticsEvent.adRewarded, {'placement': placement.name});
+    if (ok) {
+      _lastRewardedAt = clock();
+      services.analytics.log(AnalyticsEvent.adRewarded, {'placement': placement.name});
+    }
     return ok;
   }
+
+  /// When the player last sat through a rewarded ad (this session).
+  DateTime? _lastRewardedAt;
 
   /// Spec 12 interstitial policy; call when leaving a finished game.
   Future<void> maybeInterstitial(GameMode mode) async {
     if (mode == GameMode.daily) return;
-    if (Progression.shouldShowInterstitial(
-      profile,
-      mode,
-      everyGames: AdConfig.interstitialEveryGames,
-      freeSessions: AdConfig.interstitialFreeSessions,
-    )) {
+    final last = _lastRewardedAt;
+    final justWatched = last != null && clock().difference(last) < AdConfig.interstitialAfterRewarded;
+    if (!justWatched &&
+        Progression.shouldShowInterstitial(
+          profile,
+          mode,
+          everyGames: AdConfig.interstitialEveryGames,
+          freeSessions: AdConfig.interstitialFreeSessions,
+        )) {
       profile.gamesSinceInterstitial = 0;
       unawaited(saveProfile());
       services.analytics.log(AnalyticsEvent.adShown, {'type': 'interstitial'});

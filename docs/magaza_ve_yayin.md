@@ -16,7 +16,8 @@
 >   tam 6 kat puan getirir.
 > • Tek hamlede birden fazla kelime: kombo! Art arda kelimeler: seri çarpanı!
 > • Her gün yeni bir Günlük Bulmaca: herkes aynı blokları görür, sonucu spoiler vermeden paylaş.
-> • Günlük görevler, seviyeler, açılan temalar ve karo stilleri.
+> • Günlük görevler, haftalık hedef ve başarımlar; seviye atladıkça açılan temalar, karo stilleri ve
+>   tahta zeminleri.
 > • Kelime Defteri: kurduğun her kelime, kaç kez ve ilk ne zaman kurduğunla birlikte kaydedilir.
 > • İnternetsiz oynanır, hesap açman gerekmez.
 > • Oyun sırasında asla reklam yok.

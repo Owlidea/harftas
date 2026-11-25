@@ -23,6 +23,29 @@ Her maddeyi iOS ve Android'de; küçük telefon (iPhone SE / 360 dp), büyük te
 - [ ] Görevler, Kelime Defteri, İstatistikler, Ayarlar, Mağaza, Hakkında/Lisanslar.
 - [ ] Boş durumlar: yeni kurulumda Defter ve İstatistikler.
 
+## Efektler, bağlılık ve ödüllü reklamlar (24 Kasım 2026 eklemeleri)
+Hızlı denemek için `--dart-define=TEST_TOOLS=true` ile derleyin: Ayarlar → Test araçları.
+- [ ] Kelime patlayınca karolar parçalanır; iki kelime birden patlayınca "×2" rakamı ve altın patlama çıkar.
+- [ ] Çekiç: tokmak iner, karo **vuruş anında** kırılır (önce değil). Joker: hücrede yıldız patlar.
+      Yenile: alt tepside iki ok döner.
+- [ ] Yerleşen karonun çevresinde ince bir halka genişleyip kaybolur.
+- [ ] Oyun sonu: XP'nin altında "▶ 2× XP"; dokununca reklam, sonra XP ikiye katlanır ve düğme kaybolur.
+      "Sıradaki hedef" satırı ve çubuğu görünür. Reklamsız sürümde düğme reklamsız çalışır.
+- [ ] Ana ekran "Hediye" çipi: kutu açılır, +1 güçlendirici gelir; "Reklam izle, bir tane daha al" ikinciyi
+      verir. Çip aynı gün bir daha görünmez, ertesi gün geri gelir.
+- [ ] Seri kurtarma: en az 3 günlük seriyi boz (cihaz tarihini 3 gün ilerlet) → Günlük ekranında
+      "serin bozuldu" kartı; reklamdan sonra seri geri gelir ve bugünkü bulmaca seriyi sürdürür.
+      Aynı hafta ikinci kez sunulmaz.
+- [ ] **Envanter:** oyun sürerken mağazadan paket al / reklamla güçlendirici kazan → oyuna dön, bir hamle
+      yap → sayılar düşmemiş olmalı; uygulamayı kapatıp aç → hâlâ doğru.
+- [ ] Oyun sırasında görev tamamla → kazanılan güçlendirici hemen sayaca eklenir ve sonraki hamlede kalır.
+- [ ] Görevler: "Haftalık hedef" kartı, kalan gün; tamamlanınca 300 XP + her güçlendiriciden 1.
+- [ ] İstatistikler → Başarımlar: ilerleme çubukları; kazanılan başarım oyun sonunda satır olarak görünür.
+- [ ] Ayarlar → Tahta zemini: kilitliler seviye yazısıyla; seçilen zemin oyunda görünür (açık ve koyu tema).
+- [ ] Seviye atlayınca yıldız animasyonu; bildirimde açılan görünümün adı yazar.
+- [ ] Günlük ekranında seri varken alev canlıdır; "Hareketi azalt" açıkken sabittir.
+- [ ] Küçük telefon + en büyük yazı: oyun sonu paneli taşmaz, gerekirse kayar.
+
 ## Erişilebilirlik
 - [ ] VoiceOver / TalkBack: ızgara hücreleri, bloklar, güçlendiriciler, skor okunuyor.
 - [ ] Sistem yazı boyutu en büyük: metin taşmıyor (ölçek 1,35'te sınırlanır).

@@ -174,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (app.profileLoaded)
                         Wrap(
                           alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: Space.s2,
                           runSpacing: Space.s2,
                           children: [
@@ -189,7 +190,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     tapFeedback(context);
                                     showDailyGiftSheet(context);
                                   },
-                                  child: InfoChip(icon: AppIconName.gift, text: l.giftChip, highlight: true),
+                                  // Padding widens the touch target to 44 pt without growing the chip.
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+                                    child: InfoChip(icon: AppIconName.gift, text: l.giftChip, highlight: true),
+                                  ),
                                 ),
                               ),
                             InfoChip(icon: AppIconName.missions, text: l.levelN(level)),

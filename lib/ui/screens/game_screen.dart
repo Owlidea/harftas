@@ -296,7 +296,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   final width = math.min(box.maxWidth - 2 * Space.screenGutter, 560.0);
                   final boardSize = math.min(width, box.maxHeight * 0.56);
                   // Hand tray sits in the thumb zone; it takes spare height on tall phones.
-                  final trayHeight = math.max(boardSize * 0.4, math.min(box.maxHeight * 0.19, 188.0));
+                  // On a short screen with enlarged text it gives some back (pieces scale
+                  // to the tray), so the score and powerup labels are never pushed off.
+                  final tight = box.maxHeight < 720 && MediaQuery.textScalerOf(context).scale(1) > 1.1;
+                  final trayHeight = math.max(
+                    boardSize * (tight ? 0.32 : 0.4),
+                    math.min(box.maxHeight * (tight ? 0.17 : 0.19), 188.0),
+                  );
                   return Center(
                     child: SizedBox(
                       width: math.max(boardSize, math.min(width, 560)),
@@ -620,10 +626,16 @@ class _Sheet extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: Space.maxContentWidth),
           child: Container(
             width: double.infinity,
-            margin: const EdgeInsets.all(Space.s3),
+            // Never under the status bar, even when the sheet fills the screen.
+            margin: EdgeInsets.fromLTRB(Space.s3, Space.s3 + MediaQuery.paddingOf(context).top, Space.s3, Space.s3),
             padding: const EdgeInsets.fromLTRB(Space.s5, Space.s6, Space.s5, Space.s5),
             decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(Radii.xl)),
-            child: SafeArea(top: false, child: child),
+            // Scrolls instead of overflowing when a small screen and large
+            // text make the sheet taller than the display.
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(physics: const ClampingScrollPhysics(), child: child),
+            ),
           ),
         ),
       ),
@@ -709,10 +721,7 @@ class _GameOverPanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (badge != null) ...[
-            Center(child: _BadgeReveal(days: badge.days)),
-            const SizedBox(height: Space.s2),
-          ],
+          if (badge != null) ...[Center(child: _BadgeReveal(days: badge.days)), const SizedBox(height: Space.s2)],
           Text(
             TurkishText.toUpper(title),
             textAlign: TextAlign.center,
@@ -768,14 +777,12 @@ class _GameOverPanel extends StatelessWidget {
                     label: controller.xpBonus > 0 ? l.xpDoubledLabel : 'XP',
                     value: '+${(r?.xpGained ?? 0) + controller.xpBonus}',
                     action: controller.canDoubleXp && (app.services.ads.supported || app.profile.adsRemoved)
-                        ? _XpDoublePill(
-                            label: l.doubleXp,
-                            // A play mark says "video" without a long label.
-                            ad: !app.profile.adsRemoved,
-                            semantics: app.profile.adsRemoved ? l.doubleXpA11y : l.doubleXpA11yAd,
-                            onTap: controller.doubleXp,
-                          )
+                        // A play mark says "video" without a long label.
+                        ? _XpDoublePill(label: l.doubleXp, ad: !app.profile.adsRemoved)
                         : null,
+                    // The whole cell is the button: the pill alone is too small to hit.
+                    onTap: controller.doubleXp,
+                    semantics: app.profile.adsRemoved ? l.doubleXpA11y : l.doubleXpA11yAd,
                   ),
                 ],
               ),
@@ -783,7 +790,8 @@ class _GameOverPanel extends StatelessWidget {
           ),
           if (earned.isNotEmpty) ...[
             const SizedBox(height: Space.s3),
-            for (final line in earned.take(3))
+            // One line fewer on short screens keeps the buttons in view.
+            for (final line in earned.take(MediaQuery.sizeOf(context).height < 700 ? 2 : 3))
               Padding(
                 padding: const EdgeInsets.only(top: Space.s1),
                 child: Row(
@@ -958,53 +966,39 @@ class _NextGoalRow extends StatelessWidget {
   }
 }
 
-/// Opt-in rewarded offer under the XP figure: small on purpose.
+/// Opt-in rewarded offer under the XP figure: small on purpose. Purely
+/// visual; the surrounding [_Mini] cell takes the tap.
 class _XpDoublePill extends StatelessWidget {
-  const _XpDoublePill({required this.label, required this.ad, required this.semantics, required this.onTap});
+  const _XpDoublePill({required this.label, required this.ad});
   final String label;
   final bool ad;
-  final String semantics;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Semantics(
-      button: true,
-      label: semantics,
-      excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          tapFeedback(context);
-          onTap();
-        },
-        child: Padding(
-          // Keeps the touch target comfortable around a small pill.
-          padding: const EdgeInsets.fromLTRB(Space.s1, Space.s1, Space.s1, Space.s2),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: Space.s2 + 2, vertical: 5),
-            decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (ad) ...[
-                  CustomPaint(size: const Size(7, 9), painter: _PlayTriangle(p.onAccent)),
-                  const SizedBox(width: 5),
-                ],
-                Text(
-                  label,
-                  maxLines: 1,
-                  style: context.text.labelSmall!.copyWith(
-                    color: p.onAccent,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    height: 1.1,
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.only(top: Space.s1),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: Space.s2 + 2, vertical: 5),
+        decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (ad) ...[
+              CustomPaint(size: const Size(7, 9), painter: _PlayTriangle(p.onAccent)),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              maxLines: 1,
+              style: context.text.labelSmall!.copyWith(
+                color: p.onAccent,
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+                height: 1.1,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1030,15 +1024,19 @@ class _PlayTriangle extends CustomPainter {
 }
 
 class _Mini extends StatelessWidget {
-  const _Mini({required this.label, required this.value, this.action});
+  const _Mini({required this.label, required this.value, this.action, this.onTap, this.semantics});
   final String label;
   final String value;
 
   /// Optional small control shown instead of the label.
   final Widget? action;
+
+  /// With [action]: makes the whole cell the button (a 44 pt target).
+  final VoidCallback? onTap;
+  final String? semantics;
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Column(
+  Widget build(BuildContext context) {
+    final cell = Column(
       children: [
         Text(
           value,
@@ -1049,8 +1047,28 @@ class _Mini extends StatelessWidget {
         const SizedBox(height: 2),
         action ?? Text(label, style: context.text.bodySmall!.copyWith(fontSize: 12), textAlign: TextAlign.center),
       ],
-    ),
-  );
+    );
+    final tap = onTap;
+    if (action == null || tap == null) return Expanded(child: cell);
+    return Expanded(
+      child: Semantics(
+        button: true,
+        label: semantics,
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            tapFeedback(context);
+            tap();
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: Space.touch),
+            child: cell,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Outlined two-line button: action + small explanation.

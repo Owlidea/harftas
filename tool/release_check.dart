@@ -174,9 +174,17 @@ Future<void> main(List<String> args) async {
       : <File>[];
   check(g3, 'Yazı tipi dosyaları (assets/fonts, + lisans)', fonts.isNotEmpty, detail: '${fonts.length} dosya');
 
+  // The wordmark is drawn from the game's own 3D tiles unless an SVG logo is
+  // delivered (24 Kasım 2026: logo karolardan üretilir), so either one will do.
   final logos = ['assets/images/brand/logo_light.svg', 'assets/images/brand/logo_dark.svg'];
   final missingLogos = [for (final p in logos) if (!File(p).existsSync()) p.split('/').last];
-  check(g3, 'Logo SVG (açık + koyu)', missingLogos.isEmpty, detail: missingLogos.join(', '));
+  final tileWordmark = File('assets/images/tiles/tiles.json').existsSync();
+  check(
+    g3,
+    'Logo (SVG ya da karolardan çizilen yazı)',
+    missingLogos.isEmpty || tileWordmark,
+    detail: missingLogos.isEmpty ? 'SVG' : (tileWordmark ? 'karolardan çiziliyor' : missingLogos.join(', ')),
+  );
 
   final icons = enumFileNames(assetSrc, 'AppIconName');
   final missingIcons = [for (final n in icons) if (!File('assets/images/icons/ic_$n.svg').existsSync()) n];
@@ -189,7 +197,8 @@ Future<void> main(List<String> args) async {
   );
 
   final badges = [7, 30, 100];
-  final missingBadges = [for (final d in badges) if (!File('assets/images/badges/streak_$d.svg').existsSync()) d];
+  // Rendered medals (PNG) since 24 Kasım 2026; see AssetPaths.streakBadge.
+  final missingBadges = [for (final d in badges) if (!File('assets/images/badges/streak_$d.png').existsSync()) d];
   check(g3, 'Seri rozetleri (7/30/100)', missingBadges.isEmpty, detail: missingBadges.isEmpty ? '' : 'eksik: $missingBadges');
 
   final sounds = enumFileNames(assetSrc, 'SoundId');
