@@ -1,6 +1,6 @@
 # Yayın yapılacaklar listesi
 
-Son güncelleme: 16 Kasım 2026
+Son güncelleme: 25 Kasım 2026
 
 **Otomatik kontrol:** `dart tool/release_check.dart` (kod kontrolleriyle birlikte: `--tests`).
 Hiçbir şey derlemez, yalnızca okur; `✗` = yayın engeli, `!` = öneri. Aşağıda **[oto]** işaretli
@@ -11,7 +11,7 @@ yaparım · **Birlikte** = sen hesabı açarsın, ben doldururum.
 
 ---
 
-> **Ad değişikliği (21 Kasım 2026):** Harftaş → **Harf Kombo**. Uygulama, platform adları ve web sayfaları güncellendi. **Bekleyen:** GitHub Pages'e yeni sayfaların yüklenmesi, App Store Connect ve Play Console'da adın "Harf Kombo: Kelime Bulmaca" yapılması (oturum açılınca Claude yapar).
+> **Ad değişikliği (21 Kasım 2026):** Harftaş → **Harf Kombo**. Uygulama, platform adları ve web sayfaları güncellendi; GitHub Pages'teki gizlilik ve destek sayfaları yeni adı gösteriyor (25 Kasım 2026'da kontrol edildi). **Bekleyen:** App Store Connect ve Play Console'da adın "Harf Kombo: Kelime Bulmaca" yapılması (oturum açılınca Claude yapar).
 
 ## A. Şimdi — birbirini beklemeyen yayın engelleri
 
@@ -21,15 +21,16 @@ yaparım · **Birlikte** = sen hesabı açarsın, ben doldururum.
 | A2 | ✓ **Destek e-postası** `support@owlidea.com` (Slingshire ile aynı; sayfalar, `config/prod.json`, `AppInfo`) | Claude ✓ | [oto] |
 | A3 | ✓ **Veri sorumlusu**: "Owlidea Bilişim Teknolojileri Ltd. Şti." (Slingshire gibi adres yok; KVKK için açık adres eklemek istersen ver, eklerim) | Claude ✓ | [oto] |
 | A4 | **Android yükleme anahtarı**: `tool/create_upload_key.sh` çalıştır (şifreyi sen girersin; .jks ve şifreyi parola yöneticisinde sakla) | Sen | [oto] |
-| A5 | **Android sürüm derlemesi**: son denemede "failed to strip debug symbols" hatası. NDK/araç zinciri düzeltilecek, `tool/release.sh android` temiz geçecek | Claude | [elle] |
+| A5 | ✓ **Android sürüm derlemesi** (25 Kasım 2026): `flutter build appbundle --release --obfuscate --split-debug-info` temiz geçti (Flutter 3.50.1, NDK 28.2), 73,6 MB AAB. "failed to strip debug symbols" hatası çıkmadı; paketteki `libapp.so`'da hata ayıklama bölümü ve okunur sınıf adı yok (derlemedeki "unobfuscated DWARF" uyarısı ara dosyaya ait). Yükleme anahtarı olmadan derlendiği için bu paket Play'e yüklenemez; A4 + A14 sonrası `tool/release.sh android` | Claude ✓ | [elle] |
 | A6 | **AdMob**: Android + iOS uygulamaları ve 4 reklam birimi (ödüllü + geçiş × 2 platform) oluştur, kimlikleri bana ver → `config/prod.json` + `ios/Runner/Info.plist` | Sen → Claude | [oto] |
 | A7 | **AdMob gizlilik mesajları**: GDPR mesajı + IDFA açıklama mesajı (AdMob → Gizlilik ve mesajlaşma) | Birlikte | [elle] |
 | A8 | ✓ **Yazı tipi** Nunito (OFL 1.1), 5 ağırlık; Türkçe karakterler tam, rakamlar eşit genişlikte | Claude ✓ | [oto] |
-| A9 | **Logo** `logo_light.svg`, `logo_dark.svg` → `assets/images/brand/` | Sen | [oto] |
-| A10 | **Seri rozetleri** `streak_7/30/100.svg` → `assets/images/badges/` | Sen | [oto] |
+| A9 | ✓ **Logo**: oyunun 3B karolarından çiziliyor (ana ekran); mağaza için `docs/magaza-gorselleri-v6/logo.png`. SVG isteğe bağlı | Claude ✓ | [oto] |
+| A10 | ✓ **Seri rozetleri** Blender'da üretildi: `assets/images/badges/streak_{7,30,100}.png` | Claude ✓ | [oto] |
 | A11 | ✓ **Sesler**: 19 efekt + 41 sn müzik döngüsü koddan sentezlendi (`tool/sfx/`), sık sesler 4 varyasyonlu, seri sesi pentatonik yükselir, büyük anlarda müzik kısılır. Telefonda dinleyip onayla | Claude ✓ / Sen dinle | [oto] |
-| A12 | Uygulama simgesi ve açılış görseli **son hali mi?** (`assets/branding/` dosyaları var; geçiciyse değiştir) | Sen | [elle] |
-| A13 | **iOS için Xcode**: bu Mac'te Xcode yok; iOS derlemesi ve App Store yüklemesi için kurulmalı | Sen | [elle] |
+| A12 | Uygulama simgesi ve açılış görseli Blender'dan üretildi (24 Kasım 2026, `tool/blender/render_brand.py`): **onayın gerekiyor** | Sen | [elle] |
+| A13 | ✓ **iOS için Xcode** kurulu (Xcode 27.1, 25 Kasım 2026); simülatör derlemesi çalışıyor | Sen ✓ | [elle] |
+| A14 | **`config/prod.json` bu bilgisayarda yok** (git'e girmez): eski dosyayı `config/prod.json` olarak kopyala ya da RevenueCat anahtarlarını (`appl_…`, `goog_…`) ver. A6'daki AdMob kimlikleri de buraya girer | Sen → Claude | [oto] |
 
 ## B. İlk Android sürümünden sonra (A4 + A5 gerekli)
 
@@ -55,7 +56,7 @@ yaparım · **Birlikte** = sen hesabı açarsın, ben doldururum.
 | # | İş | Kim | Kontrol |
 |---|---|---|---|
 | D1 | ✓ Mağaza metinleri girildi: App Store (kayıtlı) ve Play varsayılan mağaza girişi (**taslak** — Play, simge + öne çıkan görsel + ekran görüntüleri yüklenmeden tam kaydetmiyor). Play mağaza ayarları: kategori Kelime, e-posta `support@owlidea.com`, web `owlidea.github.io/harftas/destek.html` | Claude ✓ | [elle] |
-| D2 | Ekran görüntüleri ve Play öne çıkan görsel (taslaklar: `docs/magaza-gorselleri*`) | Birlikte | [elle] |
+| D2 | Play öne çıkan görsel ve tanıtım videosu hazır (`docs/magaza-gorselleri-v6/`). **Ekran görüntüleri** yeni adla ve yeni görünümle yeniden çekilmeli (eski setler "Harftaş" adını taşıyor) | Sen | [elle] |
 | D3 | ✓ Play **Veri güvenliği** kaydedildi (16 Kasım 2026; önceki sürüm yalnızca taslaktı): 6 veri türünün kullanım soruları dolduruldu, veri silme bağlantısı `gizlilik.html#veri-silme`. Apple App Privacy yayınlandı | Claude ✓ | [elle] |
 | D4 | ✓ Play beyanları tamam: içerik derecelendirmesi (IARC: PEGI 3, ESRB Herkes, IARC 3+; iletişim `support@owlidea.com`), **hedef kitle yalnızca 18+** (13–17 seçilince Google bazı ülkelerde Aile politikasını uyguluyor; uygulamada yaş kontrolü ve çocuklara uygun reklam ayarı olmadığı için), satıcı (tacir) durumu onaylandı | Claude ✓ | [elle] |
 | D5 | **Zemberek** sözlük lisansının (Apache 2.0) hukukçuya teyidi; engel listesinin gözden geçirilmesi (`tool/dict/blocklist_tr.txt`) | Sen | [elle] |
@@ -80,7 +81,7 @@ yaparım · **Birlikte** = sen hesabı açarsın, ben doldururum.
 
 ## Tamamlananlar
 
-- [x] Kod: `flutter analyze` temiz, 126 birim + 2 ekran testi geçiyor
+- [x] Kod: `flutter analyze` temiz, 158 birim testi ve ekran testleri geçiyor (25 Kasım 2026)
 - [x] Mobil oyun düzeni, ekran yeniden tasarımları, uygulama içi bildirim/onay panelleri
 - [x] Gizlilik metinleri (uygulama içi + `web/gizlilik.html`) AdMob ve RevenueCat'i doğru anlatıyor
 - [x] RevenueCat: Harftaş projesi, iOS/Android uygulamaları, 6 ürün, `premium` yetkisi, `default` teklifi, SDK anahtarları `config/prod.json`'da (`docs/revenuecat.md`)
