@@ -62,7 +62,10 @@ String? unlockHint(L10n l, {String? themeId, String? tileStyleId, String? boardS
     }
   }
   for (final e in Progression.streakThemes.entries) {
-    if (e.value == themeId) return '${l.daysUnit(e.key)} ${TurkishText.toLower(l.streakCurrent)}';
+    if (e.value == themeId) {
+      final streak = l.localeName == 'tr' ? TurkishText.toLower(l.streakCurrent) : l.streakCurrent.toLowerCase();
+      return '${l.daysUnit(e.key)} $streak';
+    }
   }
   return null;
 }

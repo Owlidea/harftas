@@ -727,7 +727,7 @@ class _GameOverPanel extends StatelessWidget {
         children: [
           if (badge != null) ...[Center(child: _BadgeReveal(days: badge.days)), const SizedBox(height: Space.s2)],
           Text(
-            TurkishText.toUpper(title),
+            upperUi(context, title),
             textAlign: TextAlign.center,
             style: context.text.bodySmall!.copyWith(
               letterSpacing: 1.6,

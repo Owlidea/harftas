@@ -109,7 +109,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
       final m = (await tester.runAsync(_model))!;
-      await tester.pumpWidget(HarfBlokApp(model: m));
+      await tester.pumpWidget(HarfBlokApp(model: m, locale: const Locale('tr')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1500));
       expect(tester.takeException(), isNull, reason: 'home');

@@ -4,7 +4,6 @@ import '../../app/app_model.dart';
 import '../../config/app_info.dart';
 import '../../config/asset_paths.dart';
 import '../../core/model/game_state.dart';
-import '../../core/text/turkish_text.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/ads_service.dart';
 import '../../services/purchase_service.dart';
@@ -228,7 +227,7 @@ class _Inventory extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            TurkishText.toUpper(l.yourPowerups),
+            upperUi(context, l.yourPowerups),
             style: context.text.bodySmall!.copyWith(
               letterSpacing: 1.4,
               fontWeight: FontWeight.w800,
@@ -320,7 +319,7 @@ class _RemoveAdsCard extends StatelessWidget {
                       const ArtIcon(AppIconName.crown, size: 22, artScale: 1.6, color: _Gold.light),
                       const SizedBox(width: Space.s2),
                       Text(
-                        TurkishText.toUpper(l.storePremium),
+                        upperUi(context, l.storePremium),
                         style: context.text.bodySmall!.copyWith(
                           color: _Gold.light,
                           fontWeight: FontWeight.w800,
@@ -439,7 +438,7 @@ class _PackCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: Space.s2, vertical: 3),
                       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(Radii.pill)),
                       child: Text(
-                        TurkishText.toUpper(tag!),
+                        upperUi(context, tag!),
                         textScaler: TextScaler.noScaling,
                         style: context.text.bodySmall!.copyWith(
                           color: base,

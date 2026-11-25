@@ -185,7 +185,7 @@ class _StatsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        TurkishText.toUpper(items[i].$1),
+                        upperUi(context, items[i].$1),
                         style: context.text.labelSmall!.copyWith(color: p.inkMuted, letterSpacing: 1.1),
                       ),
                     ],

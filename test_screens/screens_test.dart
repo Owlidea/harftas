@@ -185,7 +185,7 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: key,
-          child: HarfBlokApp(model: m),
+          child: HarfBlokApp(model: m, locale: const Locale('tr')),
         ),
       );
       await tester.pump();
@@ -342,7 +342,7 @@ void main() {
     addTearDown(() => GameController.debugNow = clock);
 
     final key = GlobalKey();
-    await tester.pumpWidget(RepaintBoundary(key: key, child: HarfBlokApp(model: m)));
+    await tester.pumpWidget(RepaintBoundary(key: key, child: HarfBlokApp(model: m, locale: const Locale('tr'))));
     await tester.pump();
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
     final (start, move) = _comboMove(m);

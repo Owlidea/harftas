@@ -287,6 +287,15 @@ class Panel extends StatelessWidget {
   }
 }
 
+/// Upper case by the rules of the UI language: Turkish maps i -> İ, English
+/// i -> I (karar 29). Board letters do not go through this.
+String upperUi(BuildContext context, String text) =>
+    Localizations.localeOf(context).languageCode == 'tr' ? TurkishText.toUpper(text) : text.toUpperCase();
+
+/// Lower case by the rules of the UI language (see [upperUi]).
+String lowerUi(BuildContext context, String text) =>
+    Localizations.localeOf(context).languageCode == 'tr' ? TurkishText.toLower(text) : text.toLowerCase();
+
 class SectionHeader extends StatelessWidget {
   const SectionHeader(this.text, {super.key});
   final String text;
@@ -296,7 +305,7 @@ class SectionHeader extends StatelessWidget {
     child: Semantics(
       header: true,
       child: Text(
-        TurkishText.toUpper(text),
+        upperUi(context, text),
         style: context.text.bodySmall!.copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
       ),
     ),

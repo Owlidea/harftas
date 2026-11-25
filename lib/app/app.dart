@@ -11,8 +11,21 @@ import '../ui/theme/tokens.dart';
 import 'app_model.dart';
 
 class HarfBlokApp extends StatelessWidget {
-  const HarfBlokApp({super.key, required this.model});
+  const HarfBlokApp({super.key, required this.model, this.locale});
   final AppModel model;
+
+  /// Fixed UI language (tests, screenshots); null follows the device.
+  final Locale? locale;
+
+  /// The device's first preferred language that has a translation; else
+  /// English when it exists, else Turkish (karar 29).
+  static Locale resolveLocale(List<Locale>? preferred, Iterable<Locale> supported) {
+    final codes = {for (final l in supported) l.languageCode};
+    for (final p in preferred ?? const <Locale>[]) {
+      if (codes.contains(p.languageCode)) return Locale(p.languageCode);
+    }
+    return Locale(codes.contains('en') ? 'en' : 'tr');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +50,8 @@ class HarfBlokApp extends StatelessWidget {
             title: AppInfo.displayName,
             debugShowCheckedModeBanner: false,
             scrollBehavior: const _GameScrollBehavior(),
-            locale: const Locale('tr'),
+            locale: locale,
+            localeListResolutionCallback: resolveLocale,
             supportedLocales: L10n.supportedLocales,
             localizationsDelegates: const [L10n.delegate, ...GlobalMaterialLocalizations.delegates],
             theme: build(Brightness.light),

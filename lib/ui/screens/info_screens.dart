@@ -5,7 +5,6 @@ import '../../app/app_model.dart';
 import '../../config/app_info.dart';
 import '../../l10n/app_localizations.dart';
 import '../../config/asset_paths.dart';
-import '../../core/text/turkish_text.dart';
 import '../components/app_icon.dart';
 import '../components/widgets.dart';
 import '../theme/app_theme.dart';
@@ -86,7 +85,7 @@ class PrivacyScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: Space.s1, bottom: Space.s2),
             child: Text(
-              TurkishText.toUpper(l.privacyManage),
+              upperUi(context, l.privacyManage),
               style: context.text.labelSmall!.copyWith(color: p.inkMuted, letterSpacing: 1.2),
             ),
           ),
