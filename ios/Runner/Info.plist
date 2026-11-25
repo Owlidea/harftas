@@ -3,7 +3,7 @@
 <plist version="1.0">
 	<dict>
 		<key>GADApplicationIdentifier</key>
-		<string>ca-app-pub-3940256099942544~1458002511</string>
+		<string>ca-app-pub-6048334063594634~7118100666</string>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>Bu izin yalnızca reklamların sana daha uygun olması için kullanılır. Vermesen de oyun aynı şekilde çalışır.</string>
 		<!-- Google Mobile Ads SKAdNetwork list (developers.google.com/admob/ios/3p-skadnetworks, updated 2026-01-30). -->
