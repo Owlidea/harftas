@@ -615,7 +615,9 @@ class L10nTr extends L10n {
   String get yourPowerups => 'Güçlendiricilerin';
 
   @override
-  String get tutorialStep1 => 'Bloğu sürükle ve boşluğa bırak: “KA” + “R” = KAR';
+  String tutorialStep1(String start, String letter, String word) {
+    return 'Bloğu sürükle ve boşluğa bırak: “$start” + “$letter” = $word';
+  }
 
   @override
   String get tutorialStep2 => 'Kelimeler yukarıdan aşağıya da okunur.';
@@ -741,7 +743,14 @@ class L10nTr extends L10n {
 
   @override
   String get intro2Body =>
-      'Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir. Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.';
+      'Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir.';
+
+  @override
+  String get dictNoteTr =>
+      'Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.';
+
+  @override
+  String get dictNoteEn => 'İngilizce sözlükte çoğul ve çekimli hâller de sayılır: CATS, WALKED gibi.';
 
   @override
   String get intro3Title => 'Puan ve çarpanlar';
@@ -1208,4 +1217,14 @@ class L10nTr extends L10n {
 
   @override
   String get giftTomorrow => 'Yarın yeni bir hediye seni bekliyor.';
+
+  @override
+  String get wordLanguage => 'Kelime dili';
+
+  @override
+  String get wordLanguageDesc =>
+      'Harfler, sözlük, Günlük Bulmaca ve Kelime Defteri bu dilde olur. Süren oyun kendi dilinde biter.';
+
+  @override
+  String get introLanguage => 'Kelimeler hangi dilde olsun?';
 }

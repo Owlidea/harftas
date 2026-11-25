@@ -13,6 +13,7 @@ import '../components/app_icon.dart';
 import '../components/widgets.dart';
 import '../game/board_view.dart';
 import '../game/game_controller.dart';
+import '../game/language_examples.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
@@ -41,14 +42,6 @@ class _TutorialScreenState extends State<TutorialScreen> with SingleTickerProvid
 
   static Piece _mono(String l) => Piece(ShapeCatalog.byFamily[ShapeFamily.mono]!.single, [l]);
 
-  static const _boards = [
-    ['........', '........', '........', '..KA....', '........', '........', '........', '........'],
-    ['........', '........', '...T....', '...A....', '........', '........', '........', '........'],
-    ['..K.....', '..A.....', 'NA......', '........', '........', '........', '........', '........'],
-    ['........', '........', '........', '..KAJ...', '........', '........', '........', '........'],
-  ];
-  static const _letters = ['R', 'Ş', 'R', 'R'];
-
   @override
   void initState() {
     super.initState();
@@ -62,6 +55,7 @@ class _TutorialScreenState extends State<TutorialScreen> with SingleTickerProvid
     final app = AppScope.read(context);
     app.services.analytics.log(AnalyticsEvent.tutorialStep, {'step': step + 1});
     final e = app.engine!;
+    final ex = LanguageExamples.of(app.wordLanguage);
     final base = e.newGame(
       seed: 7,
       mode: GameMode.classic,
@@ -69,8 +63,8 @@ class _TutorialScreenState extends State<TutorialScreen> with SingleTickerProvid
       powerups: {PowerupType.refresh: 0, PowerupType.joker: 0, PowerupType.hammer: step == 3 ? 1 : 0},
     );
     final s = base.copyWith(
-      grid: Grid.fromRows(_boards[step]),
-      hand: [null, _mono(_letters[step]), null],
+      grid: Grid.fromRows(ex.tutorialBoards[step]),
+      hand: [null, _mono(ex.tutorialLetters[step]), null],
       status: GameStatus.playing,
     );
     c?.dispose();
@@ -150,7 +144,13 @@ class _TutorialScreenState extends State<TutorialScreen> with SingleTickerProvid
     final p = context.palette;
     final ctrl = c;
     WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
-    final hints = [l.tutorialStep1, l.tutorialStep2, l.tutorialStep3, l.tutorialStep4];
+    final ex = LanguageExamples.of(AppScope.of(context).wordLanguage);
+    final hints = [
+      l.tutorialStep1(ex.firstStart, ex.tutorialLetters.first, ex.firstWord),
+      l.tutorialStep2,
+      l.tutorialStep3,
+      l.tutorialStep4,
+    ];
 
     return Scaffold(
       backgroundColor: p.background,

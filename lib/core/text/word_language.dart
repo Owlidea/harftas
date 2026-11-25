@@ -14,6 +14,9 @@ sealed class WordLanguage {
   /// ISO 639-1 code; also the suffix of the language's asset files.
   String get code;
 
+  /// The language's name in itself, as language pickers show it.
+  String get nativeName;
+
   /// Upper-case letters in collation order (joker picker, Kelime Defteri).
   String get alphabet;
 
@@ -74,6 +77,9 @@ final class TurkishLanguage extends WordLanguage {
   String get code => 'tr';
 
   @override
+  String get nativeName => 'Türkçe';
+
+  @override
   String get alphabet => TrAlphabet.letters;
 
   @override
@@ -90,6 +96,9 @@ final class EnglishLanguage extends WordLanguage {
 
   @override
   String get code => 'en';
+
+  @override
+  String get nativeName => 'English';
 
   @override
   String get alphabet => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

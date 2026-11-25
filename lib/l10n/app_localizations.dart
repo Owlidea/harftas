@@ -1156,8 +1156,8 @@ abstract class L10n {
   /// No description provided for @tutorialStep1.
   ///
   /// In tr, this message translates to:
-  /// **'Bloğu sürükle ve boşluğa bırak: “KA” + “R” = KAR'**
-  String get tutorialStep1;
+  /// **'Bloğu sürükle ve boşluğa bırak: “{start}” + “{letter}” = {word}'**
+  String tutorialStep1(String start, String letter, String word);
 
   /// No description provided for @tutorialStep2.
   ///
@@ -1366,8 +1366,20 @@ abstract class L10n {
   /// No description provided for @intro2Body.
   ///
   /// In tr, this message translates to:
-  /// **'Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir. Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.'**
+  /// **'Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir.'**
   String get intro2Body;
+
+  /// No description provided for @dictNoteTr.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.'**
+  String get dictNoteTr;
+
+  /// No description provided for @dictNoteEn.
+  ///
+  /// In tr, this message translates to:
+  /// **'İngilizce sözlükte çoğul ve çekimli hâller de sayılır: CATS, WALKED gibi.'**
+  String get dictNoteEn;
 
   /// No description provided for @intro3Title.
   ///
@@ -2142,6 +2154,24 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'Yarın yeni bir hediye seni bekliyor.'**
   String get giftTomorrow;
+
+  /// No description provided for @wordLanguage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelime dili'**
+  String get wordLanguage;
+
+  /// No description provided for @wordLanguageDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harfler, sözlük, Günlük Bulmaca ve Kelime Defteri bu dilde olur. Süren oyun kendi dilinde biter.'**
+  String get wordLanguageDesc;
+
+  /// No description provided for @introLanguage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelimeler hangi dilde olsun?'**
+  String get introLanguage;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

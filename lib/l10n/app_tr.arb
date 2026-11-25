@@ -226,7 +226,8 @@
   "purchaseThanks": "Teşekkürler!",
   "yourPowerups": "Güçlendiricilerin",
 
-  "tutorialStep1": "Bloğu sürükle ve boşluğa bırak: “KA” + “R” = KAR",
+  "tutorialStep1": "Bloğu sürükle ve boşluğa bırak: “{start}” + “{letter}” = {word}",
+  "@tutorialStep1": {"placeholders": {"start": {"type": "String"}, "letter": {"type": "String"}, "word": {"type": "String"}}},
   "tutorialStep2": "Kelimeler yukarıdan aşağıya da okunur.",
   "tutorialStep3": "Tek hamlede iki kelime kur — kombo!",
   "tutorialStep4": "Takıldığında güçlendiriciler yardım eder. Çekiç ile işaretli hücreyi sil.",
@@ -274,7 +275,9 @@
   "intro1Title": "Amaç: kelime kur, patlat",
   "intro1Body": "Alttan gelen harfli blokları 8×8 ızgaraya yerleştir. Bir kelime oluştuğu anda harfleri patlar ve puan kazanırsın. Izgarada yer açık tuttukça oyun sürer — hedefin en yüksek skoru yapmak.",
   "intro2Title": "Kelimeler nasıl okunur?",
-  "intro2Body": "Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir. Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.",
+  "intro2Body": "Harfler yalnızca soldan sağa ve yukarıdan aşağıya okunur; en az 3 harf gerekir. Yatay ve dikey iki kelime aynı harfi paylaşabilir.",
+  "dictNoteTr": "Sözlükte temel biçimler var: KALEM, ARABA, GELMEK gibi — EVLER ya da GELDİ gibi çekimli hâller sayılmaz.",
+  "dictNoteEn": "İngilizce sözlükte çoğul ve çekimli hâller de sayılır: CATS, WALKED gibi.",
   "intro3Title": "Puan ve çarpanlar",
   "intro3Body": "Her harfin puanı karonun köşesinde yazar. Uzun kelimeler katlanır: 4 harf ×2, 5 harf ×3, 6 harf ×4… 8 harf ×6. Tek hamlede birden çok kelime kombo yapar; art arda kelime kurarsan seri çarpanın büyür. Izgarayı tamamen boşaltırsan +100.",
   "intro4Title": "Oyun ne zaman biter?",
@@ -444,5 +447,9 @@
   "@giftGot": {"placeholders": {"n": {"type": "int"}, "name": {"type": "String"}}},
   "giftDoubleAd": "Reklam izle, bir tane daha al",
   "giftDoubleFree": "Bir tane daha al",
-  "giftTomorrow": "Yarın yeni bir hediye seni bekliyor."
+  "giftTomorrow": "Yarın yeni bir hediye seni bekliyor.",
+
+  "wordLanguage": "Kelime dili",
+  "wordLanguageDesc": "Harfler, sözlük, Günlük Bulmaca ve Kelime Defteri bu dilde olur. Süren oyun kendi dilinde biter.",
+  "introLanguage": "Kelimeler hangi dilde olsun?"
 }

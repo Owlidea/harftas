@@ -14,7 +14,9 @@ import '../../progress/progression.dart';
 import '../components/app_icon.dart';
 import '../../core/config/balance_config.dart';
 import '../../core/text/turkish_text.dart';
+import '../../core/text/word_language.dart';
 import '../components/overlays.dart';
+import '../components/segmented.dart';
 import '../components/widgets.dart';
 import '../game/board_art.dart';
 import '../game/tile_renderer.dart';
@@ -108,7 +110,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Text(l.appearance, style: context.text.labelLarge),
                 const SizedBox(height: Space.s3),
-                _Segmented<AppThemeMode>(
+                Segmented<AppThemeMode>(
                   values: AppThemeMode.values,
                   current: s.themeMode,
                   label: (m) => switch (m) {
@@ -214,6 +216,24 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           SectionHeader(l.sectionPlay),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l.wordLanguage, style: context.text.labelLarge),
+                const SizedBox(height: Space.s3),
+                Segmented<WordLanguage>(
+                  values: WordLanguage.values,
+                  current: app.wordLanguage,
+                  label: (w) => w.nativeName,
+                  onChanged: (w) => unawaited(app.setWordLanguage(w)),
+                ),
+                const SizedBox(height: Space.s3),
+                Text(l.wordLanguageDesc, style: context.text.bodySmall!.copyWith(color: context.palette.inkMuted)),
+              ],
+            ),
+          ),
+          const SizedBox(height: Space.s3),
           Panel(
             padding: const EdgeInsets.symmetric(horizontal: Space.s2, vertical: Space.s1),
             child: Column(
@@ -339,68 +359,6 @@ class SettingsScreen extends StatelessWidget {
 }
 
 /// Pill segmented control with a sliding thumb.
-class _Segmented<T> extends StatelessWidget {
-  const _Segmented({required this.values, required this.current, required this.label, required this.onChanged});
-  final List<T> values;
-  final T current;
-  final String Function(T) label;
-  final ValueChanged<T> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    final index = values.indexOf(current);
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Stack(
-        children: [
-          AnimatedAlign(
-            duration: context.reduceMotion ? Duration.zero : Motion.settle,
-            curve: Curves.easeOutCubic,
-            alignment: Alignment(values.length == 1 ? 0 : -1 + 2 * index / (values.length - 1), 0),
-            child: FractionallySizedBox(
-              widthFactor: 1 / values.length,
-              heightFactor: 1,
-              child: Container(
-                decoration: BoxDecoration(color: p.accent, borderRadius: BorderRadius.circular(Radii.pill)),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              for (final v in values)
-                Expanded(
-                  child: Semantics(
-                    button: true,
-                    selected: v == current,
-                    label: label(v),
-                    excludeSemantics: true,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        tapFeedback(context);
-                        onChanged(v);
-                      },
-                      child: Center(
-                        child: AnimatedDefaultTextStyle(
-                          duration: Motion.pick,
-                          style: context.text.labelLarge!.copyWith(color: v == current ? p.onAccent : p.inkMuted),
-                          child: Text(label(v)),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Horizontal snap-free slider of option cards. Cards are clipped by the
 /// panel (a half-visible card on the right says "swipe"), and the selected
 /// one is scrolled into view on open.

@@ -5,9 +5,12 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/app_model.dart';
 import '../../config/asset_paths.dart';
 import '../../core/config/balance_config.dart';
+import '../../core/text/word_language.dart';
 import '../../l10n/app_localizations.dart';
 import '../components/app_icon.dart';
 import '../components/widgets.dart';
+import '../components/segmented.dart';
+import '../game/language_examples.dart';
 import '../game/tile_renderer.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
@@ -29,7 +32,24 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen> {
   final _pages = PageController();
   int _page = 0;
-  static const _count = 4;
+
+  /// First start adds a page that picks the word language (karar 29).
+  int get _count => widget.firstRun ? 5 : 4;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.firstRun) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final app = AppScope.read(context);
+        // Pre-select from the device region; the player can change it here.
+        if (app.settings.wordLanguage == null) {
+          unawaited(app.setWordLanguage(AppModel.suggestedLanguage(WidgetsBinding.instance.platformDispatcher.locale)));
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -69,11 +89,20 @@ class _IntroScreenState extends State<IntroScreen> {
     final l = L10n.of(context);
     final p = context.palette;
     final last = _page == _count - 1;
+    final app = AppScope.of(context);
+    final language = app.wordLanguage;
+    final ex = LanguageExamples.of(language);
+    final config = app.data?.config ?? BalanceConfig.defaultsFor(language);
+    final dictNote = switch (language) {
+      TurkishLanguage() => l.dictNoteTr,
+      EnglishLanguage() => l.dictNoteEn,
+    };
     final pages = [
-      _Page(title: l.intro1Title, body: l.intro1Body, visual: const _GoalVisual()),
-      _Page(title: l.intro2Title, body: l.intro2Body, visual: const _ReadingVisual()),
-      _Page(title: l.intro3Title, body: l.intro3Body, visual: const _ScoreVisual()),
-      _Page(title: l.intro4Title, body: l.intro4Body, visual: const _EndVisual()),
+      if (widget.firstRun) _LanguagePage(current: language, onChanged: (w) => unawaited(app.setWordLanguage(w))),
+      _Page(title: l.intro1Title, body: l.intro1Body, visual: _GoalVisual(ex, config)),
+      _Page(title: l.intro2Title, body: '${l.intro2Body} $dictNote', visual: _ReadingVisual(ex, config)),
+      _Page(title: l.intro3Title, body: l.intro3Body, visual: _ScoreVisual(ex, config)),
+      _Page(title: l.intro4Title, body: l.intro4Body, visual: _EndVisual(ex, config)),
     ];
 
     return Scaffold(
@@ -164,15 +193,65 @@ class _Page extends StatelessWidget {
   }
 }
 
+/// First start only: which language the board is played in.
+class _LanguagePage extends StatelessWidget {
+  const _LanguagePage({required this.current, required this.onChanged});
+  final WordLanguage current;
+  final ValueChanged<WordLanguage> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final ex = LanguageExamples.of(current);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(Space.s6, Space.s6, Space.s6, Space.s4),
+      child: Column(
+        children: [
+          ExcludeSemantics(
+            child: SizedBox(
+              height: 220,
+              child: Center(
+                child: MiniBoard(
+                  rows: ['.....', '.${ex.goal}.', '.....'],
+                  lit: const {6, 7, 8},
+                  scores: BalanceConfig.defaultsFor(current).letterScores,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: Space.s8),
+          Text(l.introLanguage, textAlign: TextAlign.center, style: context.text.titleLarge),
+          const SizedBox(height: Space.s4),
+          Segmented<WordLanguage>(
+            values: WordLanguage.values,
+            current: current,
+            label: (w) => w.nativeName,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: Space.s4),
+          Text(
+            l.wordLanguageDesc,
+            textAlign: TextAlign.center,
+            style: context.text.bodyLarge!.copyWith(color: context.palette.inkMuted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // --------------------------------------------------------------- visuals
 
 /// Small code-drawn board: rows of letters ('.' = empty), [lit] = highlighted
 /// cell indices (row * cols + col).
 class MiniBoard extends StatelessWidget {
-  const MiniBoard({super.key, required this.rows, this.lit = const {}, this.cell = 40});
+  const MiniBoard({super.key, required this.rows, this.lit = const {}, this.cell = 40, this.scores});
   final List<String> rows;
   final Set<int> lit;
   final double cell;
+
+  /// Letter scores shown on the tiles (Turkish when null).
+  final Map<String, int>? scores;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +272,7 @@ class MiniBoard extends StatelessWidget {
         renderer: TileRenderer(
           palette: context.palette,
           style: context.appTheme.tileStyle,
-          scores: BalanceConfig.defaults.letterScores,
+          scores: scores ?? BalanceConfig.defaults.letterScores,
         ),
       ),
     );
@@ -244,21 +323,26 @@ class _MiniPainter extends CustomPainter {
 }
 
 class _GoalVisual extends StatelessWidget {
-  const _GoalVisual();
+  const _GoalVisual(this.ex, this.config);
+  final LanguageExamples ex;
+  final BalanceConfig config;
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const MiniBoard(rows: ['.....', '.KAR.', '.....'], lit: {6, 7, 8}),
+        MiniBoard(rows: ['.....', '.${ex.goal}.', '.....'], lit: const {6, 7, 8}, scores: config.letterScores),
         const SizedBox(height: Space.s3),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             AppIcon(AppIconName.check, color: p.success, size: 20),
             const SizedBox(width: Space.s2),
-            Text('KAR  +3', style: context.text.headlineSmall!.copyWith(color: p.ink)),
+            Text(
+              '${ex.goal}  +${wordPoints(ex.goal, config)}',
+              style: context.text.headlineSmall!.copyWith(color: p.ink),
+            ),
           ],
         ),
       ],
@@ -267,7 +351,9 @@ class _GoalVisual extends StatelessWidget {
 }
 
 class _ReadingVisual extends StatelessWidget {
-  const _ReadingVisual();
+  const _ReadingVisual(this.ex, this.config);
+  final LanguageExamples ex;
+  final BalanceConfig config;
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -275,16 +361,16 @@ class _ReadingVisual extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const MiniBoard(rows: ['..K..', '..A..', 'NAR..', '.....'], lit: {2, 7, 10, 11, 12}, cell: 34),
+        MiniBoard(rows: ex.readingRows, lit: const {2, 7, 10, 11, 12}, cell: 34, scores: config.letterScores),
         const SizedBox(width: Space.s4),
         Flexible(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('→  NAR', style: s),
+              Text('→  ${ex.across}', style: s),
               const SizedBox(height: Space.s2),
-              Text('↓  KAR', style: s),
+              Text('↓  ${ex.down}', style: s),
               const SizedBox(height: Space.s3),
               InfoChip(icon: AppIconName.streak, text: L10n.of(context).comboLabel(2), highlight: true),
             ],
@@ -296,25 +382,30 @@ class _ReadingVisual extends StatelessWidget {
 }
 
 class _ScoreVisual extends StatelessWidget {
-  const _ScoreVisual();
+  const _ScoreVisual(this.ex, this.config);
+  final LanguageExamples ex;
+  final BalanceConfig config;
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final lines = scoreLines(ex.scoreWord, config);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const MiniBoard(rows: ['KALEM'], lit: {0, 1, 2, 3, 4}, cell: 46),
+        MiniBoard(rows: [ex.scoreWord], lit: const {0, 1, 2, 3, 4}, cell: 46, scores: config.letterScores),
         const SizedBox(height: Space.s4),
-        Text('1 + 1 + 1 + 1 + 2 = 6', style: context.text.bodyLarge!.copyWith(color: p.inkMuted)),
+        Text(lines.sum, style: context.text.bodyLarge!.copyWith(color: p.inkMuted)),
         const SizedBox(height: Space.s1),
-        Text('6 × 3 = 18', style: context.text.titleLarge!.copyWith(color: p.accent)),
+        Text(lines.total, style: context.text.titleLarge!.copyWith(color: p.accent)),
       ],
     );
   }
 }
 
 class _EndVisual extends StatelessWidget {
-  const _EndVisual();
+  const _EndVisual(this.ex, this.config);
+  final LanguageExamples ex;
+  final BalanceConfig config;
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -325,7 +416,7 @@ class _EndVisual extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const MiniBoard(rows: ['ZTB.Y', 'ÇUPSH', 'L.ŞGD', 'MFNÖJ'], cell: 34),
+        MiniBoard(rows: ex.stuckRows, cell: 34, scores: config.letterScores),
         const SizedBox(height: Space.s4),
         Row(
           mainAxisSize: MainAxisSize.min,
