@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../app/app_model.dart';
 import '../../config/app_info.dart';
+import '../../core/text/word_language.dart';
 import '../../config/asset_paths.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/calendar.dart';
@@ -110,9 +111,15 @@ abstract final class Sharing {
   static Future<void> shareDaily(BuildContext context, GlobalKey cardKey, DayKey day, DailyResult r) async {
     final l = L10n.of(context);
     final app = AppScope.read(context);
-    app.services.analytics.log(AnalyticsEvent.shareTapped, {'mode': 'daily'});
+    app.services.analytics.log(AnalyticsEvent.shareTapped, {'mode': 'daily', 'lang': app.wordLanguage.code});
+    // Each word language has its own puzzle (karar 29); Turkish keeps the
+    // original first line.
+    final language = app.wordLanguage;
+    final title = language == WordLanguage.turkish
+        ? AppInfo.displayName
+        : '${AppInfo.displayName} · ${language.nativeName}';
     final text = l.shareText(
-      AppInfo.displayName,
+      title,
       formatDay(l, day),
       r.score,
       r.words,

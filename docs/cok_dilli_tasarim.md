@@ -70,7 +70,31 @@ de geciktirir.
 
 ## Kaynaklar ve lisanslar
 
-<!-- LİSANS-ARAŞTIRMASI -->
+Kaynak sayfalarında doğrulandı (25 Kasım 2026). "Paketlenebilir" = kapalı kaynak ticari uygulamada
+lisans notuyla dağıtılabilir; "liste yayımlanmalı" = türetilen kelime listesi aynı lisansla ayrıca
+yayımlanırsa (ör. web sitesinde) paketlenebilir. Uygulama kodu kapalı kalır.
+
+| Dil | Geçerli kelimeler | Sıklık ("yaygın" kelimeler) | Durum |
+|---|---|---|---|
+| İngilizce | SCOWL (Kevin Atkinson; MIT benzeri, bildirim yeterli; ABD/İngiltere yazımları ayrı; 2026 sürümü ESDB adıyla) | 12dicts (kamu malı) ya da Google Books Ngram (CC BY 3.0) | Paketlenebilir |
+| Almanca | enz/german-wordlist (CC0, kelime oyunu kurallarıyla) | Google Books Almanca (CC BY 3.0) | Paketlenebilir; anadili konuşanın gözden geçirmesi gerekir |
+| Fransızca | Grammalecte 7.7 sözlüğü (MPL 2.0) | Sözlüğün kendi sıklık dizini | Liste yayımlanmalı |
+| İspanyolca | RLA-ES (MPL 2.0 seçeneğiyle; es_ES / es_MX) | Google Books İspanyolca | Liste yayımlanmalı |
+| İtalyanca | Morph-it! (CC BY-SA 2.0) | Google Books İtalyanca | Liste yayımlanmalı (CC BY-SA 4.0) |
+| Portekizce (BR) | VERO (LGPL + MPL; yalnız MPL kullanımı yazara teyit ettirilmeli) | hermitdave pt_br (CC BY-SA 4.0) | Liste yayımlanmalı, teyit gerekli |
+
+**Kaçınılacaklar:** wordfreq verisi (CC BY-SA, CSV çıkarımı lisansa uymuyor), google-10000-english
+(LDC verisi), AOSP klavye listeleri (Lexiteria izni), resmî Scrabble listeleri (NWL, Collins, ODS,
+FISE: yayıncıya ait), GPL'li Hunspell sözlükleri (de_DE frami, it_IT), DeReWo ve RAE listeleri
+(ticari kullanım yasak). Leipzig korpusları: CC BY görünse de ticari kullanım için yazılı izin iste.
+
+**Uygunsuz kelime süzgeci:** LDNOOBW (CC BY 4.0), words/cuss (MIT), SCOWL/ESDB'nin işaretleri. Yalnızca
+derleme sırasında kullanılıp uygulamaya konmazsa lisans yükümlülüğü doğmaz; İngilizce için kendi engel
+listemiz (`tool/dict/en/blocklist_en.txt`) yazılır.
+
+**Lisanslar sayfası (İngilizce için):** "English word list derived from SCOWL, Copyright 2000-2020 by
+Kevin Atkinson" + SCOWL'un izin metninin aynısı; 12dicts kamu malı olduğu için not gerekmez (2of12inf
+için AGID notu eklenir). Uygulama Zemberek için olduğu gibi `LicenseRegistry`'ye ekler.
 
 ## Onay bekleyen kararlar
 

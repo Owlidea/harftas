@@ -362,7 +362,7 @@ class AppModel extends ChangeNotifier {
     final seed = Rng.mix(clock().microsecondsSinceEpoch & 0x7FFFFFFF, profile.totalGames);
     final s = e.newGame(seed: seed, mode: GameMode.classic, startedAt: clock(), powerups: Map.of(profile.powerups));
     savedClassic = s;
-    services.analytics.log(AnalyticsEvent.gameStart, {'mode': 'classic'});
+    services.analytics.log(AnalyticsEvent.gameStart, {'mode': 'classic', 'lang': wordLanguage.code});
     unawaited(services.games.saveClassic(s));
     return s;
   }
@@ -378,7 +378,7 @@ class AppModel extends ChangeNotifier {
       mode: GameMode.daily,
       startedAt: clock(),
     );
-    services.analytics.log(AnalyticsEvent.gameStart, {'mode': 'daily'});
+    services.analytics.log(AnalyticsEvent.gameStart, {'mode': 'daily', 'lang': language});
     await services.games.saveDaily(d, s);
     return s;
   }
@@ -459,6 +459,7 @@ class AppModel extends ChangeNotifier {
     final r = _inventory(() => Progression.applyGameEnd(profile, book, g, today));
     services.analytics.log(AnalyticsEvent.gameOver, {
       'mode': g.mode.name,
+      'lang': g.language,
       'score': g.score,
       'moves': g.moves,
       'duration': g.duration.inSeconds,
