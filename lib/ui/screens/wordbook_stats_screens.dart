@@ -180,7 +180,7 @@ class StatsScreen extends StatelessWidget {
       (l.statBestScore, '${pr.bestScoreFor(app.wordLanguage.code)}'),
       (l.statGames, '${pr.totalGames}'),
       (l.statWords, '${pr.totalWords}'),
-      (l.statAvgLength, pr.averageWordLength.toStringAsFixed(1).replaceAll('.', ',')),
+      (l.statAvgLength, decimal1(context, pr.averageWordLength)),
       (l.statBestStreak, '${pr.bestMoveStreak}'),
       (l.statDailyBest, l.daysUnit(pr.streak.best)),
       (l.statMostBuilt, app.wordbook.mostBuilt ?? l.dash),

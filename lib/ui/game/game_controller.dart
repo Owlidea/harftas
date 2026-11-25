@@ -706,7 +706,7 @@ class GameController extends ChangeNotifier {
     // Persist immediately (spec 7.1: save after every move).
     if (!tutorial) {
       unawaited(app.saveGame(_state, dailyDay));
-      final summary = MoveSummary.fromEvents(action, events);
+      final summary = MoveSummary.fromEvents(action, events, language: _state.language);
       _logAnalytics(action, summary);
       if (action is! ContinueAction && action is! EndAction) {
         final rec = app.recordMove(summary);

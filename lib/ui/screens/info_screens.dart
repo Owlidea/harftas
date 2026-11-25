@@ -27,6 +27,8 @@ class AboutScreen extends StatelessWidget {
           Text(l.aboutVersion(AppInfo.version), textAlign: TextAlign.center, style: context.text.bodySmall),
           const SizedBox(height: Space.s6),
           Panel(child: Text(l.aboutDictionary, style: context.text.bodyLarge)),
+          const SizedBox(height: Space.s3),
+          Panel(child: Text(l.aboutDictionaryEn, style: context.text.bodyLarge)),
           const SizedBox(height: Space.s4),
           SecondaryButton(
             label: l.aboutLicenses,

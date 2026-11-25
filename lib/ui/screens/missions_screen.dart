@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/app_model.dart';
 import '../../config/asset_paths.dart';
+import '../../core/text/word_language.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/levels.dart';
 import '../../progress/missions.dart';
@@ -14,10 +15,12 @@ import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 import 'settings_screen.dart' show boardStyleName, themeName, tileStyleName;
 
-String missionText(L10n l, Mission m) => switch (m.type) {
+/// [language]: the word language the mission is played in; a letter it
+/// does not have shows as that language's own letter (Ş -> S in English).
+String missionText(L10n l, Mission m, {WordLanguage language = WordLanguage.turkish}) => switch (m.type) {
   MissionType.wordsOfLength => l.missionWordsOfLength(m.length!, m.target),
   MissionType.comboTwo => l.missionCombo(m.target),
-  MissionType.wordWithLetter => l.missionLetter(m.letter!, m.target),
+  MissionType.wordWithLetter => l.missionLetter(language.normalize(m.letter!), m.target),
   MissionType.scoreInGame => l.missionScore(m.target),
   MissionType.reachStreak => l.missionStreak(m.target),
   MissionType.clearBoard => l.missionClear,
@@ -317,7 +320,7 @@ class _MissionRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  missionText(l, m),
+                  missionText(l, m, language: AppScope.of(context).wordLanguage),
                   style: context.text.bodyMedium!.copyWith(
                     fontWeight: FontWeight.w600,
                     height: 1.3,

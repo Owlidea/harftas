@@ -3,6 +3,7 @@ import '../core/core.dart';
 /// What one action produced (fed to missions, wordbook, analytics).
 class MoveSummary {
   const MoveSummary({
+    this.language = 'tr',
     required this.words,
     required this.placedCells,
     required this.streakAfter,
@@ -10,7 +11,7 @@ class MoveSummary {
     this.powerup,
   });
 
-  factory MoveSummary.fromEvents(GameAction action, List<GameEvent> events) {
+  factory MoveSummary.fromEvents(GameAction action, List<GameEvent> events, {String language = 'tr'}) {
     final hits = [for (final e in events.whereType<WordsFound>()) ...e.hits];
     final score = events.whereType<ScoreAwarded>().lastOrNull;
     final placed = events.whereType<PiecePlaced>().fold<int>(0, (n, e) => n + e.cells.length);
@@ -21,6 +22,7 @@ class MoveSummary {
       _ => null,
     };
     return MoveSummary(
+      language: language,
       words: [for (final h in hits) WordResult(h.word, h.baseScoreX10 ~/ 10)],
       placedCells: placed,
       streakAfter: score?.streakAfter ?? 0,
@@ -29,6 +31,8 @@ class MoveSummary {
     );
   }
 
+  /// `WordLanguage.code` of the game the move was made in.
+  final String language;
   final List<WordResult> words;
   final int placedCells;
   final int streakAfter;

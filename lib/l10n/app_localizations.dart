@@ -1067,7 +1067,7 @@ abstract class L10n {
   /// No description provided for @aboutDictionary.
   ///
   /// In tr, this message translates to:
-  /// **'Sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.'**
+  /// **'Türkçe sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.'**
   String get aboutDictionary;
 
   /// No description provided for @aboutLicenses.
@@ -2057,8 +2057,8 @@ abstract class L10n {
   /// No description provided for @achRareDesc.
   ///
   /// In tr, this message translates to:
-  /// **'J veya Ğ içeren bir kelime kur'**
-  String get achRareDesc;
+  /// **'{letters} içeren bir kelime kur'**
+  String achRareDesc(String letters);
 
   /// No description provided for @achDailyDesc.
   ///
@@ -2173,6 +2173,24 @@ abstract class L10n {
   /// In tr, this message translates to:
   /// **'Kelimeler hangi dilde olsun?'**
   String get introLanguage;
+
+  /// No description provided for @orWord.
+  ///
+  /// In tr, this message translates to:
+  /// **'veya'**
+  String get orWord;
+
+  /// No description provided for @aboutDictionaryEn.
+  ///
+  /// In tr, this message translates to:
+  /// **'İngilizce sözlük: SCOWL (© Kevin Atkinson) ve 12dicts (Alan Beale) kelime listelerinden türetildi. Ayrıntılar Lisanslar sayfasında.'**
+  String get aboutDictionaryEn;
+
+  /// No description provided for @unlockStreakDays.
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} gün seri'**
+  String unlockStreakDays(int n);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

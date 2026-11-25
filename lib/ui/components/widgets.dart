@@ -292,6 +292,16 @@ class Panel extends StatelessWidget {
 String upperUi(BuildContext context, String text) =>
     Localizations.localeOf(context).languageCode == 'tr' ? TurkishText.toUpper(text) : text.toUpperCase();
 
+/// One decimal in the UI language's style: 1,5 in Turkish, 1.5 in English.
+String decimal1(BuildContext context, double v) {
+  final s = v.toStringAsFixed(1);
+  return Localizations.localeOf(context).languageCode == 'tr' ? s.replaceAll('.', ',') : s;
+}
+
+/// "A, B veya C" / "A, B or C".
+String orList(L10n l, List<String> items) =>
+    items.length < 2 ? items.join() : '${items.sublist(0, items.length - 1).join(', ')} ${l.orWord} ${items.last}';
+
 /// Lower case by the rules of the UI language (see [upperUi]).
 String lowerUi(BuildContext context, String text) =>
     Localizations.localeOf(context).languageCode == 'tr' ? TurkishText.toLower(text) : text.toLowerCase();

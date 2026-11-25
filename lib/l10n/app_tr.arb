@@ -207,7 +207,7 @@
   "aboutTitle": "Hakkında",
   "aboutVersion": "Sürüm {v}",
   "@aboutVersion": {"placeholders": {"v": {"type": "String"}}},
-  "aboutDictionary": "Sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.",
+  "aboutDictionary": "Türkçe sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.",
   "aboutLicenses": "Açık kaynak lisansları",
 
 
@@ -426,7 +426,8 @@
   "@achClearsDesc": {"placeholders": {"n": {"type": "int"}}},
   "achGamesDesc": "{n} oyun bitir",
   "@achGamesDesc": {"placeholders": {"n": {"type": "int"}}},
-  "achRareDesc": "J veya Ğ içeren bir kelime kur",
+  "achRareDesc": "{letters} içeren bir kelime kur",
+  "@achRareDesc": {"placeholders": {"letters": {"type": "String"}}},
   "achDailyDesc": "{n} günlük bulmaca tamamla",
   "@achDailyDesc": {"placeholders": {"n": {"type": "int"}}},
 
@@ -451,5 +452,9 @@
 
   "wordLanguage": "Kelime dili",
   "wordLanguageDesc": "Harfler, sözlük, Günlük Bulmaca ve Kelime Defteri bu dilde olur. Süren oyun kendi dilinde biter.",
-  "introLanguage": "Kelimeler hangi dilde olsun?"
+  "introLanguage": "Kelimeler hangi dilde olsun?",
+  "orWord": "veya",
+  "aboutDictionaryEn": "İngilizce sözlük: SCOWL (© Kevin Atkinson) ve 12dicts (Alan Beale) kelime listelerinden türetildi. Ayrıntılar Lisanslar sayfasında.",
+  "unlockStreakDays": "{n} gün seri",
+  "@unlockStreakDays": {"placeholders": {"n": {"type": "int"}}}
 }

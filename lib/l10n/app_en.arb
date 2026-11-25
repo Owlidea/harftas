@@ -426,7 +426,8 @@
   "@achClearsDesc": {"placeholders": {"n": {"type": "int"}}},
   "achGamesDesc": "Finish {n} games",
   "@achGamesDesc": {"placeholders": {"n": {"type": "int"}}},
-  "achRareDesc": "Make a word with J or Ğ",
+  "achRareDesc": "Make a word with {letters}",
+  "@achRareDesc": {"placeholders": {"letters": {"type": "String"}}},
   "achDailyDesc": "Complete {n} Daily Puzzles",
   "@achDailyDesc": {"placeholders": {"n": {"type": "int"}}},
 
@@ -451,5 +452,9 @@
 
   "wordLanguage": "Word language",
   "wordLanguageDesc": "Letters, dictionary, Daily Puzzle and Word Book all use this language. A game in progress finishes in its own language.",
-  "introLanguage": "Which language should words be in?"
+  "introLanguage": "Which language should words be in?",
+  "orWord": "or",
+  "aboutDictionaryEn": "English dictionary: derived from the SCOWL (© Kevin Atkinson) and 12dicts (Alan Beale) word lists. Details on the licenses page.",
+  "unlockStreakDays": "{n}-day streak",
+  "@unlockStreakDays": {"placeholders": {"n": {"type": "int"}}}
 }

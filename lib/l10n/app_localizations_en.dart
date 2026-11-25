@@ -1195,7 +1195,9 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get achRareDesc => 'Make a word with J or Ğ';
+  String achRareDesc(String letters) {
+    return 'Make a word with $letters';
+  }
 
   @override
   String achDailyDesc(int n) {
@@ -1263,4 +1265,16 @@ class L10nEn extends L10n {
 
   @override
   String get introLanguage => 'Which language should words be in?';
+
+  @override
+  String get orWord => 'or';
+
+  @override
+  String get aboutDictionaryEn =>
+      'English dictionary: derived from the SCOWL (© Kevin Atkinson) and 12dicts (Alan Beale) word lists. Details on the licenses page.';
+
+  @override
+  String unlockStreakDays(int n) {
+    return '$n-day streak';
+  }
 }

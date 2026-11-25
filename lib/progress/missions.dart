@@ -1,5 +1,6 @@
 import '../core/model/game_state.dart';
 import '../core/rng/rng.dart';
+import '../core/text/word_language.dart';
 import 'calendar.dart';
 import 'summaries.dart';
 
@@ -143,7 +144,10 @@ abstract final class MissionPool {
       case MissionType.comboTwo:
         return move.combo >= 2 ? m.withProgress(m.progress + 1) : m;
       case MissionType.wordWithLetter:
-        return m.withProgress(m.progress + move.words.where((w) => w.word.contains(m.letter!)).length);
+        // Missions are shared by all word languages; a letter the language
+        // lacks counts as its own letter (Ş -> S in English).
+        final letter = (WordLanguage.byCode(move.language) ?? WordLanguage.turkish).normalize(m.letter!);
+        return m.withProgress(m.progress + move.words.where((w) => w.word.contains(letter)).length);
       case MissionType.reachStreak:
         return move.streakAfter > m.progress ? m.withProgress(move.streakAfter) : m;
       case MissionType.clearBoard:

@@ -568,7 +568,7 @@ class L10nTr extends L10n {
 
   @override
   String get aboutDictionary =>
-      'Sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.';
+      'Türkçe sözlük: Zemberek-NLP sözlük verisinden türetildi (Apache License 2.0, © Ahmet A. Akın, Mehmet D. Akın). Yaygın kelime listesi Zemberek-NLP frekans listesinden alındı.';
 
   @override
   String get aboutLicenses => 'Açık kaynak lisansları';
@@ -1160,7 +1160,9 @@ class L10nTr extends L10n {
   }
 
   @override
-  String get achRareDesc => 'J veya Ğ içeren bir kelime kur';
+  String achRareDesc(String letters) {
+    return '$letters içeren bir kelime kur';
+  }
 
   @override
   String achDailyDesc(int n) {
@@ -1227,4 +1229,16 @@ class L10nTr extends L10n {
 
   @override
   String get introLanguage => 'Kelimeler hangi dilde olsun?';
+
+  @override
+  String get orWord => 'veya';
+
+  @override
+  String get aboutDictionaryEn =>
+      'İngilizce sözlük: SCOWL (© Kevin Atkinson) ve 12dicts (Alan Beale) kelime listelerinden türetildi. Ayrıntılar Lisanslar sayfasında.';
+
+  @override
+  String unlockStreakDays(int n) {
+    return '$n gün seri';
+  }
 }

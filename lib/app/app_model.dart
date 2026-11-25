@@ -423,7 +423,7 @@ class AppModel extends ChangeNotifier {
     var clears = 0;
     for (final a in s.actions) {
       final r = e.apply(st, a);
-      final m = MoveSummary.fromEvents(a, r.events);
+      final m = MoveSummary.fromEvents(a, r.events, language: s.language);
       words.addAll(m.words);
       if (m.powerup != null) usedPowerups = true;
       if (m.clearedBoard) clears++;

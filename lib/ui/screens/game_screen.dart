@@ -115,7 +115,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     c.toasts.clear();
     for (final t in items) {
       final text = switch (t) {
-        MissionToast(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
+        MissionToast(:final mission) =>
+          '${l.missionCompleted}: ${missionText(l, mission, language: WordLanguage.byCode(c.state.language)!)}',
         LevelToast(:final reward) => levelUpText(l, reward.level, reward.reward),
         WeeklyToast() => l.weeklyDone,
         TextToast(kind: TextToastKind.dailyNoPowerups) => l.dailyNoPowerups,
@@ -412,7 +413,7 @@ class _Hud extends StatelessWidget {
             opacity: s.streak >= 2 ? 1 : 0,
             child: InfoChip(
               icon: AppIconName.streak,
-              text: l.streakMultiplier((streak10 / 10).toStringAsFixed(1).replaceAll('.', ',')),
+              text: l.streakMultiplier(decimal1(context, streak10 / 10)),
               highlight: s.streak >= 5,
             ),
           );
@@ -712,7 +713,8 @@ class _GameOverPanel extends StatelessWidget {
           LevelUpReward(:final level, :final reward) => levelUpText(l, level, reward),
           AchievementReward(:final achievement) => l.achievementUnlocked(achievementName(l, achievement)),
           WeeklyReward() => l.weeklyDone,
-          MissionReward(:final mission) => '${l.missionCompleted}: ${missionText(l, mission)}',
+          MissionReward(:final mission) =>
+            '${l.missionCompleted}: ${missionText(l, mission, language: AppScope.read(context).wordLanguage)}',
           StreakBadgeReward(:final days) => l.streakBadge(days),
         },
       if (r != null && r.newWords > 0) l.newWordsAdded(r.newWords),
@@ -919,7 +921,10 @@ class _NextGoalRow extends StatelessWidget {
     final p = context.palette;
     final (icon, text) = switch (goal) {
       RecordGoal(:final pointsLeft) => (AppIconName.crown, l.nextGoalRecord(pointsLeft)),
-      MissionGoal(:final mission) => (AppIconName.missions, l.nextGoalMission(missionText(l, mission))),
+      MissionGoal(:final mission) => (
+        AppIconName.missions,
+        l.nextGoalMission(missionText(l, mission, language: AppScope.read(context).wordLanguage)),
+      ),
       LevelGoal(:final nextLevel, :final xpLeft) => (AppIconName.star, l.nextGoalLevel(nextLevel, xpLeft)),
     };
     return Semantics(

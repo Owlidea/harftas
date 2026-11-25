@@ -2,9 +2,11 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/app_model.dart';
 import '../../config/asset_paths.dart';
+import '../../core/text/word_language.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/achievements.dart';
 import '../components/app_icon.dart';
+import '../components/widgets.dart';
 import '../theme/app_theme.dart';
 import '../theme/tokens.dart';
 
@@ -33,7 +35,7 @@ String achievementName(L10n l, Achievement a) {
   return tiers.length == 1 ? base : '$base ${_roman[tiers.indexOf(a)]}';
 }
 
-String achievementDesc(L10n l, Achievement a) => switch (a.kind) {
+String achievementDesc(L10n l, Achievement a, {WordLanguage language = WordLanguage.turkish}) => switch (a.kind) {
   AchievementKind.words => l.achWordsDesc(a.target),
   AchievementKind.unique => l.achUniqueDesc(a.target),
   AchievementKind.length => l.achLengthDesc(a.target),
@@ -42,7 +44,7 @@ String achievementDesc(L10n l, Achievement a) => switch (a.kind) {
   AchievementKind.moveStreak => l.achMoveStreakDesc(a.target),
   AchievementKind.clears => a.target == 1 ? l.missionClear : l.achClearsDesc(a.target),
   AchievementKind.games => l.achGamesDesc(a.target),
-  AchievementKind.rare => l.achRareDesc,
+  AchievementKind.rare => l.achRareDesc(orList(l, Achievements.rareLetters[language.code] ?? const [])),
   AchievementKind.daily => l.achDailyDesc(a.target),
 };
 
@@ -161,7 +163,10 @@ class _KindRow extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(achievementDesc(l, current), style: context.text.bodySmall!.copyWith(color: p.inkMuted)),
+                Text(
+                  achievementDesc(l, current, language: app.wordLanguage),
+                  style: context.text.bodySmall!.copyWith(color: p.inkMuted),
+                ),
                 const SizedBox(height: Space.s2),
                 Row(
                   children: [

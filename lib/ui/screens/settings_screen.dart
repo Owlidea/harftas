@@ -13,7 +13,6 @@ import '../../progress/profile.dart';
 import '../../progress/progression.dart';
 import '../components/app_icon.dart';
 import '../../core/config/balance_config.dart';
-import '../../core/text/turkish_text.dart';
 import '../../core/text/word_language.dart';
 import '../components/overlays.dart';
 import '../components/segmented.dart';
@@ -62,10 +61,7 @@ String? unlockHint(L10n l, {String? themeId, String? tileStyleId, String? boardS
     }
   }
   for (final e in Progression.streakThemes.entries) {
-    if (e.value == themeId) {
-      final streak = l.localeName == 'tr' ? TurkishText.toLower(l.streakCurrent) : l.streakCurrent.toLowerCase();
-      return '${l.daysUnit(e.key)} $streak';
-    }
+    if (e.value == themeId) return l.unlockStreakDays(e.key);
   }
   return null;
 }
