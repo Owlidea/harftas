@@ -179,11 +179,17 @@ class BalanceConfig {
     initialPowerups: 1,
   );
 
-  /// English starting tables (karar 29). Scores are the classic English
-  /// tile values; weights follow letter frequency in the English word list.
-  /// Everything else is shared with [defaults]. Tuned with tool/simulate.dart.
+  /// English (karar 29, 30). Scores are the classic English tile values;
+  /// weights follow letter frequency in the English word list. English hands
+  /// spell words far more easily than Turkish ones, so they get fewer vowels
+  /// (30-45 %) and no easing retries; with that the simulator's common-word
+  /// bot plays as long as in Turkish (docs/denge_raporu.md). Everything else
+  /// is shared with [defaults].
   static final BalanceConfig english = defaults.copyWith(
     language: WordLanguage.english,
+    vowelMinRatio: 0.3,
+    vowelMaxRatio: 0.45,
+    easingMaxAttempts: 1,
     letterScores: const {
       'A': 1,
       'E': 1,
@@ -259,6 +265,8 @@ class BalanceConfig {
     Map<String, int>? letterWeights,
     Set<String>? rareLetters,
     Map<int, int>? lengthMultiplierX10,
+    double? vowelMinRatio,
+    double? vowelMaxRatio,
   }) => BalanceConfig(
     language: language ?? this.language,
     minWordLength: minWordLength ?? this.minWordLength,
@@ -272,8 +280,8 @@ class BalanceConfig {
     clearBoardBonus: clearBoardBonus,
     handSize: handSize,
     sizeTiers: sizeTiers ?? this.sizeTiers,
-    vowelMinRatio: vowelMinRatio,
-    vowelMaxRatio: vowelMaxRatio,
+    vowelMinRatio: vowelMinRatio ?? this.vowelMinRatio,
+    vowelMaxRatio: vowelMaxRatio ?? this.vowelMaxRatio,
     minVowelsPerHand: minVowelsPerHand,
     noDuplicateScoreThreshold: noDuplicateScoreThreshold,
     rareLetters: rareLetters ?? this.rareLetters,

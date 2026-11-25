@@ -43,6 +43,13 @@ void main(List<String> args) {
       ],
     );
   }
+  final easing = opt('easing'); // attempts to deal a hand that can form a common word
+  if (easing != null) cfg = cfg.copyWith(easingMaxAttempts: int.parse(easing));
+  final vowels = opt('vowels'); // e.g. "0.3:0.5": vowel share of a hand (min:max)
+  if (vowels != null) {
+    final v = vowels.split(':').map(double.parse).toList();
+    cfg = cfg.copyWith(vowelMinRatio: v[0], vowelMaxRatio: v[1]);
+  }
   final mult = opt('mult'); // e.g. "4:20" (x10 scale): overrides word-length multipliers
   if (mult != null) {
     cfg = cfg.copyWith(

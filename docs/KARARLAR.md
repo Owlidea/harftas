@@ -71,3 +71,12 @@ Kaynak: ana spesifikasyon + başlangıç soruları 1–18 ("hepsi önerin gibi")
     dilini taşır (`lang`; yoksa `tr`), motor başka dildeki oyunu reddeder. İngilizcede aksanlar katlanır
     (CAFÉ → CAFE), harf puanları klasik İngilizce karo değerleridir; ağırlıklar ilk tahmindir ve
     simülatörle ayarlanacaktır.
+30. İngilizce kelime dili (25 Kasım 2026). Sözlük SCOWL 2020.12.07 boyut ≤ 60 (Amerikan ve İngiliz
+    yazımları birlikte; özel adlar, kısaltmalar, kesme işaretli biçimler yok), 3–8 harf: 40.814 kelime.
+    Çoğul ve çekimli biçimler geçerlidir (Türkçedeki yalın kök kuralı İngilizcede yok). Yaygın kelimeler
+    12dicts `2+2+3frq` sınıf 1–12 kökleri ve çekimleri: 10.207. Engel listesi küfür, cinsel terim ve
+    aşağılayıcı sözleri (masum anlamı olsa da) dışarıda tutar. Harf puanları klasik İngilizce karo
+    değerleri; sesli oranı %30–45 ve kolaylaştırma denemesi 1, böylece yaygın-kelime botu Türkçedeki
+    kadar sürer (`docs/denge_raporu.md`). Görevler dillerden bağımsızdır; harf görevi oynanan dilde
+    olmayan harfi o dilin harfine katlar (Ş → S). Rekor, günlük sonuç ve Kelime Defteri dil başına; seri,
+    XP, seviye, görev ve başarımlar ortak. Arayüz dili kelime dilinden bağımsız, cihazdan seçilir.

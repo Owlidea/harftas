@@ -109,8 +109,8 @@
       ]
     }
   ],
-  "vowelMinRatio": 0.4,
-  "vowelMaxRatio": 0.6,
+  "vowelMinRatio": 0.3,
+  "vowelMaxRatio": 0.45,
   "minVowelsPerHand": 1,
   "noDuplicateScoreThreshold": 5,
   "rareLetters": [
@@ -126,7 +126,7 @@
     "Z"
   ],
   "maxRarePerHand": 2,
-  "easingMaxAttempts": 20,
+  "easingMaxAttempts": 1,
   "dailyHandLimit": 20,
   "initialPowerups": 1
 }

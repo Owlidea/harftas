@@ -73,3 +73,35 @@ Sonuç: günlük bulmaca kısa (≈3 dk) ve klasikten zor. 20 el sınırı prati
 
 Açgözlü bot uzun kelime "kovalamadığı" için uzunluk dağılımı değişmiyor; gerçek oyuncudaki etki
 analitik bağlandıktan sonra ölçülmeli.
+
+## Ek (2026-11-25): İngilizce (karar 30)
+
+Sözlük: SCOWL boyut ≤ 60, 40.814 kelime; yaygın kelimeler 12dicts sıklık sınıfı 1–12 ve çekimleri,
+10.207 kelime (`tool/build_dictionary_en.dart`). İlk tahmin tablolarla (Türkçe gibi %40–60 sesli,
+20 kolaylaştırma denemesi) İngilizce oyunlar çok uzundu: yaygın-kelime botu 95 hamle, tam bot 262
+hamle. İngilizce eller kelimeyi Türkçeden çok daha kolay kuruyor; sözlüğü küçültmek oyuncuya
+"bu kelime neden sayılmadı" dedirteceği için görünmeyen iki ayar değişti: sesli oranı %30–45,
+kolaylaştırma denemesi 1 (yani yok). Tarama (150 oyun, yaygın-kelime botu / tam bot hamle):
+
+| Sesli | Deneme | Yaygın bot | Tam bot |
+|---|---|---|---|
+| %40–60 | 20 | 95.2 | 262.5 |
+| %30–45 | 20 | 88.7 | 183.5 |
+| %30–45 | 5 | 87.3 | 177.6 |
+| %30–45 | 2 | 82.5 | 166.5 |
+| **%30–45** | **1** | **63.2** | **132.5** |
+| %25–40 | 1 | 61.0 | 112.7 |
+
+Son ayarla Türkçe ve İngilizce (`--games 1000 --bot common` / `--games 500`, tohum 1):
+
+| Ölçüt | TR · common | EN · common | TR · full | EN · full |
+|---|---|---|---|---|
+| Ortalama hamle | 62.4 | 63.8 | 121.8 | 129.4 |
+| Ortalama skor | 401 | 429 | 1027 | 1130 |
+| Hamle başına kelime | 0.55 | 0.56 | 0.72 | 0.73 |
+| Kelimesiz hamle | %49.0 | %49.3 | %33.1 | %33.3 |
+
+İngilizce günlük bulmaca yaygın-kelime botuyla 55 hamle sürüyor (Türkçe 41): biraz daha kolay;
+karşılaştırma yalnız aynı dili oynayanlar arasında olduğu için bırakıldı. Gerçek oyuncu verisi
+geldikçe yeniden ayarlanmalı. Yeniden üretmek için: `dart run tool/simulate.dart --lang en ...`
+(`--vowels min:max`, `--easing N` seçenekleriyle).
