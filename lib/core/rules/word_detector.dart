@@ -42,7 +42,7 @@ class WordHit {
 /// Spec 2.5 detection. See docs/algoritma.md §1.
 class WordDetector {
   WordDetector(this.config, this.dictionary)
-    : _scores = List<int>.generate(30, (code) => code == 0 ? 0 : config.scoreOf(_letterOf(code)));
+    : _scores = List<int>.generate(Letters.count + 1, (code) => code == 0 ? 0 : config.scoreOf(_letterOf(code)));
 
   final BalanceConfig config;
   final WordDictionary dictionary;

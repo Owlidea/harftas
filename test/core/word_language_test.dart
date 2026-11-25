@@ -131,7 +131,7 @@ void main() {
 
   group('Engine and saved games', () {
     final t0 = DateTime.utc(2026, 11, 25, 9);
-    final enWords = SetWordDictionary.fromWords(const ['CAT', 'DOG', 'QUIZ', 'TAX', 'AXE', 'SEA', 'TEA'], _en);
+    final enWords = SetWordDictionary.fromWords(const ['CAT', 'DOG', 'QUIZ', 'TAX', 'AXE', 'SEA', 'TEA', 'WAX'], _en);
     final en = GameEngine(config: BalanceConfig.english, dictionary: enWords, common: enWords);
     final tr = GameEngine(config: BalanceConfig.defaults, dictionary: SetWordDictionary.fromWords(const ['KAR']));
 
@@ -158,6 +158,27 @@ void main() {
         () => tr.apply(tr.newGame(seed: 3, mode: GameMode.classic, startedAt: t0), JokerAction(x, y, 'q')),
         throwsA(isA<InvalidActionException>()),
       );
+    });
+
+    test('letters past the Turkish alphabet score and explode (W, X)', () {
+      final s0 = en.newGame(seed: 9, mode: GameMode.classic, startedAt: t0);
+      final grid = Grid.empty()
+        ..set(Grid.indexOf(0, 0), Cell('W'))
+        ..set(Grid.indexOf(1, 0), Cell('A'));
+      final mono = ShapeCatalog.byFamily[ShapeFamily.mono]!.single;
+      final s = s0.copyWith(
+        grid: grid,
+        hand: [
+          Piece(mono, const ['X']),
+          null,
+          null,
+        ],
+        status: GameStatus.playing,
+      );
+      final r = en.apply(s, const PlaceAction(0, 2, 0));
+      final hits = [for (final e in r.events.whereType<WordsFound>()) ...e.hits];
+      expect(hits.map((h) => h.word), ['WAX']);
+      expect(hits.single.letterSum, 4 + 1 + 8);
     });
 
     test('the language survives a save, and old saves are Turkish', () {

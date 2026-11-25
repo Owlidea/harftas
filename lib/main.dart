@@ -54,6 +54,11 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['Zemberek-NLP (sözlük verisi)'], text);
     final font = await rootBundle.loadString('assets/fonts/Nunito-OFL.txt');
     yield LicenseEntryWithLineBreaks(['Nunito (yazı tipi)'], font);
+    // English words (karar 29): SCOWL for the dictionary, 12dicts for common words.
+    final scowl = await rootBundle.loadString('assets/config/SCOWL_LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(['SCOWL (English word list)'], scowl);
+    final twelveDicts = await rootBundle.loadString('assets/config/12DICTS_LICENSE.txt');
+    yield LicenseEntryWithLineBreaks(['12dicts / AGID (English common words)'], twelveDicts);
   });
 
   if (!kIsWeb) {
