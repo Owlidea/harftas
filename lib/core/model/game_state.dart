@@ -21,6 +21,7 @@ enum GameOverReason { noFit, handLimit }
 /// Immutable snapshot. The engine returns a new state for each action.
 class GameState {
   const GameState({
+    this.language = 'tr',
     required this.mode,
     required this.seed,
     required this.grid,
@@ -43,6 +44,10 @@ class GameState {
   });
 
   static const int schemaVersion = 1;
+
+  /// `WordLanguage.code` of the board (karar 29). States saved before other
+  /// languages existed have none and are Turkish.
+  final String language;
 
   final GameMode mode;
   final int seed;
@@ -95,6 +100,7 @@ class GameState {
     String? bestWord,
     int? bestWordScore,
   }) => GameState(
+    language: language,
     mode: mode,
     seed: seed,
     grid: grid ?? this.grid,
@@ -118,6 +124,7 @@ class GameState {
 
   Map<String, dynamic> toJson() => {
     'v': schemaVersion,
+    'lang': language,
     'mode': mode.name,
     'seed': seed,
     'grid': grid.toJson(),
@@ -149,6 +156,7 @@ class GameState {
     };
     final hand = [for (final p in j['hand'] as List) p == null ? null : Piece.fromJson(p as Map<String, dynamic>)];
     return GameState(
+      language: j['lang'] as String? ?? 'tr',
       mode: GameMode.values.byName(j['mode'] as String),
       seed: j['seed'] as int,
       grid: Grid.fromJson(j['grid'] as List),

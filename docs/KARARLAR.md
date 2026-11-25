@@ -61,3 +61,13 @@ Kaynak: ana spesifikasyon + başlangıç soruları 1–18 ("hepsi önerin gibi")
     ekranlar taşmaz; `test/ui/small_screen_test.dart` bunu her test çalışmasında doğrular. Oyun sonu
     paneli sığmadığında kayar; dar ve büyük yazılı ekranda alt tepsi biraz kısalır (parçalar tepsiye
     göre ölçeklenir).
+29. Çok dilli kelime desteği, çekirdek (25 Kasım 2026; tasarım `docs/cok_dilli_tasarim.md`). Kelime dili
+    (`WordLanguage`: Türkçe, İngilizce) denge ayarına bağlıdır (`BalanceConfig.language`); her dilin kendi
+    sözlüğü (`assets/dict/{words,common}_<kod>.bin`) ve denge dosyası (`assets/config/balance_<kod>.json`)
+    vardır. Harf kodları bütün diller için ortaktır (`Letters`): ilk 29 kod Türk alfabesidir ve eskisiyle
+    aynıdır, başka dillerin harfleri yalnızca sona eklenir (şimdilik Q, W, X). Kelime anahtarı harf başına
+    6 bit (en çok 63 harf; sözlük biçimi HBD3). Türkçe davranış değişmedi: aynı tohumlarla simülatörün
+    klasik, günlük ve yaygın-kelime botu çıktıları değişiklikten önce ve sonra birebir aynı. Kayıtlı oyun
+    dilini taşır (`lang`; yoksa `tr`), motor başka dildeki oyunu reddeder. İngilizcede aksanlar katlanır
+    (CAFÉ → CAFE), harf puanları klasik İngilizce karo değerleridir; ağırlıklar ilk tahmindir ve
+    simülatörle ayarlanacaktır.

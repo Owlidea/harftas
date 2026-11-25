@@ -8,7 +8,6 @@ import '../model/piece.dart';
 import '../rules/placement.dart';
 import '../rules/scoring.dart';
 import '../rules/word_detector.dart';
-import '../text/turkish_text.dart';
 import 'game_event.dart';
 
 class InvalidActionException implements Exception {
@@ -33,6 +32,9 @@ class PlacementPreview {
 
 /// Pure game rules. Same engine + same (seed, mode, powerups, actions)
 /// always yields the same state (spec 7.3, 17).
+///
+/// One engine per word language: [config] and [dictionary] must be of the
+/// same language, and an engine only accepts states of its own language.
 class GameEngine {
   GameEngine({required this.config, required this.dictionary, WordDictionary? common})
     : detector = WordDetector(config, dictionary),
@@ -59,6 +61,7 @@ class GameEngine {
     final grid = Grid.empty();
     final hand = _deal(seed, 0, 0, grid, mode);
     final s = GameState(
+      language: config.language.code,
       mode: mode,
       seed: seed,
       grid: grid,
@@ -97,6 +100,7 @@ class GameEngine {
   }
 
   StepResult apply(GameState s, GameAction a) {
+    _requireLanguage(s);
     final StepResult r = switch (a) {
       PlaceAction() => _place(s, a),
       RefreshAction() => _refresh(s),
@@ -111,7 +115,16 @@ class GameEngine {
 
   /// Recomputes status / refills for a state built outside [apply]
   /// (e.g. loaded from storage). Does not record an action.
-  GameState revalidate(GameState s) => s.isOver ? s : _settle(s, <GameEvent>[]).state;
+  GameState revalidate(GameState s) {
+    _requireLanguage(s);
+    return s.isOver ? s : _settle(s, <GameEvent>[]).state;
+  }
+
+  void _requireLanguage(GameState s) {
+    if (s.language != config.language.code) {
+      throw InvalidActionException('${s.language} game given to the ${config.language.code} engine');
+    }
+  }
 
   bool canPlace(GameState s, int pieceIndex, int x, int y) {
     if (s.status != GameStatus.playing) return false;
@@ -184,8 +197,8 @@ class GameEngine {
     _requireInBounds(a.x, a.y);
     final idx = Grid.indexOf(a.x, a.y);
     if (s.grid.isFilled(idx)) throw const InvalidActionException('joker on filled cell');
-    final letter = TurkishText.normalize(a.letter);
-    if (!TurkishText.isAlphabetic(letter) || letter.length != 1) {
+    final letter = config.language.normalize(a.letter);
+    if (!config.language.isLetter(letter)) {
       throw InvalidActionException('invalid joker letter: ${a.letter}');
     }
     final events = <GameEvent>[];

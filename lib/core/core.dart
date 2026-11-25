@@ -17,5 +17,8 @@ export 'rules/placement.dart';
 export 'rules/scoring.dart';
 export 'rules/word_detector.dart';
 export 'text/alphabet.dart';
+export 'text/latin_text.dart';
+export 'text/letters.dart';
 export 'text/turkish_text.dart';
 export 'text/word_key.dart';
+export 'text/word_language.dart';

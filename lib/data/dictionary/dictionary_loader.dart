@@ -12,15 +12,18 @@ class LoadedData {
   final WordDictionary words;
   final WordDictionary common;
   final BalanceConfig config;
+
+  WordLanguage get language => config.language;
 }
 
 /// Loads the packed dictionaries off the UI isolate (spec 3: must not delay
 /// startup by more than 300 ms — decoding runs in a background isolate while
 /// the home screen is already visible).
 abstract final class DataLoader {
-  static Future<LoadedData> load(AssetBundle bundle) async {
-    final words = await bundle.load(AssetPaths.dictionary);
-    final common = await bundle.load(AssetPaths.commonWords);
+  /// Dictionaries and balance config of one word language.
+  static Future<LoadedData> load(AssetBundle bundle, [WordLanguage language = WordLanguage.turkish]) async {
+    final words = await bundle.load(AssetPaths.dictionary(language.code));
+    final common = await bundle.load(AssetPaths.commonWords(language.code));
     final sets = await compute(_decode, [
       words.buffer.asUint8List(words.offsetInBytes, words.lengthInBytes),
       common.buffer.asUint8List(common.offsetInBytes, common.lengthInBytes),
@@ -28,11 +31,12 @@ abstract final class DataLoader {
     BalanceConfig config;
     try {
       config = BalanceConfig.fromJson(
-        jsonDecode(await bundle.loadString(AssetPaths.balanceConfig)) as Map<String, dynamic>,
+        jsonDecode(await bundle.loadString(AssetPaths.balanceConfig(language.code))) as Map<String, dynamic>,
       );
     } on Object {
-      config = BalanceConfig.defaults;
+      config = BalanceConfig.defaultsFor(language);
     }
+    if (config.language != language) config = BalanceConfig.defaultsFor(language);
     return LoadedData(SetWordDictionary(sets[0]), SetWordDictionary(sets[1]), config);
   }
 

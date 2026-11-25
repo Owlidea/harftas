@@ -2,7 +2,7 @@
 // every (piece, position) and keeps the highest immediate score; ties go to
 // the placement that leaves the most free cells, then the first found.
 //
-//   dart run tool/simulate.dart [--games 1000] [--min 3] [--seed 1] [--mode classic|daily]
+//   dart run tool/simulate.dart [--lang tr|en] [--games 1000] [--min 3] [--seed 1] [--mode classic|daily]
 //                               [--bot common] [--tiers ...] [--mult 4:20]
 //
 // Powerups and "continue" are not used, so results measure the raw rules.
@@ -26,9 +26,11 @@ void main(List<String> args) {
   final mode = GameMode.values.byName(opt('mode') ?? 'classic');
   final maxMoves = int.parse(opt('max-moves') ?? '600');
 
-  final words = SetWordDictionary(DictionaryCodec.decode(File('assets/dict/words.bin').readAsBytesSync()));
-  final common = SetWordDictionary(DictionaryCodec.decode(File('assets/dict/common.bin').readAsBytesSync()));
-  var cfg = BalanceConfig.defaults.copyWith(minWordLength: minLen);
+  final lang = opt('lang') ?? 'tr';
+  final language = WordLanguage.byCode(lang) ?? (throw ArgumentError('unknown language: $lang'));
+  final words = SetWordDictionary(DictionaryCodec.decode(File('assets/dict/words_$lang.bin').readAsBytesSync()));
+  final common = SetWordDictionary(DictionaryCodec.decode(File('assets/dict/common_$lang.bin').readAsBytesSync()));
+  var cfg = BalanceConfig.defaultsFor(language).copyWith(minWordLength: minLen);
   final tiers = opt('tiers'); // e.g. "0:10,30,40,20;300:8,27,40,25"
   if (tiers != null) {
     cfg = cfg.copyWith(
@@ -108,7 +110,7 @@ void main(List<String> args) {
   final avgMoves = totalMoves / games;
   final b = StringBuffer()
     ..writeln(
-      '## MIN_WORD_LEN = $minLen · ${mode.name} · bot=${opt('bot') ?? 'full'}${tiers == null ? '' : ' · tiers=$tiers'}${mult == null ? '' : ' · mult=$mult'} · $games oyun',
+      '## MIN_WORD_LEN = $minLen${lang == 'tr' ? '' : ' · $lang'} · ${mode.name} · bot=${opt('bot') ?? 'full'}${tiers == null ? '' : ' · tiers=$tiers'}${mult == null ? '' : ' · mult=$mult'} · $games oyun',
     )
     ..writeln()
     ..writeln('| Ölçüt | Değer |')

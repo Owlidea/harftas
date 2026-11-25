@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import '../config/balance_config.dart';
 import '../dictionary.dart';
 import '../model/grid.dart';
-import '../text/alphabet.dart';
+import '../text/letters.dart';
 import '../text/word_key.dart';
 
 enum WordDirection { horizontal, vertical }
@@ -55,7 +55,7 @@ class WordDetector {
   final Uint8List _cols = Uint8List(Grid.size);
   final List<_Candidate> _cands = [];
 
-  static String _letterOf(int code) => TrAlphabet.letterOf(code);
+  static String _letterOf(int code) => Letters.letterOf(code);
 
   int letterScore(Cell c) => c.isJoker ? 0 : _scores[c.code];
 

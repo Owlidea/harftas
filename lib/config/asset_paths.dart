@@ -3,9 +3,10 @@
 /// real file at the same path requires no code change. Status: ASSETS.md.
 abstract final class AssetPaths {
   // Data
-  static const String balanceConfig = 'assets/config/balance.json';
-  static const String dictionary = 'assets/dict/words.bin';
-  static const String commonWords = 'assets/dict/common.bin';
+  /// Per word language (`WordLanguage.code`), karar 29.
+  static String balanceConfig(String language) => 'assets/config/balance_$language.json';
+  static String dictionary(String language) => 'assets/dict/words_$language.bin';
+  static String commonWords(String language) => 'assets/dict/common_$language.bin';
 
   // Fonts: every .ttf/.otf in this folder is loaded into one family.
   static const String fontsDir = 'assets/fonts/';
@@ -17,8 +18,7 @@ abstract final class AssetPaths {
   // Icons (single-colour SVG, tinted in code)
   static String icon(AppIconName name) => 'assets/images/icons/ic_${name.fileName}.svg';
 
-  static String powerupArtwork(AppIconName name) =>
-      'assets/images/icons/ic_${name.fileName}.png';
+  static String powerupArtwork(AppIconName name) => 'assets/images/icons/ic_${name.fileName}.png';
 
   /// Full-colour 3D artwork for hero spots (store, streak, lock). Optional:
   /// [ArtIcon] falls back to the tinted line icon.

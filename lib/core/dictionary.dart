@@ -1,4 +1,5 @@
 import 'text/word_key.dart';
+import 'text/word_language.dart';
 
 /// Word lookup used by the core. Implementations live in the data layer;
 /// [SetWordDictionary] is a simple in-memory version (also used in tests).
@@ -12,10 +13,10 @@ abstract interface class WordDictionary {
 class SetWordDictionary implements WordDictionary {
   SetWordDictionary(Set<int> keys) : _keys = keys;
 
-  factory SetWordDictionary.fromWords(Iterable<String> words) {
+  factory SetWordDictionary.fromWords(Iterable<String> words, [WordLanguage language = WordLanguage.turkish]) {
     final keys = <int>{};
     for (final w in words) {
-      final k = WordKey.fromWord(w);
+      final k = WordKey.fromWord(w, language);
       if (k != null) keys.add(k);
     }
     return SetWordDictionary(keys);

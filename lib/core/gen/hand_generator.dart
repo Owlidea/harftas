@@ -5,7 +5,7 @@ import '../model/piece.dart';
 import '../model/shape.dart';
 import '../rng/rng.dart';
 import '../rules/word_detector.dart';
-import '../text/alphabet.dart';
+import '../text/letters.dart';
 import '../text/word_key.dart';
 import 'letter_generator.dart';
 
@@ -38,9 +38,9 @@ class HandGenerator {
   final List<List<int>> _spellable;
 
   static List<int> _counts(Iterable<String> letters) {
-    final c = List<int>.filled(TrAlphabet.count + 1, 0);
+    final c = List<int>.filled(Letters.count + 1, 0);
     for (final l in letters) {
-      c[TrAlphabet.codeOf(l)]++;
+      c[Letters.codeOf(l)]++;
     }
     return c;
   }

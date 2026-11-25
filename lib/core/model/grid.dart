@@ -1,9 +1,9 @@
-import '../text/alphabet.dart';
+import '../text/letters.dart';
 
 /// One letter tile on the board.
 class Cell {
-  Cell(this.letter, {this.isJoker = false}) : code = TrAlphabet.codeOf(letter) {
-    if (code == 0) throw ArgumentError('Not a Turkish letter: $letter');
+  Cell(this.letter, {this.isJoker = false}) : code = Letters.codeOf(letter) {
+    if (code == 0) throw ArgumentError('Not a board letter: $letter');
   }
 
   /// Serialized as the letter, prefixed with '*' for jokers.
@@ -12,7 +12,7 @@ class Cell {
   final String letter;
   final bool isJoker;
 
-  /// 1..29 alphabet code (cached for allocation-free word keys).
+  /// [Letters] code (cached for allocation-free word keys).
   final int code;
 
   String toJson() => isJoker ? '*$letter' : letter;

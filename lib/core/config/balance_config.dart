@@ -1,7 +1,11 @@
-/// Every balance value lives here. Loaded from `assets/config/balance.json`
-/// at runtime (Aşama 1e); [BalanceConfig.defaults] mirrors the spec.
+import '../text/word_language.dart';
+
+/// Every balance value lives here. One config per word language, loaded from
+/// `assets/config/balance_<code>.json` at runtime (Aşama 1e);
+/// [BalanceConfig.defaults] mirrors the spec (Turkish).
 class BalanceConfig {
   const BalanceConfig({
+    this.language = WordLanguage.turkish,
     required this.minWordLength,
     required this.maxWordLength,
     required this.letterScores,
@@ -23,6 +27,10 @@ class BalanceConfig {
     required this.dailyHandLimit,
     required this.initialPowerups,
   });
+
+  /// Language of the letter tables below (and of the dictionary the config
+  /// is used with).
+  final WordLanguage language;
 
   /// MIN_WORD_LEN (spec 2.5). Default 3.
   final int minWordLength;
@@ -171,17 +179,91 @@ class BalanceConfig {
     initialPowerups: 1,
   );
 
+  /// English starting tables (karar 29). Scores are the classic English
+  /// tile values; weights follow letter frequency in the English word list.
+  /// Everything else is shared with [defaults]. Tuned with tool/simulate.dart.
+  static final BalanceConfig english = defaults.copyWith(
+    language: WordLanguage.english,
+    letterScores: const {
+      'A': 1,
+      'E': 1,
+      'I': 1,
+      'O': 1,
+      'U': 1,
+      'L': 1,
+      'N': 1,
+      'S': 1,
+      'T': 1,
+      'R': 1,
+      'D': 2,
+      'G': 2,
+      'B': 3,
+      'C': 3,
+      'M': 3,
+      'P': 3,
+      'F': 4,
+      'H': 4,
+      'V': 4,
+      'W': 4,
+      'Y': 4,
+      'K': 5,
+      'J': 8,
+      'X': 8,
+      'Q': 10,
+      'Z': 10,
+    },
+    letterWeights: const {
+      'E': 110,
+      'A': 85,
+      'I': 80,
+      'O': 70,
+      'U': 35,
+      'S': 75,
+      'R': 70,
+      'N': 70,
+      'T': 70,
+      'L': 55,
+      'C': 40,
+      'D': 40,
+      'G': 30,
+      'P': 30,
+      'M': 30,
+      'H': 25,
+      'B': 22,
+      'Y': 20,
+      'F': 16,
+      'K': 12,
+      'V': 12,
+      'W': 12,
+      'Z': 5,
+      'X': 4,
+      'J': 3,
+      'Q': 3,
+    },
+    rareLetters: const {'F', 'H', 'V', 'W', 'Y', 'K', 'J', 'X', 'Q', 'Z'},
+  );
+
+  /// Built-in config of [language] (the fallback for missing JSON values).
+  static BalanceConfig defaultsFor(WordLanguage language) => switch (language) {
+    TurkishLanguage() => defaults,
+    EnglishLanguage() => english,
+  };
+
   BalanceConfig copyWith({
+    WordLanguage? language,
     int? minWordLength,
     int? easingMaxAttempts,
     int? dailyHandLimit,
     List<SizeTier>? sizeTiers,
+    Map<String, int>? letterScores,
     Map<String, int>? letterWeights,
+    Set<String>? rareLetters,
     Map<int, int>? lengthMultiplierX10,
   }) => BalanceConfig(
+    language: language ?? this.language,
     minWordLength: minWordLength ?? this.minWordLength,
     maxWordLength: maxWordLength,
-    letterScores: letterScores,
+    letterScores: letterScores ?? this.letterScores,
     letterWeights: letterWeights ?? this.letterWeights,
     lengthMultiplierX10: lengthMultiplierX10 ?? this.lengthMultiplierX10,
     streakStepX10: streakStepX10,
@@ -194,18 +276,22 @@ class BalanceConfig {
     vowelMaxRatio: vowelMaxRatio,
     minVowelsPerHand: minVowelsPerHand,
     noDuplicateScoreThreshold: noDuplicateScoreThreshold,
-    rareLetters: rareLetters,
+    rareLetters: rareLetters ?? this.rareLetters,
     maxRarePerHand: maxRarePerHand,
     easingMaxAttempts: easingMaxAttempts ?? this.easingMaxAttempts,
     dailyHandLimit: dailyHandLimit ?? this.dailyHandLimit,
     initialPowerups: initialPowerups,
   );
 
+  /// Missing values fall back to the built-in config of the JSON's
+  /// `language` (Turkish when absent, as in files older than karar 29).
   factory BalanceConfig.fromJson(Map<String, dynamic> j) {
-    const d = BalanceConfig.defaults;
+    final language = WordLanguage.byCode(j['language'] as String?) ?? WordLanguage.turkish;
+    final d = BalanceConfig.defaultsFor(language);
     Map<String, int> strIntMap(Object? o, Map<String, int> fallback) =>
         o == null ? fallback : (o as Map).map((k, v) => MapEntry(k as String, (v as num).toInt()));
     return BalanceConfig(
+      language: language,
       minWordLength: (j['minWordLength'] as num?)?.toInt() ?? d.minWordLength,
       maxWordLength: (j['maxWordLength'] as num?)?.toInt() ?? d.maxWordLength,
       letterScores: strIntMap(j['letterScores'], d.letterScores),
@@ -234,6 +320,7 @@ class BalanceConfig {
   }
 
   Map<String, dynamic> toJson() => {
+    'language': language.code,
     'minWordLength': minWordLength,
     'maxWordLength': maxWordLength,
     'letterScores': letterScores,

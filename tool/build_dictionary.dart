@@ -6,7 +6,7 @@
 //   master-dictionary.dict  lemma list with POS tags
 //   first-10K               10k most frequent corpus tokens
 // Input   tool/dict/blocklist_tr.txt
-// Outputs assets/dict/words.bin, assets/dict/common.bin   (DictionaryCodec)
+// Outputs assets/dict/words_tr.bin, assets/dict/common_tr.bin   (DictionaryCodec)
 //         tool/dict/out/words.txt, tool/dict/out/common.txt (for review)
 //         tool/dict/out/report.md
 //
@@ -92,9 +92,9 @@ void main(List<String> args) {
   final sortedWords = words.toList()..sort();
   final sortedCommon = common.toList()..sort();
 
-  File('$root/assets/dict/words.bin')
+  File('$root/assets/dict/words_tr.bin')
       .writeAsBytesSync(DictionaryCodec.encode(sortedWords.map((w) => WordKey.fromWord(w)!)));
-  File('$root/assets/dict/common.bin')
+  File('$root/assets/dict/common_tr.bin')
       .writeAsBytesSync(DictionaryCodec.encode(sortedCommon.map((w) => WordKey.fromWord(w)!)));
   File('${out.path}/words.txt').writeAsStringSync('${sortedWords.join('\n')}\n');
   File('${out.path}/common.txt').writeAsStringSync('${sortedCommon.join('\n')}\n');

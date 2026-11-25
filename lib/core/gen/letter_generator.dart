@@ -1,17 +1,20 @@
 import '../config/balance_config.dart';
 import '../model/shape.dart';
 import '../rng/rng.dart';
-import '../text/alphabet.dart';
 
 /// Assigns letters to the cells of a hand under the spec 4 constraints:
 /// - vowels: floor(0.4n)..ceil(0.6n), at least 1 (karar 7)
 /// - letters scoring >= 5: at most one of each per hand
 /// - rare letters: at most 2 per hand (karar 8)
 /// - Ğ only where the shape has a cell to its left AND above (karar 9)
+///
+/// Letters, vowels and weights come from [BalanceConfig.language] and the
+/// config's letter tables; letters are tried in the language's alphabet
+/// order, which the seeded draws depend on.
 class LetterGenerator {
   LetterGenerator(this.config)
-    : _letters = TrAlphabet.all,
-      _weights = [for (final l in TrAlphabet.all) config.letterWeights[l] ?? 0];
+    : _letters = config.language.letters,
+      _weights = [for (final l in config.language.letters) config.letterWeights[l] ?? 0];
 
   final BalanceConfig config;
   final List<String> _letters;
@@ -53,7 +56,7 @@ class LetterGenerator {
 
       for (var k = 0; k < _letters.length; k++) {
         final l = _letters[k];
-        final isV = TrAlphabet.isVowel(l);
+        final isV = config.language.isVowel(l);
         var ok = _weights[k] > 0;
         if (ok && mustVowel && !isV) ok = false;
         if (ok && mustConsonant && isV) ok = false;
@@ -70,7 +73,7 @@ class LetterGenerator {
       final letter = _letters[rng.weighted(w)];
       out[slot.piece][slot.cell] = letter;
       used[letter] = (used[letter] ?? 0) + 1;
-      if (TrAlphabet.isVowel(letter)) vowels++;
+      if (config.language.isVowel(letter)) vowels++;
       if (config.rareLetters.contains(letter)) rare++;
     }
     return out;
