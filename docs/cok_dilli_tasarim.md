@@ -1,6 +1,6 @@
 # Çok dilli kelime desteği — tasarım taslağı
 
-Tarih: 25 Kasım 2026 · Dal: `cok-dilli` · Durum: **onay bekliyor** (sondaki kararlar)
+Tarih: 25 Kasım 2026 · Dal: `cok-dilli` · Durum: **Türkçe + İngilizce uygulandı** (karar 29, 30); diğer diller sırada
 
 ## Amaç
 
@@ -96,12 +96,22 @@ listemiz (`tool/dict/en/blocklist_en.txt`) yazılır.
 Kevin Atkinson" + SCOWL'un izin metninin aynısı; 12dicts kamu malı olduğu için not gerekmez (2of12inf
 için AGID notu eklenir). Uygulama Zemberek için olduğu gibi `LicenseRegistry`'ye ekler.
 
-## Onay bekleyen kararlar
+## Kararlar
 
-1. **İlk diller ve sıra** — öneri: İngilizce pilot, ardından Almanca (en büyük Türk diasporası da
-   orada), sonra Fransızca ve İspanyolca.
-2. **Kelime biçimleri** — Türkçede yalın kök (karar 12) sürer. İngilizce ve diğer dillerde çoğul ve
-   çekimli hâller de geçerli olsun (o dillerdeki kelime oyunlarının alışkanlığı); sözlük büyüklüğü
-   simülatörle dengelenir.
-3. **İlerlemenin paylaşımı** — yukarıdaki 5. madde.
-4. **1.0'ın beklememesi** — yukarıdaki yayın önerisi.
+1. **İlk dil İngilizce** (sahibinin onayıyla, 25 Kasım 2026). Sırada Almanca, Fransızca, İspanyolca.
+2. **Kelime biçimleri** — Türkçede yalın kök (karar 12) sürer; İngilizcede çoğul ve çekimli hâller
+   geçerli (karar 30).
+3. **İlerleme** — 5. maddedeki gibi uygulandı: rekor, günlük sonuç ve Kelime Defteri dil başına; seri,
+   XP, seviye, görev ve başarımlar ortak; harf görevleri oynanan dile katlanır.
+4. **Yayın** — öneri: 1.0 Türkçe çıksın, çok dilli sürüm 1.1 olsun (karar sahibinin).
+
+## Yeni bir dil eklemek
+
+1. `WordLanguage`'a sınıf ekle (alfabe ≤ 63 harf toplamda `Letters`'a sona eklenir, sesliler,
+   normalleştirme, kendi adı); `BalanceConfig.defaultsFor` ve `LanguageExamples.of`'a ekle.
+2. Sözlük aracı (`tool/build_dictionary_<dil>.dart`), kaynaklar ve lisans notu (`tool/dict/<dil>/`),
+   engel listesi; Lisanslar sayfası ve Hakkında künyesi.
+3. `tool/simulate.dart --lang <dil>` ile Türkçe ölçütlere ayarla (`--vowels`, `--easing`).
+4. Tanıtım ve öğretici örnekleri (`test/ui/language_examples_test.dart` doğrular), nadir harf
+   başarımı harfleri, gerekirse arayüz çevirisi (`lib/l10n/app_<dil>.arb`).
+5. Mağaza metni ve o dilde ekran görüntüleri.
