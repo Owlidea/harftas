@@ -70,12 +70,39 @@ class AppModel extends ChangeNotifier {
 
   AppSettings settings = const AppSettings();
   PlayerProfile profile = PlayerProfile();
-  Wordbook wordbook = Wordbook();
   GameState? savedClassic;
-  LoadedData? data;
   Object? loadError;
-  GameEngine? engine;
   StreamSubscription<PurchaseGrant>? _purchaseSub;
+
+  // Per word language (karar 29), loaded on first use.
+  final Map<String, LoadedData> _data = {};
+  final Map<String, GameEngine> _engines = {};
+  final Map<String, Wordbook> _wordbooks = {};
+  AssetBundle? _bundle;
+
+  /// Language of new games and of the daily puzzle, Kelime Defteri and
+  /// records shown. Players from before karar 29 have none set: Turkish.
+  WordLanguage get wordLanguage => WordLanguage.byCode(settings.wordLanguage) ?? WordLanguage.turkish;
+
+  /// Data and engine of [wordLanguage] (null while loading).
+  LoadedData? get data => _data[wordLanguage.code];
+  GameEngine? get engine => _engines[wordLanguage.code];
+
+  /// A game is always played by the engine of its own language.
+  GameEngine? engineFor(String language) => _engines[language];
+  LoadedData? dataFor(String language) => _data[language];
+
+  /// Kelime Defteri of [wordLanguage].
+  Wordbook get wordbook => wordbookFor(wordLanguage.code);
+  Wordbook wordbookFor(String language) => _wordbooks.putIfAbsent(language, Wordbook.new);
+
+  /// Word language to suggest on first start: Turkish in Turkey or on a
+  /// Turkish device, else the device language when it is playable, else
+  /// English.
+  static WordLanguage suggestedLanguage(Locale locale) {
+    if (locale.countryCode == 'TR' || locale.languageCode == 'tr') return WordLanguage.turkish;
+    return WordLanguage.byCode(locale.languageCode) ?? WordLanguage.english;
+  }
 
   /// Games that ended while unrecorded (e.g. app closed on game-over) are
   /// recorded on next launch; their results are kept for one toast.
@@ -91,7 +118,7 @@ class AppModel extends ChangeNotifier {
     settings = await services.profiles.loadSettings();
     profile = await services.profiles.loadProfile();
     Progression.syncLevelUnlocks(profile);
-    wordbook = await services.profiles.loadWordbook();
+    _wordbooks[wordLanguage.code] = await services.profiles.loadWordbook(wordLanguage.code);
     profile.sessions++;
     Progression.ensureMissions(profile, today);
     await services.profiles.saveProfile(profile);
@@ -118,22 +145,55 @@ class AppModel extends ChangeNotifier {
   }
 
   Future<void> loadData(AssetBundle bundle) async {
+    _bundle = bundle;
     loadError = null;
     notifyListeners();
     try {
-      final d = await DataLoader.load(bundle);
-      data = d;
-      engine = GameEngine(config: d.config, dictionary: d.words, common: d.common);
+      await _ensureLanguage(wordLanguage);
+      // The saved classic game may be in another language than new games.
       final saved = await services.games.loadClassic();
-      if (saved != null && saved.isOver) {
-        recoveredResult = await recordGameEnd(saved);
-        await services.games.clearClassic();
+      final savedLanguage = WordLanguage.byCode(saved?.language);
+      if (saved == null) {
+        savedClassic = null;
+      } else if (savedLanguage == null) {
+        await services.games.clearClassic(); // a language this version cannot play
       } else {
-        savedClassic = saved == null ? null : engine!.revalidate(saved);
+        final e = await _ensureLanguage(savedLanguage);
+        if (saved.isOver) {
+          recoveredResult = await recordGameEnd(saved);
+          await services.games.clearClassic();
+        } else {
+          savedClassic = e.revalidate(saved);
+        }
       }
     } on Object catch (e, st) {
       loadError = e;
       services.crash.record(e, st, reason: 'data load');
+    }
+    notifyListeners();
+  }
+
+  /// Loads the dictionaries, engine and Kelime Defteri of [language] once.
+  Future<GameEngine> _ensureLanguage(WordLanguage language) async {
+    final have = _engines[language.code];
+    if (have != null) return have;
+    final d = await DataLoader.load(_bundle!, language);
+    _wordbooks[language.code] ??= await services.profiles.loadWordbook(language.code);
+    _data[language.code] = d;
+    return _engines[language.code] = GameEngine(config: d.config, dictionary: d.words, common: d.common);
+  }
+
+  /// Switches the language of new games, the daily puzzle and the Kelime
+  /// Defteri shown. A classic game in progress keeps its own language.
+  Future<void> setWordLanguage(WordLanguage language) async {
+    if (language == wordLanguage && settings.wordLanguage != null) return;
+    await updateSettings(settings.copyWith(wordLanguage: language.code), key: 'wordLanguage');
+    if (_bundle == null) return; // init() has not loaded data yet; it will
+    try {
+      await _ensureLanguage(language);
+    } on Object catch (e, st) {
+      loadError = e;
+      services.crash.record(e, st, reason: 'language load');
     }
     notifyListeners();
   }
@@ -194,7 +254,7 @@ class AppModel extends ChangeNotifier {
     final before = Map.of(profile.powerups);
     final out = change();
     final running = savedClassic;
-    final e = engine;
+    final e = running == null ? null : _engines[running.language];
     if (running == null || running.isOver || e == null) return out;
     final added = {
       for (final t in PowerupType.values)
@@ -309,16 +369,21 @@ class AppModel extends ChangeNotifier {
 
   Future<GameState> dailyGame() async {
     final e = engine!;
+    final language = wordLanguage.code;
     final d = today;
-    final saved = await services.games.loadDaily(d);
+    final saved = await services.games.loadDaily(d, language);
     if (saved != null) return e.revalidate(saved);
-    final s = e.newGame(seed: Rng.dailySeed(d.year, d.month, d.day), mode: GameMode.daily, startedAt: clock());
+    final s = e.newGame(
+      seed: Rng.dailySeedFor(d.year, d.month, d.day, language),
+      mode: GameMode.daily,
+      startedAt: clock(),
+    );
     services.analytics.log(AnalyticsEvent.gameStart, {'mode': 'daily'});
     await services.games.saveDaily(d, s);
     return s;
   }
 
-  bool get dailyDoneToday => profile.dailyFor(today) != null;
+  bool get dailyDoneToday => profile.dailyFor(today, wordLanguage.code) != null;
 
   /// Persists an in-progress game and syncs the classic powerup inventory.
   Future<void> saveGame(GameState s, DayKey? dailyDay) async {
@@ -351,7 +416,7 @@ class AppModel extends ChangeNotifier {
   /// Replays a finished game to build its summary (exact, also for games
   /// resumed from storage).
   GameSummary summarize(GameState s) {
-    final e = engine!;
+    final e = _engines[s.language]!;
     var st = e.newGame(seed: s.seed, mode: s.mode, startedAt: s.startedAt, powerups: s.initialPowerups);
     final words = <WordResult>[];
     var usedPowerups = false;
@@ -367,6 +432,7 @@ class AppModel extends ChangeNotifier {
     var duration = clock().difference(s.startedAt);
     if (duration.isNegative || duration > const Duration(hours: 3)) duration = Duration.zero;
     return GameSummary(
+      language: s.language,
       mode: s.mode,
       score: s.score,
       moves: s.actions.whereType<PlaceAction>().length,
@@ -382,14 +448,15 @@ class AppModel extends ChangeNotifier {
   /// What [recordGameEnd] would award, without changing anything.
   GameEndResult previewGameEnd(GameState s) {
     final p = PlayerProfile.fromJson(profile.toJson());
-    final w = Wordbook.fromJson(wordbook.toJson());
+    final w = Wordbook.fromJson(wordbookFor(s.language).toJson());
     return Progression.applyGameEnd(p, w, summarize(s), today);
   }
 
   Future<GameEndResult> recordGameEnd(GameState s) async {
     final g = summarize(s);
     // A classic game may be paused while the daily puzzle pays out rewards.
-    final r = _inventory(() => Progression.applyGameEnd(profile, wordbook, g, today));
+    final book = wordbookFor(s.language);
+    final r = _inventory(() => Progression.applyGameEnd(profile, book, g, today));
     services.analytics.log(AnalyticsEvent.gameOver, {
       'mode': g.mode.name,
       'score': g.score,
@@ -408,7 +475,7 @@ class AppModel extends ChangeNotifier {
       savedClassic = null;
       await services.games.clearClassic();
     }
-    await services.profiles.saveWordbook(wordbook);
+    await services.profiles.saveWordbook(book, s.language);
     await saveProfile();
     return r;
   }

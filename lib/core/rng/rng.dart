@@ -57,6 +57,19 @@ class Rng {
   /// Daily seed from a calendar date (Europe/Istanbul date supplied by caller).
   static int dailySeed(int year, int month, int day) => mix(0x48424C4B, year * 10000 + month * 100 + day);
 
+  /// Daily puzzle seed of a word language (karar 29): Turkish keeps
+  /// [dailySeed]; every other language mixes in its code, so each language
+  /// has its own puzzle and everyone playing it gets the same one.
+  static int dailySeedFor(int year, int month, int day, String language) {
+    final base = dailySeed(year, month, day);
+    if (language == 'tr') return base;
+    var salt = 0;
+    for (final c in language.codeUnits) {
+      salt = (salt * 31 + c) & 0x7FFFFFFF;
+    }
+    return mix(base, salt);
+  }
+
   int nextUint32() {
     final result = mul32(_rotl(mul32(_s1, 5), 7), 9);
     final t = (_s1 << 9) & _m;

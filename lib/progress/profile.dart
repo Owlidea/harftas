@@ -33,6 +33,7 @@ class PlayerProfile {
     this.introSeen = false,
     this.notificationAsked = false,
     this.bestScore = 0,
+    Map<String, int>? bestScores,
     this.totalGames = 0,
     this.totalWords = 0,
     this.totalLetters = 0,
@@ -51,6 +52,7 @@ class PlayerProfile {
     Set<String>? achievements,
     this.giftDay,
   }) : powerups = powerups ?? {for (final t in PowerupType.values) t: 1},
+       bestScores = bestScores ?? {},
        daily = daily ?? {},
        badges = badges ?? {},
        unlockedThemes = unlockedThemes ?? {'classic'},
@@ -74,6 +76,9 @@ class PlayerProfile {
       introSeen: j['introSeen'] as bool? ?? (j['tutorialDone'] as bool? ?? false),
       notificationAsked: j['notifAsked'] as bool? ?? false,
       bestScore: j['bestScore'] as int? ?? 0,
+      bestScores: {
+        for (final e in ((j['bestScores'] as Map<String, dynamic>?) ?? const {}).entries) e.key: e.value as int,
+      },
       totalGames: j['games'] as int? ?? 0,
       totalWords: j['words'] as int? ?? 0,
       totalLetters: j['letters'] as int? ?? 0,
@@ -110,7 +115,12 @@ class PlayerProfile {
   /// First-run "how to play" intro shown.
   bool introSeen;
   bool notificationAsked;
+
+  /// Classic record of Turkish games (the only language before karar 29).
   int bestScore;
+
+  /// Classic records of the other word languages, by `WordLanguage.code`.
+  final Map<String, int> bestScores;
   int totalGames;
   int totalWords;
   int totalLetters;
@@ -141,7 +151,31 @@ class PlayerProfile {
 
   double get averageWordLength => totalWords == 0 ? 0 : totalLetters / totalWords;
 
-  DailyResult? dailyFor(DayKey d) => daily[d.toString()];
+  int bestScoreFor(String language) => language == 'tr' ? bestScore : (bestScores[language] ?? 0);
+
+  void setBestScore(String language, int score) {
+    if (language == 'tr') {
+      bestScore = score;
+    } else {
+      bestScores[language] = score;
+    }
+  }
+
+  /// Highest classic record in any language.
+  int get bestScoreAnyLanguage => bestScores.values.fold(bestScore, (m, s) => s > m ? s : m);
+
+  /// Key of a daily result: the day for Turkish (as before karar 29),
+  /// `<code>:<day>` for the other languages.
+  static String dailyKey(DayKey d, String language) => language == 'tr' ? d.toString() : '$language:$d';
+
+  DailyResult? dailyFor(DayKey d, [String language = 'tr']) => daily[dailyKey(d, language)];
+
+  /// Daily results of one language, by day.
+  Map<DayKey, DailyResult> dailyResultsOf(String language) => {
+    for (final e in daily.entries)
+      if (language == 'tr' ? !e.key.contains(':') : e.key.startsWith('$language:'))
+        DayKey.parse(language == 'tr' ? e.key : e.key.substring(language.length + 1)): e.value,
+  };
 
   Map<String, dynamic> toJson() => {
     'v': schemaVersion,
@@ -154,6 +188,7 @@ class PlayerProfile {
     'introSeen': introSeen,
     'notifAsked': notificationAsked,
     'bestScore': bestScore,
+    'bestScores': bestScores,
     'games': totalGames,
     'words': totalWords,
     'letters': totalLetters,
@@ -188,6 +223,7 @@ class AppSettings {
     this.colorBlind = false,
     this.leftHanded = false,
     this.notifications = false,
+    this.wordLanguage,
   });
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -201,6 +237,7 @@ class AppSettings {
     colorBlind: j['colorBlind'] as bool? ?? false,
     leftHanded: j['leftHanded'] as bool? ?? false,
     notifications: j['notifications'] as bool? ?? false,
+    wordLanguage: j['wordLanguage'] as String?,
   );
 
   final bool sound;
@@ -214,6 +251,10 @@ class AppSettings {
   final bool leftHanded;
   final bool notifications;
 
+  /// `WordLanguage.code` the board is played in (karar 29). Null until the
+  /// app picks one from the device region on first start.
+  final String? wordLanguage;
+
   AppSettings copyWith({
     bool? sound,
     bool? music,
@@ -225,6 +266,7 @@ class AppSettings {
     bool? colorBlind,
     bool? leftHanded,
     bool? notifications,
+    String? wordLanguage,
   }) => AppSettings(
     sound: sound ?? this.sound,
     music: music ?? this.music,
@@ -236,6 +278,7 @@ class AppSettings {
     colorBlind: colorBlind ?? this.colorBlind,
     leftHanded: leftHanded ?? this.leftHanded,
     notifications: notifications ?? this.notifications,
+    wordLanguage: wordLanguage ?? this.wordLanguage,
   );
 
   Map<String, dynamic> toJson() => {
@@ -250,5 +293,6 @@ class AppSettings {
     'colorBlind': colorBlind,
     'leftHanded': leftHanded,
     'notifications': notifications,
+    'wordLanguage': wordLanguage,
   };
 }

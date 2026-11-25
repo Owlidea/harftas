@@ -78,7 +78,10 @@ class MissionsScreen extends StatelessWidget {
           // ------------------------------------------------ today's missions
           _SectionTitle(
             title: l.missionsToday,
-            trailing: _Pill(text: l.missionsDoneCount(doneCount, missions.length), strong: doneCount == missions.length),
+            trailing: _Pill(
+              text: l.missionsDoneCount(doneCount, missions.length),
+              strong: doneCount == missions.length,
+            ),
           ),
           const SizedBox(height: Space.s1),
           Text(
@@ -86,9 +89,7 @@ class MissionsScreen extends StatelessWidget {
             style: context.text.bodySmall!.copyWith(color: p.inkMuted),
           ),
           const SizedBox(height: Space.s3),
-          _Group(
-            children: [for (final m in missions) _MissionRow(mission: m)],
-          ),
+          _Group(children: [for (final m in missions) _MissionRow(mission: m)]),
           const SizedBox(height: Space.s8),
 
           // ------------------------------------------------ next rewards
@@ -236,7 +237,9 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Expanded(child: Text(title, style: context.text.titleMedium!.copyWith(fontWeight: FontWeight.w800))),
+      Expanded(
+        child: Text(title, style: context.text.titleMedium!.copyWith(fontWeight: FontWeight.w800)),
+      ),
       ?trailing,
     ],
   );
@@ -258,10 +261,7 @@ class _Pill extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: context.text.labelSmall!.copyWith(
-          color: strong ? p.onAccent : p.accent,
-          fontWeight: FontWeight.w800,
-        ),
+        style: context.text.labelSmall!.copyWith(color: strong ? p.onAccent : p.accent, fontWeight: FontWeight.w800),
       ),
     );
   }
@@ -389,7 +389,10 @@ class _RewardRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Space.s4, vertical: Space.s3),
       child: Row(
         children: [
-          SizedBox(width: 40, child: Center(child: AppIcon(_rewardIcon(reward), size: 24, color: c))),
+          SizedBox(
+            width: 40,
+            child: Center(child: AppIcon(_rewardIcon(reward), size: 24, color: c)),
+          ),
           const SizedBox(width: Space.s4),
           Expanded(
             child: Column(
@@ -441,4 +444,3 @@ class _RingPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RingPainter old) => old.value != value || old.fill != fill || old.solid != solid;
 }
-

@@ -56,7 +56,7 @@ class _DailyScreenState extends State<DailyScreen> {
     final app = AppScope.of(context);
     final p = context.palette;
     final today = app.today;
-    final result = app.profile.dailyFor(today);
+    final result = app.profile.dailyFor(today, app.wordLanguage.code);
     final left = today.nextMidnightUtc.difference(app.clock().toUtc());
     final limit = app.data?.config.dailyHandLimit ?? 20;
 
@@ -154,7 +154,7 @@ class _DailyScreenState extends State<DailyScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Calendar(month: _month, onMonth: (m) => setState(() => _month = m)),
-                if (app.profile.daily.isEmpty) ...[
+                if (app.profile.dailyResultsOf(app.wordLanguage.code).isEmpty) ...[
                   const SizedBox(height: Space.s3),
                   Text(
                     l.calendarHint,
@@ -387,7 +387,7 @@ class _StreakPanel extends StatelessWidget {
                 child: Builder(
                   builder: (context) {
                     final d = today.addDays(-i);
-                    final played = app.profile.dailyFor(d) != null;
+                    final played = app.profile.dailyFor(d, app.wordLanguage.code) != null;
                     final isToday = i == 0;
                     return Column(
                       children: [
@@ -608,7 +608,7 @@ class _Calendar extends StatelessWidget {
               Builder(
                 builder: (context) {
                   final key = DayKey(month.year, month.month, d);
-                  final r = app.profile.dailyFor(key);
+                  final r = app.profile.dailyFor(key, app.wordLanguage.code);
                   final isToday = key == today;
                   return Semantics(
                     label: '${formatDay(l, key)}${r == null ? '' : ', ${l.todayResult(r.score, r.words)}'}',

@@ -87,10 +87,7 @@ class _ToastState extends State<_Toast> with SingleTickerProviderStateMixin {
             final t = Curves.easeOutBack.transform(_a.value);
             return Opacity(
               opacity: _a.value,
-              child: Transform.translate(
-                offset: Offset(0, context.reduceMotion ? 0 : (1 - t) * -24),
-                child: child,
-              ),
+              child: Transform.translate(offset: Offset(0, context.reduceMotion ? 0 : (1 - t) * -24), child: child),
             );
           },
           child: Center(
@@ -101,10 +98,7 @@ class _ToastState extends State<_Toast> with SingleTickerProviderStateMixin {
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: Space.maxContentWidth),
                   padding: const EdgeInsets.fromLTRB(Space.s2, Space.s2, Space.s4, Space.s2),
-                  decoration: BoxDecoration(
-                    color: p.ink,
-                    borderRadius: BorderRadius.circular(Radii.pill),
-                  ),
+                  decoration: BoxDecoration(color: p.ink, borderRadius: BorderRadius.circular(Radii.pill)),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -114,10 +108,7 @@ class _ToastState extends State<_Toast> with SingleTickerProviderStateMixin {
                       ),
                       const SizedBox(width: Space.s3),
                       Flexible(
-                        child: Text(
-                          widget.text,
-                          style: context.text.labelLarge!.copyWith(color: p.background),
-                        ),
+                        child: Text(widget.text, style: context.text.labelLarge!.copyWith(color: p.background)),
                       ),
                     ],
                   ),

@@ -47,9 +47,7 @@ class BoardView extends StatelessWidget {
           children: [
             Positioned.fill(
               child: RepaintBoundary(
-                child: CustomPaint(
-                  painter: _BoardPainter(controller, renderer, context.palette, picking, boardStyle),
-                ),
+                child: CustomPaint(painter: _BoardPainter(controller, renderer, context.palette, picking, boardStyle)),
               ),
             ),
             // Invisible semantic cells for screen readers.
@@ -150,7 +148,10 @@ class _BoardPainter extends CustomPainter {
           ..color = p.tileEdge.withValues(alpha: 0.55 * (1 - t))
           ..strokeWidth = g.cell * 0.07 * (1 - t) + 0.5;
         canvas.drawRRect(
-          RRect.fromRectAndRadius(g.cellRectIndex(i).inflate(g.cell * 0.20 * e), Radius.circular(g.cell * (0.2 + 0.1 * e))),
+          RRect.fromRectAndRadius(
+            g.cellRectIndex(i).inflate(g.cell * 0.20 * e),
+            Radius.circular(g.cell * (0.2 + 0.1 * e)),
+          ),
           _ring,
         );
       }

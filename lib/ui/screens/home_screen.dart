@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       final saved = app.savedClassic;
-      final daily = app.profile.dailyFor(today);
+      final daily = app.profile.dailyFor(today, app.wordLanguage.code);
       actions = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

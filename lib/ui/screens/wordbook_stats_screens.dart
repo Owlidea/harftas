@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/app_model.dart';
 import '../../config/asset_paths.dart';
-import '../../core/text/alphabet.dart';
 import '../../l10n/app_localizations.dart';
 import '../../progress/levels.dart';
 import '../components/widgets.dart';
@@ -26,16 +25,6 @@ Widget _playAction(BuildContext context) => PrimaryButton(
     }
   },
 );
-
-/// Turkish alphabetical order (Ç after C, İ after I, ...).
-int trCompare(String a, String b) {
-  final n = a.length < b.length ? a.length : b.length;
-  for (var i = 0; i < n; i++) {
-    final d = TrAlphabet.codeOf(a[i]) - TrAlphabet.codeOf(b[i]);
-    if (d != 0) return d;
-  }
-  return a.length - b.length;
-}
 
 class WordbookScreen extends StatefulWidget {
   const WordbookScreen({super.key});
@@ -66,7 +55,7 @@ class _WordbookScreenState extends State<WordbookScreen> {
         ),
       );
     }
-    final groups = book.byLength(trCompare);
+    final groups = book.byLength(app.wordLanguage.compare); // Turkish: Ç after C, İ after I
     final lengths = groups.keys.toList()..sort();
     final shown = _length ?? lengths.first;
     final words = groups[shown] ?? const <String>[];
@@ -188,7 +177,7 @@ class StatsScreen extends StatelessWidget {
       );
     }
     final items = <(String, String)>[
-      (l.statBestScore, '${pr.bestScore}'),
+      (l.statBestScore, '${pr.bestScoreFor(app.wordLanguage.code)}'),
       (l.statGames, '${pr.totalGames}'),
       (l.statWords, '${pr.totalWords}'),
       (l.statAvgLength, pr.averageWordLength.toStringAsFixed(1).replaceAll('.', ',')),
@@ -227,7 +216,11 @@ class StatsScreen extends StatelessWidget {
             );
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [tiles, const SizedBox(height: Space.s8), const AchievementsSection()],
+              children: [
+                tiles,
+                const SizedBox(height: Space.s8),
+                const AchievementsSection(),
+              ],
             );
           },
         ),

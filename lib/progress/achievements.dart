@@ -26,7 +26,7 @@ enum AchievementKind {
   /// Games finished.
   games,
 
-  /// Words containing J or Ğ.
+  /// Words containing one of the language's rarest letters (Turkish J or Ğ).
   rare,
 
   /// Daily puzzles finished.
@@ -76,23 +76,30 @@ abstract final class Achievements {
     Achievement(AchievementKind.daily, 50, 2),
   ];
 
-  static const _rareLetters = ['J', 'Ğ'];
+  /// Letters that make a word count for [AchievementKind.rare], per word
+  /// language (karar 29).
+  static const Map<String, List<String>> rareLetters = {
+    'tr': ['J', 'Ğ'],
+    'en': ['Q', 'X', 'Z', 'J'],
+  };
 
   /// Lifetime value the achievement measures (may exceed its target).
-  static int progress(Achievement a, PlayerProfile p, Wordbook book) => switch (a.kind) {
+  /// [book] is the Kelime Defteri of [language].
+  static int progress(Achievement a, PlayerProfile p, Wordbook book, [String language = 'tr']) => switch (a.kind) {
     AchievementKind.words => p.totalWords,
     AchievementKind.unique => book.uniqueCount,
     AchievementKind.length => book.entries.keys.fold(0, (m, w) => w.length > m ? w.length : m),
     AchievementKind.combo => p.bestCombo,
-    AchievementKind.score => p.bestScore,
+    AchievementKind.score => p.bestScoreAnyLanguage,
     AchievementKind.moveStreak => p.bestMoveStreak,
     AchievementKind.clears => p.boardClears,
     AchievementKind.games => p.totalGames,
-    AchievementKind.rare => book.entries.keys.where((w) => _rareLetters.any(w.contains)).length,
+    AchievementKind.rare => book.entries.keys.where((w) => (rareLetters[language] ?? const []).any(w.contains)).length,
     AchievementKind.daily => p.daily.length,
   };
 
-  static bool reached(Achievement a, PlayerProfile p, Wordbook book) => progress(a, p, book) >= a.target;
+  static bool reached(Achievement a, PlayerProfile p, Wordbook book, [String language = 'tr']) =>
+      progress(a, p, book, language) >= a.target;
 
   static int earnedCount(PlayerProfile p) => all.where((a) => p.achievements.contains(a.id)).length;
 }

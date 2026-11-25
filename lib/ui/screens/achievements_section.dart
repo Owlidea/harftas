@@ -109,7 +109,7 @@ class _KindRow extends StatelessWidget {
     final complete = done == tiers.length;
     // The tier being worked on (or the last one once all are earned).
     final current = tiers[complete ? tiers.length - 1 : done];
-    final value = Achievements.progress(current, app.profile, app.wordbook);
+    final value = Achievements.progress(current, app.profile, app.wordbook, app.wordLanguage.code);
     final fraction = complete ? 1.0 : (value / current.target).clamp(0.0, 1.0);
     final muted = context.text.labelSmall!.copyWith(color: p.inkMuted, fontWeight: FontWeight.w700);
     return Padding(

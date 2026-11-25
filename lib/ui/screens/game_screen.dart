@@ -73,7 +73,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     final p = context.palette;
     final style = context.appTheme.tileStyle;
     if (_renderer == null || _rendererPalette != p || _rendererStyle != style.id) {
-      _renderer = TileRenderer(palette: p, style: style, scores: AppScope.read(context).data!.config.letterScores);
+      final config = AppScope.read(context).dataFor(c.state.language)!.config;
+      _renderer = TileRenderer(palette: p, style: style, scores: config.letterScores);
       _rendererPalette = p;
       _rendererStyle = style.id;
     }
@@ -205,7 +206,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 runSpacing: Space.s2,
                 alignment: WrapAlignment.center,
                 children: [
-                  for (final letter in TrAlphabet.all)
+                  for (final letter in WordLanguage.byCode(c.state.language)!.letters)
                     Semantics(
                       button: true,
                       label: letter,
@@ -401,7 +402,10 @@ class _Hud extends StatelessWidget {
     final side = s.mode == GameMode.daily
         ? InfoChip(
             icon: AppIconName.calendar,
-            text: l.handOf(math.min(s.handCounter, app.data!.config.dailyHandLimit), app.data!.config.dailyHandLimit),
+            text: l.handOf(
+              math.min(s.handCounter, app.dataFor(s.language)!.config.dailyHandLimit),
+              app.dataFor(s.language)!.config.dailyHandLimit,
+            ),
           )
         : AnimatedOpacity(
             duration: Motion.pick,

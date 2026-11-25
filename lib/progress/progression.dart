@@ -108,8 +108,8 @@ abstract final class Progression {
       if (book.add(w.word, w.score, today)) newWords++;
     }
 
-    final newRecord = g.mode == GameMode.classic && g.score > p.bestScore;
-    if (newRecord) p.bestScore = g.score;
+    final newRecord = g.mode == GameMode.classic && g.score > p.bestScoreFor(g.language);
+    if (newRecord) p.setBestScore(g.language, g.score);
     p.totalGames++;
     p.totalWords += g.wordCount;
     p.totalLetters += g.words.fold(0, (n, w) => n + w.length);
@@ -131,7 +131,9 @@ abstract final class Progression {
 
     DailyResult? daily;
     var shieldUsed = false;
-    if (g.mode == GameMode.daily && p.dailyFor(today) == null) {
+    if (g.mode == GameMode.daily && p.dailyFor(today, g.language) == null) {
+      // One streak for all languages: a second language's puzzle on the same
+      // day leaves it as it is (complete() is a no-op for a day already played).
       final r = p.streak.complete(today);
       p.streak = r.streak;
       shieldUsed = r.shieldUsed;
@@ -147,12 +149,12 @@ abstract final class Progression {
         longestLength: g.longestLength,
         streakAfter: r.streak.current,
       );
-      p.daily[today.toString()] = daily;
+      p.daily[PlayerProfile.dailyKey(today, g.language)] = daily;
     }
 
     final xp = Levels.xpForScore(g.score);
     rewards.addAll(addXp(p, xp));
-    rewards.addAll(claimAchievements(p, book));
+    rewards.addAll(claimAchievements(p, book, g.language));
 
     return GameEndResult(
       xpGained: xp,
@@ -167,10 +169,10 @@ abstract final class Progression {
   }
 
   /// Marks every newly reached achievement as earned and pays its XP.
-  static List<Reward> claimAchievements(PlayerProfile p, Wordbook book) {
+  static List<Reward> claimAchievements(PlayerProfile p, Wordbook book, [String language = 'tr']) {
     final out = <Reward>[];
     for (final a in Achievements.all) {
-      if (p.achievements.contains(a.id) || !Achievements.reached(a, p, book)) continue;
+      if (p.achievements.contains(a.id) || !Achievements.reached(a, p, book, language)) continue;
       p.achievements.add(a.id);
       out
         ..add(AchievementReward(a))

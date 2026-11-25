@@ -140,7 +140,8 @@ class GameController extends ChangeNotifier {
   final bool tutorial;
   final void Function(GameAction action, List<GameEvent> events)? onResolved;
 
-  GameEngine get engine => app.engine!;
+  /// The engine of the game's own word language (karar 29).
+  GameEngine get engine => app.engineFor(_state.language)!;
 
   GameState _state;
   GameState get state => _state;

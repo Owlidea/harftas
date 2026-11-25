@@ -48,6 +48,7 @@ class WordResult {
 /// Totals of a finished game.
 class GameSummary {
   const GameSummary({
+    this.language = 'tr',
     required this.mode,
     required this.score,
     required this.moves,
@@ -59,6 +60,8 @@ class GameSummary {
     required this.continued,
   });
 
+  /// `WordLanguage.code` of the game.
+  final String language;
   final GameMode mode;
   final int score;
   final int moves;

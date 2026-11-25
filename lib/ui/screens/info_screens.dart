@@ -76,11 +76,7 @@ class PrivacyScreen extends StatelessWidget {
           const SizedBox(height: Space.s8),
           _InfoGroup(
             children: [
-              _FactRow(
-                icon: AppIconName.lock,
-                title: l.privacyFactAccountTitle,
-                body: l.privacyFactAccountBody,
-              ),
+              _FactRow(icon: AppIconName.lock, title: l.privacyFactAccountTitle, body: l.privacyFactAccountBody),
               _FactRow(icon: AppIconName.tiles, title: l.privacyFactLocalTitle, body: l.privacyFactLocalBody),
               _FactRow(icon: AppIconName.info, title: l.privacyFactAdsTitle, body: l.privacyFactAdsBody),
               _FactRow(icon: AppIconName.store, title: l.privacyFactPurchasesTitle, body: l.privacyFactPurchasesBody),
@@ -133,7 +129,8 @@ class _ShieldBadge extends StatelessWidget {
   const _ShieldBadge();
 
   @override
-  Widget build(BuildContext context) => ArtIcon(AppIconName.lock, size: 56, artScale: 1.2, color: context.palette.accent);
+  Widget build(BuildContext context) =>
+      ArtIcon(AppIconName.lock, size: 56, artScale: 1.2, color: context.palette.accent);
 }
 
 /// One surface, rows split by inset hairlines.
